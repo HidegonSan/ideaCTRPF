@@ -8302,49 +8302,48 @@ namespace CTRPluginFramework
   bool colorPickerOpened = false;
   u16 barLength = 25;
 
-  void DrawBar(Screen scr)
+  void DrawBar(u16 y, u16 h, Color start, Color end, Screen scr)
   {
-    u8 r = 255, g = 7, b = 7;
-    u16 x = 260,y=24,h=216;
-    double d;
+    u16 x = 260;
+    double d, dd;
+    h += y;
+    u16 yy = y;
     for (; y < h; y++)
     {
-      // 距離dを計算
-      d = (double)y / (double)(h - 1);
-      if (r == 0xff && g < 0xff && b == 7)
-        g += 0x8;
-      else if (r > 0x7 && g == 0xff && b == 0x7)
-        r -= 0x8;
-      else if (r == 0x7 && g == 0xff && b < 0xff)
-        b += 0x8;
-      else if (r == 0x7 && g > 0x7 && b == 0xff)
-        g -= 0x8;
-      else if (r < 0xff && g == 0x7 && b == 0xff)
-        r += 0x8;
-      else if (r == 0xff && g == 0x7 && b > 0x7)
-        b -= 0x8;
+      d = (double)(y - yy) / (double)(h - 1 - yy);
+      dd = 1.0 - d;
+
+      int r = (int)(end.r * d + start.r * dd);
+      int g = (int)(end.g * d + start.g * dd);
+      int b = (int)(end.b * d + start.b * dd);
 
       scr.DrawRect(x, y, 15, 1, Color(r, g, b));
     }
   }
 
-  void DrawPicker(Color color,Screen scr)
+  void DrawPicker(Color color, Screen scr)
   {
-    scr.DrawRect(24, 24, 100, 100, Color::White, false);
+    scr.DrawRect(26, 26, 100, 100, Color::White, false);
+    
   }
 
   void DrawColorPicker(Screen scr, Color &out)
   {
     scr.DrawRect(20, 20, 280, 200, Color::Black);
     scr.DrawRect(22, 22, 276, 196, Color::White, false);
-    DrawBar(scr);
+    DrawBar(24, 32, Color(255, 0, 0), Color(255, 255, 0), scr);
+    DrawBar(56, 32, Color(255, 255, 0), Color(0, 255, 0), scr);
+    DrawBar(88, 32, Color(0, 255, 0), Color(0, 255, 255), scr);
+    DrawBar(120, 32, Color(0, 255, 255), Color(0, 0, 255), scr);
+    DrawBar(152, 32, Color(0, 0, 255), Color(255, 0, 255), scr);
+    DrawBar(184, 32, Color(255, 0, 255), Color(255, 0, 0), scr);
 
-    if(TouchRect(260,24,40,192))
+    if (TouchRect(260, 24, 40, 192))
       barLength = Touch::GetPosition().y;
     Color selectedColor;
     scr.ReadPixel(260, barLength, selectedColor);
     scr.DrawRect(260, barLength, 20, 1, Color::White);
-    DrawPicker(selectedColor,scr);
+    DrawPicker(selectedColor, scr);
     if (Controller::IsKeyPressed(Key::B))
       colorPickerOpened = false;
   }
