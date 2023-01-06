@@ -8320,6 +8320,12 @@ namespace CTRPluginFramework
       u8 r = (int)(end.r * d + start.r * dd);
       u8 g = (int)(end.g * d + start.g * dd);
       u8 b = (int)(end.b * d + start.b * dd);
+      if (r == 254)
+        r = 255;
+      if (g == 254)
+        g = 255;
+      if (b == 254)
+        b = 255;
       color_vector.push_back(Color(r, g, b));
       scr.DrawRect(x, y, w, 1, Color(r, g, b));
     }
@@ -8445,7 +8451,18 @@ namespace CTRPluginFramework
       u8 Value;
       if (0 <= key.Open(Value))
         if (0 <= Value && Value <= 255)
+        {
           barColor.r = Value;
+          if (Value == 254)
+            Value = 255;
+          for (int i = 0; i < barColorVector.size(); i++)
+          {
+            if ((Value == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
+            {
+              barLength = i + 24;
+            }
+          }
+        }
     }
     else if (TouchRect(160, 140, 70, 19))
     {
@@ -8454,8 +8471,18 @@ namespace CTRPluginFramework
       key.IsHexadecimal(false);
       u8 Value;
       if (0 <= key.Open(Value))
-        if (0 <= Value && Value <= 255)
+        if (0 <= Value && Value <= 255){
           barColor.g = Value;
+          if (Value == 254)
+            Value = 255;
+          for (int i = 0; i < barColorVector.size(); i++)
+          {
+            if ((barColor.r == barColorVector[i].r) && (Value == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
+            {
+              barLength = i + 24;
+            }
+          }
+        }
     }
     else if (TouchRect(160, 160, 70, 19))
     {
@@ -8464,8 +8491,18 @@ namespace CTRPluginFramework
       key.IsHexadecimal(false);
       u8 Value;
       if (0 <= key.Open(Value))
-        if (0 <= Value && Value <= 255)
+        if (0 <= Value && Value <= 255){
           barColor.b = Value;
+          if (Value == 254)
+            Value = 255;
+          for (int i = 0; i < barColorVector.size(); i++)
+          {
+            if ((barColor.r == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (Value == barColorVector[i].b))
+            {
+              barLength = i + 24;
+            }
+          }
+        }
     }
 
     scr.DrawRect(166, 191, 50, 22, Color::Gray);
