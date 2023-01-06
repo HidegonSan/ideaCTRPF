@@ -17,6 +17,7 @@ namespace CTRPluginFramework
     void JPNotify(MenuEntry *entry);
     void ChangeBackGround(MenuEntry *entry);
     void PlayMusic(MenuEntry *entry);
+    void Command(MenuEntry *entry);
 
     std::vector<u64> getFrame(int &frame);
 }

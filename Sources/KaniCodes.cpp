@@ -8302,7 +8302,7 @@ namespace CTRPluginFramework
   bool colorPickerOpened = false;
   u16 barLength = 24;
   UIntVector pickerPos = {126, 27};
-  Color barColor, selectedColor;
+  Color barColor = Color::Red, selectedColor;
   std::vector<Color> barColorVector;
   std::vector<std::vector<Color>> pickerColorVector;
 
@@ -8350,7 +8350,7 @@ namespace CTRPluginFramework
     return color_vector;
   }
 
-  void DrawColorPicker(Screen scr, Color &out)
+  Result DrawColorPicker(Screen scr, Color &out)
   {
     scr.DrawRect(20, 20, 280, 200, Color::Black);
     scr.DrawRect(22, 22, 276, 196, Color::White, false);
@@ -8368,12 +8368,24 @@ namespace CTRPluginFramework
     barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
     buff_vector = drawVerticalGradation(260, 15, 184, 32, Color(255, 0, 255), Color(255, 0, 0), scr);
     barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+
+    if (Controller::IsKeyDown(Key::CPadLeft) && 27 < pickerPos.x)
+      pickerPos.x -= 1;
+    if (Controller::IsKeyDown(Key::CPadRight) && pickerPos.x < 126)
+      pickerPos.x += 1;
+    if (Controller::IsKeyDown(Key::CPadUp) && 27 < pickerPos.y)
+      pickerPos.y -= 1;
+    if (Controller::IsKeyDown(Key::CPadDown) && pickerPos.y < 126)
+      pickerPos.y += 1;
+    if (Controller::IsKeyDown(Key::CStickUp) && 24 < barLength)
+      barLength -= 1;
+    if (Controller::IsKeyDown(Key::CStickDown) && barLength < 216)
+      barLength += 1;
+
     if (TouchRect(260, 24, 40, 192))
-    {
       barLength = Touch::GetPosition().y;
-      if (0 <= barLength - 24 < barColorVector.size())
-        barColor = barColorVector[barLength - 24];
-    }
+    if (0 <= barLength - 24 < barColorVector.size())
+      barColor = barColorVector[barLength - 24];
     scr.DrawRect(261, barLength, 20, 1, Color::White);
     scr.DrawRect(281, barLength - 2, 5, 5, barColor);
     pickerColorVector = DrawPicker(barColor, scr);
@@ -8382,7 +8394,6 @@ namespace CTRPluginFramework
       pickerPos = {Touch::GetPosition().x, Touch::GetPosition().y};
     if ((0 <= pickerPos.x - 27 < pickerColorVector.size()) && (0 <= pickerPos.y - 27 < pickerColorVector[0].size()))
       selectedColor = pickerColorVector[pickerPos.x - 27][pickerPos.y - 27];
-    // scr.ReadPixel(pickerPos.x, pickerPos.y, selectedColor);
 
     DrawRectPlus(scr, 160, 30, 70, 19, Color::White, true, 0);
     DrawSysfontPlus(scr, "H", 150, 30, 0, 0, Color::White, Color::Black, Color::Red, true, 8, 0);
@@ -8409,8 +8420,6 @@ namespace CTRPluginFramework
     scr.DrawRect(pickerPos.x, pickerPos.y - 6, 1, 5, Color::Gray);
     scr.DrawRect(pickerPos.x, pickerPos.y + 1, 1, 5, Color::Gray);
 
-    // if (pickerPos.x == 126 && pickerPos.y == 27)
-    //   selectedColor = barColor;
     scr.DrawSysfont(Utils::Format("#%02X%02X%02X", selectedColor.r, selectedColor.g, selectedColor.b), 30, 195);
     scr.DrawRect(100, 195, 15, 15, selectedColor);
 
@@ -8471,7 +8480,8 @@ namespace CTRPluginFramework
       key.IsHexadecimal(false);
       u8 Value;
       if (0 <= key.Open(Value))
-        if (0 <= Value && Value <= 255){
+        if (0 <= Value && Value <= 255)
+        {
           barColor.g = Value;
           if (Value == 254)
             Value = 255;
@@ -8491,7 +8501,8 @@ namespace CTRPluginFramework
       key.IsHexadecimal(false);
       u8 Value;
       if (0 <= key.Open(Value))
-        if (0 <= Value && Value <= 255){
+        if (0 <= Value && Value <= 255)
+        {
           barColor.b = Value;
           if (Value == 254)
             Value = 255;
@@ -8505,29 +8516,45 @@ namespace CTRPluginFramework
         }
     }
 
-    scr.DrawRect(166, 191, 50, 22, Color::Gray);
-    scr.DrawRect(166, 191, 50, 22, Color::White, false);
-    scr.DrawSysfont("OK", 183, 194);
-    if (TouchRect(166, 191, 50, 22))
+    scr.DrawRect(130, 191, 50, 22, Color::Gray);
+    scr.DrawRect(130, 191, 50, 22, Color::White, false);
+    scr.DrawSysfont("cancel", 132, 194);
+    scr.DrawRect(190, 191, 50, 22, Color::Gray);
+    scr.DrawRect(190, 191, 50, 22, Color::White, false);
+    scr.DrawSysfont("OK", 202, 194);
+    if (TouchRect(130, 191, 50, 22))
+    {
+      colorPickerOpened = false;
+      return -1;
+    }
+    if (TouchRect(190, 191, 50, 22))
     {
       out = selectedColor;
       colorPickerOpened = false;
+      return 0;
     }
+
     if (Controller::IsKeyPressed(Key::B))
+    {
       colorPickerOpened = false;
+      return -1;
+    }
+    return 0;
   }
 
-  void colorPicker(Color &out)
+  Result colorPicker(Color &out)
   {
     if (!Process::IsPaused())
-      return;
+      return -2;
     Screen scr = OSD::GetBottomScreen();
     colorPickerOpened = true;
     while (colorPickerOpened)
     {
       Controller::Update();
-      DrawColorPicker(scr, out);
+      if (DrawColorPicker(scr, out) == -1)
+        return -1;
       OSD::SwapBuffers();
     }
+    return 0;
   }
 }

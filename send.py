@@ -16,10 +16,10 @@ def ftp_upload(hostname, port, upload_src_path, upload_dst_path, timeout):
             pass
 
 
-hostname = "192.168.0.0"
+hostname = "192.168.1.13"
 
-upload_src_path = "./yw2-0.7.4.3gx"
-upload_dst_path = "STOR /luma/plugins/0004000000155100/yw2-0.7.4.3gx"
+upload_src_path = "./ideaCTRPF.3gx"
+upload_dst_path = "STOR /luma/plugins/0004000000155100/ideaCTRPF.3gx"
 
 port = 5000
 timeout = 500

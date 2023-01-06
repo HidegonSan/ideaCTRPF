@@ -41,7 +41,7 @@ namespace CTRPluginFramework
 
   std::string ReadSJIS(u32 Address);
 
-  void colorPicker(Color &out);
+  Result colorPicker(Color &out);
 }
 
 #endif

@@ -346,6 +346,7 @@ namespace CTRPluginFramework
     menu += searchFolder;
 
     menu += new MenuEntry("Test1", nullptr, Test1);
+    menu += new MenuEntry("command",nullptr, Command, "コマンド");
     menu += new MenuEntry("pipes", Pipes, "パイプス");
     menu += new MenuEntry("Cube", Cube,"キューブ");
     menu += new MenuEntry("Bad Apple!!", BadApple,"バッドアップル!!");
