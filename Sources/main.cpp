@@ -347,12 +347,13 @@ namespace CTRPluginFramework
 
     menu += new MenuEntry("Test1", nullptr, Test1);
     menu += new MenuEntry("command",nullptr, Command, "コマンド");
-    menu += new MenuEntry("pipes", Pipes, "パイプス");
-    menu += new MenuEntry("Cube", Cube,"キューブ");
+    menu += new MenuEntry("pipes", Pipes, "パイプス\nstartで消せます\n(たまにクラッシュするような気がする誰か直してくれ)");
+    menu += new MenuEntry("Cube", Cube,"キューブ\nCPadとCStickで回転,拡大,縮小できるよ");
     menu += new MenuEntry("Bad Apple!!", BadApple,"バッドアップル!!");
     menu += new MenuEntry("JPNotify", JPNotify, "ジェーピーノティファイ\nstartで表示\n(Y押しながら押すんじゃないぞ！)");
     menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
-    menu += new MenuEntry("PlayMusic", nullptr, PlayMusic,"プレイミュージック");
+    menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
+    menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
   }
 
   int main(void)

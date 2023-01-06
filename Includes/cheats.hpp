@@ -18,6 +18,7 @@ namespace CTRPluginFramework
     void ChangeBackGround(MenuEntry *entry);
     void PlayMusic(MenuEntry *entry);
     void Command(MenuEntry *entry);
+    void ColorPicker(MenuEntry *entry);
 
     std::vector<u64> getFrame(int &frame);
 }

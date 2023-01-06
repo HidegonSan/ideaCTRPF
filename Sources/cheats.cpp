@@ -9,8 +9,6 @@ namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
-    Color out;
-    colorPicker(out);
   }
 
   void JPNotify(MenuEntry *entry)
@@ -812,5 +810,11 @@ namespace CTRPluginFramework
       else
         commandLine_buffer += "unknown command";
     }
+  }
+
+  void ColorPicker(MenuEntry *entry)
+  {
+    Color out;
+    colorPicker(out);
   }
 }
