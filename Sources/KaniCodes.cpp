@@ -8303,10 +8303,12 @@ namespace CTRPluginFramework
   u16 barLength = 24;
   UIntVector pickerPos = {126, 27};
   Color barColor, selectedColor;
+  std::vector<Color> barColorVector;
+  std::vector<std::vector<Color>> pickerColorVector;
 
-  void
-  drawVerticalGradation(u16 x, u16 w, u16 y, u16 h, Color start, Color end, Screen scr)
+  std::vector<Color> drawVerticalGradation(u16 x, u16 w, u16 y, u16 h, Color start, Color end, Screen scr)
   {
+    std::vector<Color> color_vector;
     double d, dd;
     h += y;
     u16 yy = y;
@@ -8318,12 +8320,15 @@ namespace CTRPluginFramework
       u8 r = (int)(end.r * d + start.r * dd);
       u8 g = (int)(end.g * d + start.g * dd);
       u8 b = (int)(end.b * d + start.b * dd);
+      color_vector.push_back(Color(r, g, b));
       scr.DrawRect(x, y, w, 1, Color(r, g, b));
     }
+    return color_vector;
   }
 
-  void DrawPicker(Color color, Screen scr)
+  std::vector<std::vector<Color>> DrawPicker(Color color, Screen scr)
   {
+    std::vector<std::vector<Color>> color_vector;
     scr.DrawRect(26, 26, 102, 102, Color::White, false);
     for (u16 x = 27; x < 127; x++)
     {
@@ -8334,35 +8339,44 @@ namespace CTRPluginFramework
       u8 g = (int)(color.g * d + 255.0 * dd);
       u8 b = (int)(color.b * d + 255.0 * dd);
 
-      drawVerticalGradation(x, 1, 27, 100, Color(r, g, b), Color::Black, scr);
+      color_vector.push_back(drawVerticalGradation(x, 1, 27, 100, Color(r, g, b), Color::Black, scr));
     }
+    return color_vector;
   }
 
   void DrawColorPicker(Screen scr, Color &out)
   {
     scr.DrawRect(20, 20, 280, 200, Color::Black);
     scr.DrawRect(22, 22, 276, 196, Color::White, false);
-    drawVerticalGradation(260, 15, 24, 32, Color(255, 0, 0), Color(255, 255, 0), scr);
-    drawVerticalGradation(260, 15, 56, 32, Color(255, 255, 0), Color(0, 255, 0), scr);
-    drawVerticalGradation(260, 15, 88, 32, Color(0, 255, 0), Color(0, 255, 255), scr);
-    drawVerticalGradation(260, 15, 120, 32, Color(0, 255, 255), Color(0, 0, 255), scr);
-    drawVerticalGradation(260, 15, 152, 32, Color(0, 0, 255), Color(255, 0, 255), scr);
-    drawVerticalGradation(260, 15, 184, 32, Color(255, 0, 255), Color(255, 0, 0), scr);
-
+    barColorVector.clear();
+    std::vector<Color> buff_vector;
+    buff_vector = drawVerticalGradation(260, 15, 24, 32, Color(255, 0, 0), Color(255, 255, 0), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+    buff_vector = drawVerticalGradation(260, 15, 56, 32, Color(255, 255, 0), Color(0, 255, 0), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+    buff_vector = drawVerticalGradation(260, 15, 88, 32, Color(0, 255, 0), Color(0, 255, 255), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+    buff_vector = drawVerticalGradation(260, 15, 120, 32, Color(0, 255, 255), Color(0, 0, 255), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+    buff_vector = drawVerticalGradation(260, 15, 152, 32, Color(0, 0, 255), Color(255, 0, 255), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
+    buff_vector = drawVerticalGradation(260, 15, 184, 32, Color(255, 0, 255), Color(255, 0, 0), scr);
+    barColorVector.insert(barColorVector.end(), buff_vector.begin(), buff_vector.end());
     if (TouchRect(260, 24, 40, 192))
     {
       barLength = Touch::GetPosition().y;
-      scr.ReadPixel(260, barLength, barColor);
+      if (0 <= barLength - 24 < barColorVector.size())
+        barColor = barColorVector[barLength - 24];
     }
     scr.DrawRect(261, barLength, 20, 1, Color::White);
     scr.DrawRect(281, barLength - 2, 5, 5, barColor);
-    DrawPicker(barColor, scr);
+    pickerColorVector = DrawPicker(barColor, scr);
 
     if (TouchRect(27, 27, 99, 99))
-    {
       pickerPos = {Touch::GetPosition().x, Touch::GetPosition().y};
-      scr.ReadPixel(pickerPos.x, pickerPos.y, selectedColor);
-    }
+    if ((0 <= pickerPos.x - 27 < pickerColorVector.size()) && (0 <= pickerPos.y - 27 < pickerColorVector[0].size()))
+      selectedColor = pickerColorVector[pickerPos.x - 27][pickerPos.y - 27];
+    // scr.ReadPixel(pickerPos.x, pickerPos.y, selectedColor);
 
     DrawRectPlus(scr, 160, 30, 70, 19, Color::White, true, 0);
     DrawSysfontPlus(scr, "H", 150, 30, 0, 0, Color::White, Color::Black, Color::Red, true, 8, 0);
@@ -8383,13 +8397,14 @@ namespace CTRPluginFramework
     DrawSysfontPlus(scr, "B", 150, 160, 0, 0, Color::White, Color::Black, Color::Red, true, 8, 0);
     DrawSysfontPlus(scr, Utils::Format("%d", barColor.b), 230, 160, 0, 0, Color::Black, Color::Black, Color::Red, false, true, 8);
 
+    // cross
     scr.DrawRect(pickerPos.x - 6, pickerPos.y, 5, 1, Color::Gray);
     scr.DrawRect(pickerPos.x + 1, pickerPos.y, 5, 1, Color::Gray);
     scr.DrawRect(pickerPos.x, pickerPos.y - 6, 1, 5, Color::Gray);
     scr.DrawRect(pickerPos.x, pickerPos.y + 1, 1, 5, Color::Gray);
 
-    if (pickerPos.x == 126 && pickerPos.y == 27)
-      selectedColor = barColor;
+    // if (pickerPos.x == 126 && pickerPos.y == 27)
+    //   selectedColor = barColor;
     scr.DrawSysfont(Utils::Format("#%02X%02X%02X", selectedColor.r, selectedColor.g, selectedColor.b), 30, 195);
     scr.DrawRect(100, 195, 15, 15, selectedColor);
 
