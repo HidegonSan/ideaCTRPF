@@ -192,7 +192,7 @@ namespace CTRPluginFramework
   {
     std::string input;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    japKey(input, "エントリー名を入力してください");
+    JPKeyboard("エントリー名を入力してください").Open(input);
     if (input.empty())
       return;
 
@@ -218,7 +218,6 @@ namespace CTRPluginFramework
     for (auto folder : folders)
       addSearch(folder, SearchFolder, input);
   }
-
 
   float AA, BB, CC;
 
