@@ -20,9 +20,8 @@ namespace CTRPluginFramework
   public:
     static u16 sjisToUtf16(u16 sjis);
     static u16 utf16ToSjis(u16 utf16);
-    static u16 strToSjis(std::string moji);
+    static std::vector<u16> strToSjis(std::string str);
     static int getMultiByte(std::string str);
-    static void SetHiraganaKanji(std::string hiragana, std::string kanji);
     static std::string toLower(std::string str);
     static std::string hiraganaToKanji(std::string hiragana);
     static std::string hiraganaToKatakana(std::string hiragana);
@@ -49,8 +48,9 @@ namespace CTRPluginFramework
     bool _canSwich;
     bool _canAbort;
     bool _canConvert;
+    bool _flick;
 
-    u16 U16_ChrArray[50 + 1];
+    u16 U16_ChrArray[60 + 1];
     bool KatakanaMode;
     bool KeyboardOpened;
     u8 selectedIndex;
@@ -68,6 +68,16 @@ namespace CTRPluginFramework
         "ンルヨムフヌツスクウ"
         "、レ！メヘネテセケエ"
         "。ロ？モホノトソコオ";
+    const std::string FlickHiragana =
+        "あいうえおかきくけこさしすせそ"
+        "たちつてとなにぬねのはひふへほ"
+        "まみむめもや（ゆ）よらりるれろ"
+        "゛゜゛゛゛わをんー〜、。？！…";
+    const std::string FlickKatakana =
+        "アイウエオカキクケコサシスセソ"
+        "タチツテトナニヌネノハヒフヘホ"
+        "マミムメモヤ（ユ）ヨラリルレロ"
+        "゛゜゛゛゛ワヲンー〜、。？！…";
 
     void MakeU16Array(void);
     void Komoji(u16 &moji);

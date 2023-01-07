@@ -164,64 +164,6 @@ namespace CTRPluginFramework
     scr.DrawSysfont(BatteryInfomation(), 321, 5, Color::White);
   }
 
-  void LoadKanji(void)
-  {
-    if (File::Exists("kanji.txt"))
-    {
-      File file("kanji.txt");
-      file.Seek(2);
-      bool flag = true;
-      while (flag)
-      {
-        std::string hiragana, kanji;
-        while (1)
-        {
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0x2C)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if ((buff > 0x80) || (buff < 0xA0))
-              hiragana += str_buff.substr(0, 3);
-          }
-          else
-            break;
-        }
-        while (1)
-        {
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0xA)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if (0x1000 < buff)
-              kanji += str_buff.substr(0, 3);
-            else
-              kanji += str_buff.substr(0, 1);
-          }
-          else
-            break;
-        }
-        Convert::SetHiraganaKanji(hiragana, kanji);
-      }
-      OSD::Notify("kanji.txt loaded");
-    }
-    else
-      OSD::Notify("kanji.txt not found.");
-  }
-
   bool checkPass(void)
   {
     std::vector<u16> answer = {0x6A, 0x3EC, 0x2175, 0x29FB, 0x2CF, 0x5C, 0xBB};
@@ -364,10 +306,10 @@ namespace CTRPluginFramework
     // Sleep(Seconds(1));
     // OSD::Stop(LoadGameTitle);
 
-    // if (!checkPass())
-    //   return (0);
-    // OSD::Notify("verified");
-    // LoadKanji();
+    if (!checkPass())
+      return (0);
+    OSD::Notify("verified");
+    JPKeyboard::LoadKanjiList();
 
     menu->OnNewFrame = DrawCallBack;
     menu->SynchronizeWithFrame(true);
