@@ -39,8 +39,8 @@ namespace CTRPluginFramework
     void CanSwich(bool canSwich);
     void CanAbort(bool canAbort);
     void CanConvert(bool canConvert);
-    Result Open(std::string &out);
-    Result Open(std::string &out,std::string defaultText);
+    bool Open(std::string &out);
+    bool Open(std::string &out,std::string defaultText);
 
   private:
     std::string _text;
@@ -72,17 +72,17 @@ namespace CTRPluginFramework
         "あいうえおかきくけこさしすせそ"
         "たちつてとなにぬねのはひふへほ"
         "まみむめもや（ゆ）よらりるれろ"
-        "゛゜゛゛゛わをんー〜、。？！…";
+        "゛゛小゜大わをんー〜、。？！…";
     const std::string FlickKatakana =
         "アイウエオカキクケコサシスセソ"
         "タチツテトナニヌネノハヒフヘホ"
         "マミムメモヤ（ユ）ヨラリルレロ"
-        "゛゜゛゛゛ワヲンー〜、。？！…";
+        "゛゛小゜大ワヲンー〜、。？！…";
 
     void MakeU16Array(void);
     void Komoji(u16 &moji);
     void Dakuten(bool handakuten, u16 &moji);
-    Result DrawKeyboard(const Screen &scr, std::string &out);
+    bool DrawKeyboard(const Screen &scr, std::string &out);
   };
 
     bool TouchCircle(u32 x, u32 y, u8 size);
@@ -95,5 +95,5 @@ namespace CTRPluginFramework
 
     std::string ReadSJIS(u32 Address);
 
-    Result colorPicker(Color &out);
+    bool colorPicker(Color &out);
 }
