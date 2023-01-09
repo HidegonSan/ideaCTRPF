@@ -829,7 +829,7 @@ namespace CTRPluginFramework
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-  std::vector<Color> tetris_colors = {Color::Black, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
+  std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
 
   std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{3, 0}, {2, 1}, {3, 1}, {2, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
   std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
@@ -917,7 +917,7 @@ namespace CTRPluginFramework
     topScr.DrawRect(137, 9, 126, 222, Color::Black);
     topScr.DrawRect(139, 11, 122, 218, Color::White, false);
 
-    if (Controller::IsKeyPressed(Key::CPadLeft))
+    if (Controller::IsKeyPressed(Key::CPadLeft) || Controller::IsKeyPressed(Key::Left))
     {
       for (UIntVector block : tetris_blocks)
         if (block.x <= 0 || tetris_field[block.x - 1][block.y])
@@ -925,7 +925,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x--;
     }
-    else if (Controller::IsKeyPressed(Key::CPadRight))
+    else if (Controller::IsKeyPressed(Key::CPadRight) || Controller::IsKeyPressed(Key::Right))
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field.size() - 1 <= block.x || tetris_field[block.x + 1][block.y])
@@ -933,7 +933,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x++;
     }
-    else if (Controller::IsKeyPressed(Key::CPadDown))
+    else if (Controller::IsKeyPressed(Key::CPadDown) || Controller::IsKeyPressed(Key::Down))
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field[0].size() - 1 <= block.y || tetris_field[block.x][block.y + 1])
@@ -941,7 +941,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].y++;
     }
-    else if (Controller::IsKeyPressed(Key::CPadUp))
+    else if (Controller::IsKeyPressed(Key::CPadUp) || Controller::IsKeyPressed(Key::Up))
     {
       u8 max_down = tetris_field[0].size(), max_down_block = 0;
       for (int j = 0; j < tetris_blocks.size(); j++)
@@ -960,6 +960,10 @@ namespace CTRPluginFramework
         tetris_blocks[i].y = max_down + tetris_blocks[i].y - max_down_block;
       Restart();
     }
+    else if (Controller::IsKeyPressed(Key::R))
+      TurnBlock(true);
+    else if (Controller::IsKeyPressed(Key::L))
+      TurnBlock(false);
   END:
 
     if (!(slow++ % 40))
@@ -981,12 +985,14 @@ namespace CTRPluginFramework
       for (int j = 0; j < tetris_field[i].size(); j++)
       {
         if (tetris_field[i][j])
-          topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[tetris_field[i][j]]);
+          topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[0]);
+          // topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[tetris_field[i][j]]);
       }
     }
 
     for (UIntVector block : tetris_blocks)
-      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[mino + 1]);
+      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[0]);
+      // topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[mino + 1]);
 
     for (int i = 0; i < tetris_field[0].size(); i++)
     {
@@ -994,13 +1000,9 @@ namespace CTRPluginFramework
       for (int j = 0; j < tetris_field.size(); j++)
         count += tetris_field[j][i] ? 1 : 0;
       if (count == tetris_field.size())
-        for (int k = i; k >= 0; k--)
+        for (int k = i-1; k >= 0; k--)
           for (int j = 0; j < tetris_field.size(); j++)
             tetris_field[j][k + 1] = tetris_field[j][k];
     }
-    if (Controller::IsKeyPressed(Key::R))
-      TurnBlock(true);
-    if (Controller::IsKeyPressed(Key::L))
-      TurnBlock(false);
   }
 }
