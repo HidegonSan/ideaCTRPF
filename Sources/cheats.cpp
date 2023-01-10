@@ -831,17 +831,24 @@ namespace CTRPluginFramework
 
   std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
 
-  std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{3, 0}, {2, 1}, {3, 1}, {2, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
+  std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
   std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-  u8 slow = 0, mino, mino_turn = 0;
+  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0;
 
   void Restart(void)
   {
     for (UIntVector block : tetris_blocks)
+    {
+      if (tetris_field[block.x][block.y])
+        goto RESTART;
       tetris_field[block.x][block.y] = mino + 1;
+    }
     if (tetris_field[4][0])
     {
-      MessageBox("Game Over")();
+    RESTART:
+      MessageBox(Utils::Format("Game Over\nyour score is %d", tetris_score))();
+      tetris_score = 0;
+      mino_turn = 0;
       tetris_field = {
           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -913,6 +920,10 @@ namespace CTRPluginFramework
 
   void Tetris(MenuEntry *entry)
   {
+    if (entry->WasJustActivated())
+    {
+      tetris_score = 0;
+    }
     Screen topScr = OSD::GetTopScreen();
     topScr.DrawRect(137, 9, 126, 222, Color::Black);
     topScr.DrawRect(139, 11, 122, 218, Color::White, false);
@@ -986,13 +997,13 @@ namespace CTRPluginFramework
       {
         if (tetris_field[i][j])
           topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[0]);
-          // topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[tetris_field[i][j]]);
+        // topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[tetris_field[i][j]]);
       }
     }
 
     for (UIntVector block : tetris_blocks)
       topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[0]);
-      // topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[mino + 1]);
+    // topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[mino + 1]);
 
     for (int i = 0; i < tetris_field[0].size(); i++)
     {
@@ -1000,9 +1011,12 @@ namespace CTRPluginFramework
       for (int j = 0; j < tetris_field.size(); j++)
         count += tetris_field[j][i] ? 1 : 0;
       if (count == tetris_field.size())
-        for (int k = i-1; k >= 0; k--)
+      {
+        tetris_score++;
+        for (int k = i - 1; k >= 0; k--)
           for (int j = 0; j < tetris_field.size(); j++)
             tetris_field[j][k + 1] = tetris_field[j][k];
+      }
     }
   }
 }
