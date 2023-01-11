@@ -833,7 +833,8 @@ namespace CTRPluginFramework
 
   std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
   std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0,tetris_difficult = 0;
+  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0,tetris_level = 0;
+  bool tetris_colorful = false;
 
   void Restart(void)
   {
@@ -977,7 +978,7 @@ namespace CTRPluginFramework
       TurnBlock(false);
   END:
 
-    if (!(slow++ % (40-tetris_difficult*5)))
+    if (!(slow++ % (50-tetris_level*3)))
     {
       for (UIntVector block : tetris_blocks)
       {
@@ -996,14 +997,12 @@ namespace CTRPluginFramework
       for (int j = 0; j < tetris_field[i].size(); j++)
       {
         if (tetris_field[i][j])
-          topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[0]);
-        // topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colors[tetris_field[i][j]]);
+          topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[tetris_field[i][j]] : tetris_colors[0]);
       }
     }
 
     for (UIntVector block : tetris_blocks)
-      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[0]);
-    // topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colors[mino + 1]);
+      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colorful? tetris_colors[mino + 1] : tetris_colors[0]);
 
     for (int i = 0; i < tetris_field[0].size(); i++)
     {
@@ -1013,8 +1012,8 @@ namespace CTRPluginFramework
       if (count == tetris_field.size())
       {
         tetris_score++;
-        if(!(tetris_score%10))
-          tetris_difficult++;
+        if(!(tetris_score%10) && tetris_level < 10)
+          tetris_level++;
         for (int k = i - 1; k >= 0; k--)
           for (int j = 0; j < tetris_field.size(); j++)
             tetris_field[j][k + 1] = tetris_field[j][k];
@@ -1024,6 +1023,10 @@ namespace CTRPluginFramework
 
   void SetTetrisSetting(MenuEntry *entry)
   {
-
+    u8 answer;
+    if(0 <= answer = Keyboard("tetris color",{"monochrome","colorful"}).Open())
+      tetris_colorful = answer;
+    if(0 <= answer = Keyboard("level",{"easy","normal","difficult"}).Open())
+      tetris_level = answer;
   }
 }
