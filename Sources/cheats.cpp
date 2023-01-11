@@ -833,7 +833,7 @@ namespace CTRPluginFramework
 
   std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
   std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0;
+  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0,tetris_difficult = 0;
 
   void Restart(void)
   {
@@ -977,7 +977,7 @@ namespace CTRPluginFramework
       TurnBlock(false);
   END:
 
-    if (!(slow++ % 40))
+    if (!(slow++ % (40-tetris_difficult*5)))
     {
       for (UIntVector block : tetris_blocks)
       {
@@ -1013,10 +1013,17 @@ namespace CTRPluginFramework
       if (count == tetris_field.size())
       {
         tetris_score++;
+        if(!(tetris_score%10))
+          tetris_difficult++;
         for (int k = i - 1; k >= 0; k--)
           for (int j = 0; j < tetris_field.size(); j++)
             tetris_field[j][k + 1] = tetris_field[j][k];
       }
     }
+  }
+
+  void SetTetrisSetting(MenuEntry *entry)
+  {
+
   }
 }

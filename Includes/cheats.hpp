@@ -20,6 +20,7 @@ namespace CTRPluginFramework
     void Command(MenuEntry *entry);
     void ColorPicker(MenuEntry *entry);
     void Tetris(MenuEntry *entry);
+    void SetTetrisSetting(MenuEntry *entry);
 
     std::vector<u64> getFrame(int &frame);
 }

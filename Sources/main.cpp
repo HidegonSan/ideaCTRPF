@@ -296,7 +296,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
-    menu += new MenuEntry("Tetris", Tetris, "テトリス");
+    menu += new MenuEntry("Tetris", Tetris,SetTetrisSetting, "テトリス\nCPad,十字キーで操作できます\nR,Lで回転");
   }
 
   int main(void)
