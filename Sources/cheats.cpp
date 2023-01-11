@@ -833,14 +833,14 @@ namespace CTRPluginFramework
 
   std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {0, 1}, {1, 1}, {2, 1}}, {{2, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {2, 0}, {1, 1}, {1, 2}}, {{0, 0}, {0, 1}, {0, 2}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{0, 0}, {0, 1}, {1, 1}, {0, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{0, 0}, {1, 0}, {2, 0}, {2, 1}}, {{0, 0}, {1, 0}, {2, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {2, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}}, {{0, 0}, {1, 0}, {1, 1}, {2, 1}}}, {{{0, 3}, {1, 3}, {2, 3}, {3, 3}}, {{1, 0}, {1, 1}, {1, 2}, {0, 2}}, {{0, 0}, {1, 0}, {1, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {0, 2}}}};
   std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0,tetris_level = 0;
+  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0, tetris_level = 0;
   bool tetris_colorful = false;
 
   void Restart(void)
   {
     for (UIntVector block : tetris_blocks)
     {
-      if (tetris_field[block.x][block.y])
+      if (block.y == 1)
         goto RESTART;
       tetris_field[block.x][block.y] = mino + 1;
     }
@@ -850,6 +850,7 @@ namespace CTRPluginFramework
       MessageBox(Utils::Format("Game Over\nyour score is %d", tetris_score))();
       tetris_score = 0;
       mino_turn = 0;
+      tetris_level = 0;
       tetris_field = {
           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -870,6 +871,9 @@ namespace CTRPluginFramework
 
   void TurnBlock(bool turn_right)
   {
+    int buff, buff1;
+    if ((buff = tetris_blocks[0].x) - (buff1 = _tetris_blocks[mino_turn][mino][0].x) < 0 || (buff = tetris_blocks[0].y) - (buff1 = _tetris_blocks[mino_turn][mino][0].y) < 0)
+      return;
     UIntVector pos = {tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x,
                       tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y};
     if (turn_right)
@@ -893,7 +897,7 @@ namespace CTRPluginFramework
       tetris_blocks[i].y += pos.y;
     }
     for (UIntVector block : tetris_blocks)
-      if (tetris_field[block.x][block.y] || block.x < 0 || tetris_field.size() - 1 < block.x || tetris_field[0].size() - 1 < block.y)
+      if (block.x < 0 || tetris_field.size() - 1 < block.x || tetris_field[0].size() - 1 < block.y || tetris_field[block.x][block.y])
       {
         if (turn_right)
         {
@@ -929,7 +933,7 @@ namespace CTRPluginFramework
     topScr.DrawRect(137, 9, 126, 222, Color::Black);
     topScr.DrawRect(139, 11, 122, 218, Color::White, false);
 
-    if (Controller::IsKeyPressed(Key::CPadLeft) || Controller::IsKeyPressed(Key::Left))
+    if (entry->Hotkeys[0].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (block.x <= 0 || tetris_field[block.x - 1][block.y])
@@ -937,7 +941,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x--;
     }
-    else if (Controller::IsKeyPressed(Key::CPadRight) || Controller::IsKeyPressed(Key::Right))
+    else if (entry->Hotkeys[1].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field.size() - 1 <= block.x || tetris_field[block.x + 1][block.y])
@@ -945,7 +949,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x++;
     }
-    else if (Controller::IsKeyPressed(Key::CPadDown) || Controller::IsKeyPressed(Key::Down))
+    else if (entry->Hotkeys[2].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field[0].size() - 1 <= block.y || tetris_field[block.x][block.y + 1])
@@ -953,7 +957,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].y++;
     }
-    else if (Controller::IsKeyPressed(Key::CPadUp) || Controller::IsKeyPressed(Key::Up))
+    else if (entry->Hotkeys[3].IsPressed())
     {
       u8 max_down = tetris_field[0].size(), max_down_block = 0;
       for (int j = 0; j < tetris_blocks.size(); j++)
@@ -972,13 +976,13 @@ namespace CTRPluginFramework
         tetris_blocks[i].y = max_down + tetris_blocks[i].y - max_down_block;
       Restart();
     }
-    else if (Controller::IsKeyPressed(Key::R))
+    else if (entry->Hotkeys[4].IsPressed())
       TurnBlock(true);
-    else if (Controller::IsKeyPressed(Key::L))
+    else if (entry->Hotkeys[5].IsPressed())
       TurnBlock(false);
   END:
 
-    if (!(slow++ % (50-tetris_level*3)))
+    if (!(slow++ % (50 - tetris_level * 4)))
     {
       for (UIntVector block : tetris_blocks)
       {
@@ -1002,7 +1006,7 @@ namespace CTRPluginFramework
     }
 
     for (UIntVector block : tetris_blocks)
-      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colorful? tetris_colors[mino + 1] : tetris_colors[0]);
+      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[mino + 1] : tetris_colors[0]);
 
     for (int i = 0; i < tetris_field[0].size(); i++)
     {
@@ -1012,7 +1016,7 @@ namespace CTRPluginFramework
       if (count == tetris_field.size())
       {
         tetris_score++;
-        if(!(tetris_score%10) && tetris_level < 10)
+        if (!(tetris_score % 10) && tetris_level < 11)
           tetris_level++;
         for (int k = i - 1; k >= 0; k--)
           for (int j = 0; j < tetris_field.size(); j++)
@@ -1024,9 +1028,9 @@ namespace CTRPluginFramework
   void SetTetrisSetting(MenuEntry *entry)
   {
     u8 answer;
-    if(0 <= answer = Keyboard("tetris color",{"monochrome","colorful"}).Open())
+    if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
       tetris_colorful = answer;
-    if(0 <= answer = Keyboard("level",{"easy","normal","difficult"}).Open())
-      tetris_level = answer;
+    if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
+      tetris_level = answer * 5;
   }
 }

@@ -21,19 +21,7 @@ namespace CTRPluginFramework
   }
 
   // HotKeyの部分
-  static MenuEntry *EntryWithHotkey(MenuEntry *entry, const Hotkey &hotkey)
-  {
-    if (entry != nullptr)
-    {
-      entry->Hotkeys += hotkey;
-      entry->SetArg(new std::string(entry->Name()));
-      entry->Name() += " " + hotkey.ToString();
-      entry->Hotkeys.OnHotkeyChangeCallback([](MenuEntry *entry, int index)
-                                            { std::string* name = reinterpret_cast<std::string*>(entry->GetArg()); entry->Name() = *name + " " + entry->Hotkeys[0].ToString(); });
-    }
-    return (entry);
-  }
-  static MenuEntry *EntryWithHotkey(MenuEntry *entry, const std::vector<Hotkey> &hotkeys)
+  static MenuEntry *EntryWithHotkeys(MenuEntry *entry, const std::vector<Hotkey> &hotkeys)
   {
     if (entry != nullptr)
     {
@@ -274,13 +262,6 @@ namespace CTRPluginFramework
     ToggleTouchscreenForceOn();
   }
 
-  MenuEntry *EnabledEntry(MenuEntry *entry)
-  {
-    if (entry != nullptr)
-      entry->Enable();
-    return (entry);
-  }
-
   void InitMenu(PluginMenu &menu)
   {
     MenuFolder *searchFolder = new MenuFolder("Search");
@@ -296,19 +277,19 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
-    menu += new MenuEntry("Tetris", Tetris,SetTetrisSetting, "テトリス\nCPad,十字キーで操作できます\nR,Lで回転");
+    menu += EntryWithHotkeys(new MenuEntry("Tetris", Tetris, SetTetrisSetting, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::R, "右回転"), Hotkey(Key::L, "左回転")});
   }
 
   int main(void)
   {
-    PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4, "made by kani537");
+    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 0, 7, 4, "made by kani537");
 
     // OSD::Run(LoadGameTitle);
     // Sleep(Seconds(1));
     // OSD::Stop(LoadGameTitle);
 
-    if (!checkPass())
-      return (0);
+    // if (!checkPass())
+    //   return (0);
     OSD::Notify("verified");
     JPKeyboard::LoadKanjiList();
 
