@@ -871,8 +871,7 @@ namespace CTRPluginFramework
 
   void TurnBlock(bool turn_right)
   {
-    int buff, buff1;
-    if ((buff = tetris_blocks[0].x) - (buff1 = _tetris_blocks[mino_turn][mino][0].x) < 0 || (buff = tetris_blocks[0].y) - (buff1 = _tetris_blocks[mino_turn][mino][0].y) < 0)
+    if ((int)(tetris_blocks[0].x) - (int)(_tetris_blocks[mino_turn][mino][0].x) < 0 || (int)(tetris_blocks[0].y) - (int)(_tetris_blocks[mino_turn][mino][0].y) < 0)
       return;
     UIntVector pos = {tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x,
                       tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y};
@@ -959,22 +958,15 @@ namespace CTRPluginFramework
     }
     else if (entry->Hotkeys[3].IsPressed())
     {
-      u8 max_down = tetris_field[0].size(), max_down_block = 0;
-      for (int j = 0; j < tetris_blocks.size(); j++)
-      {
-        u8 i = tetris_blocks[j].y;
-        while (1)
-          if (tetris_field[tetris_blocks[j].x][i] || i++ == tetris_field[0].size() - 1)
-            break;
-        if (max_down >= i - 1)
-        {
-          max_down = i - 1;
-          max_down_block = tetris_blocks[j].y;
-        }
-      }
-      for (int i = 0; i < tetris_blocks.size(); i++)
-        tetris_blocks[i].y = max_down + tetris_blocks[i].y - max_down_block;
-      Restart();
+      for (int i = 0; i < tetris_field[0].size(); i++)
+        for (UIntVector block : tetris_blocks)
+          if (block.y + i >= tetris_field[0].size() - 1 || tetris_field[block.x][block.y + 1 + i])
+          {
+            for (int j = 0; j < tetris_blocks.size(); j++)
+              tetris_blocks[j].y = tetris_blocks[j].y + i;
+            Restart();
+            goto END;
+          }
     }
     else if (entry->Hotkeys[4].IsPressed())
       TurnBlock(true);
@@ -985,25 +977,19 @@ namespace CTRPluginFramework
     if (!(slow++ % (50 - tetris_level * 4)))
     {
       for (UIntVector block : tetris_blocks)
-      {
         if (block.y >= tetris_field[0].size() - 1 || tetris_field[block.x][block.y + 1])
         {
           Restart();
           break;
         }
-      }
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].y++;
     }
 
     for (int i = 0; i < tetris_field.size(); i++)
-    {
       for (int j = 0; j < tetris_field[i].size(); j++)
-      {
         if (tetris_field[i][j])
           topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[tetris_field[i][j]] : tetris_colors[0]);
-      }
-    }
 
     for (UIntVector block : tetris_blocks)
       topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[mino + 1] : tetris_colors[0]);

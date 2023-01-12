@@ -475,7 +475,6 @@ namespace CTRPluginFramework
     u16 u16array1[100] = {0}; // 変換前
     u16 u16array2[100] = {0}; // 変換後
 
-
     if (handakuten) // 半濁点モード
     {
       Process::WriteString((u32)u16array1, str3, StringFormat::Utf16);
