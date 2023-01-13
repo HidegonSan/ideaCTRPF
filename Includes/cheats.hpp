@@ -22,22 +22,18 @@ namespace CTRPluginFramework
     class Tetris_Class
     {
     public:
-        void Tetris_Loop(HotkeyManager Hotkeys);
-        static u8 tetris_level;
-        static bool tetris_colorful;
+        void Tetris_Loop(HotkeyManager Hotkeys); //yes my tintin
+        Tetris_Class()
+        {
+            tetris_level = 0;
+            tetris_colorful = false;
+        }
+        
+        u8 tetris_level;
+        bool tetris_colorful;
 
     private:
-        std::vector<std::vector<u8>> tetris_field = {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        std::vector<std::vector<u8>> tetris_field(10,std::vector<u8>(18,0));
 
         std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
 
