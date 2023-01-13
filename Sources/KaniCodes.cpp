@@ -8520,7 +8520,7 @@ namespace CTRPluginFramework
     return color_vector;
   }
 
-  bool DrawColorPicker(Screen scr, Color &out)
+  bool DrawColorPicker(const Screen &scr, Color &out)
   {
     Screen topScr = OSD::GetTopScreen();
     topScr.DrawRect(30, 20, 340, 200, Color::Black);
@@ -8749,7 +8749,7 @@ namespace CTRPluginFramework
     if (!Process::IsPaused())
       return 0;
 
-    Screen scr = OSD::GetBottomScreen();
+    const Screen &scr = OSD::GetBottomScreen();
     colorPickerOpened = true;
     while (colorPickerOpened)
     {
