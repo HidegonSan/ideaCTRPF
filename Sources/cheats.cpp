@@ -817,54 +817,7 @@ namespace CTRPluginFramework
     colorPicker(out);
   }
 
-  std::vector<std::vector<u8>> tetris_field = {
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-  std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
-
-  std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {
-      {{{1, 0}, {1, 1}, {1, 2}, {1, 3}},
-       {{2, 0}, {2, 1}, {1, 2}, {2, 2}},
-       {{1, 0}, {1, 1}, {1, 2}, {2, 2}},
-       {{0, 0}, {1, 0}, {0, 1}, {1, 1}},
-       {{1, 1}, {2, 1}, {0, 2}, {1, 2}},
-       {{0, 1}, {1, 1}, {2, 1}, {1, 2}},
-       {{0, 1}, {1, 1}, {1, 2}, {2, 2}}},
-      {{{0, 2}, {1, 2}, {2, 2}, {3, 2}},
-       {{0, 1}, {1, 1}, {2, 1}, {2, 2}},
-       {{2, 1}, {0, 2}, {1, 2}, {2, 2}},
-       {{0, 0}, {1, 0}, {0, 1}, {1, 1}},
-       {{1, 0}, {1, 1}, {2, 1}, {2, 2}},
-       {{1, 1}, {1, 2}, {2, 2}, {1, 3}},
-       {{2, 1}, {1, 2}, {2, 2}, {1, 3}}},
-      {{{2, 0}, {2, 1}, {2, 2}, {2, 3}},
-       {{1, 1}, {2, 1}, {1, 2}, {1, 3}},
-       {{1, 1}, {2, 1}, {2, 2}, {2, 3}},
-       {{0, 0}, {1, 0}, {0, 1}, {1, 1}},
-       {{1, 1}, {2, 1}, {0, 2}, {1, 2}},
-       {{2, 1}, {1, 2}, {2, 2}, {3, 2}},
-       {{1, 1}, {2, 1}, {2, 2}, {3, 2}}},
-      {{{0, 2}, {1, 2}, {2, 2}, {3, 2}},
-       {{1, 1}, {1, 2}, {2, 2}, {3, 2}},
-       {{1, 1}, {2, 1}, {3, 1}, {1, 2}},
-       {{0, 0}, {1, 0}, {0, 1}, {1, 1}},
-       {{1, 1}, {1, 2}, {2, 2}, {2, 3}},
-       {{2, 0}, {1, 1}, {2, 1}, {2, 2}},
-       {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}};
-  std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-  u8 slow = 0, mino, mino_turn = 0, tetris_score = 0, tetris_level = 0;
-  bool tetris_colorful = false;
-
-  void Restart(void)
+  void Tetris_Class::Restart(void)
   {
     for (UIntVector block : tetris_blocks)
     {
@@ -897,7 +850,7 @@ namespace CTRPluginFramework
     mino_turn = 0;
   }
 
-  void TurnBlock(bool turn_right)
+  void Tetris_Class::TurnBlock(bool turn_right)
   {
     if ((int)(tetris_blocks[0].x) - (int)(_tetris_blocks[mino_turn][mino][0].x) < 0 || (int)(tetris_blocks[0].y) - (int)(_tetris_blocks[mino_turn][mino][0].y) < 0)
       return;
@@ -950,17 +903,13 @@ namespace CTRPluginFramework
       }
   }
 
-  void Tetris(MenuEntry *entry)
+  void Tetris_Class::Tetris_Loop(HotkeyManager Hotkeys)
   {
-    if (entry->WasJustActivated())
-    {
-      tetris_score = 0;
-    }
-    Screen topScr = OSD::GetTopScreen();
+    const Screen &topScr = OSD::GetTopScreen();
     topScr.DrawRect(137, 9, 126, 222, Color::Black);
     topScr.DrawRect(139, 11, 122, 218, Color::White, false);
 
-    if (entry->Hotkeys[0].IsPressed())
+    if (Hotkeys[0].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (block.x <= 0 || tetris_field[block.x - 1][block.y])
@@ -968,7 +917,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x--;
     }
-    else if (entry->Hotkeys[1].IsPressed())
+    else if (Hotkeys[1].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field.size() - 1 <= block.x || tetris_field[block.x + 1][block.y])
@@ -976,7 +925,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].x++;
     }
-    else if (entry->Hotkeys[2].IsPressed())
+    else if (Hotkeys[2].IsPressed())
     {
       for (UIntVector block : tetris_blocks)
         if (tetris_field[0].size() - 1 <= block.y || tetris_field[block.x][block.y + 1])
@@ -984,7 +933,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].y++;
     }
-    else if (entry->Hotkeys[3].IsPressed())
+    else if (Hotkeys[3].IsPressed())
     {
       for (int i = 0; i < tetris_field[0].size(); i++)
         for (UIntVector block : tetris_blocks)
@@ -996,13 +945,13 @@ namespace CTRPluginFramework
             goto END;
           }
     }
-    else if (entry->Hotkeys[4].IsPressed())
+    else if (Hotkeys[4].IsPressed())
       TurnBlock(true);
-    else if (entry->Hotkeys[5].IsPressed())
+    else if (Hotkeys[5].IsPressed())
       TurnBlock(false);
   END:
 
-    if (!(slow++ % (50 - tetris_level * 4)))
+    if (clock.HasTimePassed(Milliseconds(1000 - tetris_level * 30)))
     {
       for (UIntVector block : tetris_blocks)
         if (block.y >= tetris_field[0].size() - 1 || tetris_field[block.x][block.y + 1])
@@ -1012,6 +961,7 @@ namespace CTRPluginFramework
         }
       for (int i = 0; i < tetris_blocks.size(); i++)
         tetris_blocks[i].y++;
+      clock.Restart();
     }
 
     for (int i = 0; i < tetris_field.size(); i++)
@@ -1039,12 +989,20 @@ namespace CTRPluginFramework
     }
   }
 
+  u8 Tetris_Class::tetris_level = 0;
+  bool Tetris_Class::tetris_colorful = false;
+  void Tetris(MenuEntry *entry)
+  {
+    static Tetris_Class tetris;
+    tetris.Tetris_Loop(entry->Hotkeys);
+  }
+
   void SetTetrisSetting(MenuEntry *entry)
   {
-    u8 answer;
+    s8 answer;
     if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
-      tetris_colorful = answer;
+      Tetris_Class::tetris_colorful = answer;
     if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
-      tetris_level = answer * 5;
+      Tetris_Class::tetris_level = answer * 5;
   }
 }
