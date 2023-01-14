@@ -832,7 +832,7 @@ namespace CTRPluginFramework
       tetris_score = 0;
       mino_turn = 0;
       tetris_level = 0;
-      tetris_field = std::vector<std::vector<u8>>(10,std::vector<u8>(18,0);
+      tetris_field = std::vector<std::vector<u8>>(10,std::vector<u8>(18,0));
     }
     tetris_blocks = _tetris_blocks[0][mino = Utils::Random(0, _tetris_blocks[0].size() - 1)];
     for (int i = 0; i < tetris_blocks.size(); i++)
@@ -978,6 +978,9 @@ namespace CTRPluginFramework
       }
     }
   }
+
+  u8 Tetris_Class::tetris_level = 0;
+  bool Tetris_Class::tetris_colorful = false;
 
   void Tetris(MenuEntry *entry)
   {

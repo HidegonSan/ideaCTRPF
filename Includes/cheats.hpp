@@ -22,18 +22,12 @@ namespace CTRPluginFramework
     class Tetris_Class
     {
     public:
-        void Tetris_Loop(HotkeyManager Hotkeys); //yes my tintin
         static u8 tetris_level;
         static bool tetris_colorful;
-        Tetris_Class()
-        {
-            tetris_level = 0;
-            tetris_colorful = false;
-        }
-        
+        void Tetris_Loop(HotkeyManager Hotkeys);
 
     private:
-        std::vector<std::vector<u8>> tetris_field(10,std::vector<u8>(18,0));
+        std::vector<std::vector<u8>> tetris_field = std::vector<std::vector<u8>>(10, std::vector<u8>(18, 0));
 
         std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
 
@@ -45,7 +39,7 @@ namespace CTRPluginFramework
         void Restart(void);
         void TurnBlock(bool turn_right);
     };
-    
+
     void Tetris(MenuEntry *entry);
     void SetTetrisSetting(MenuEntry *entry);
 
