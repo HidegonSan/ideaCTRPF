@@ -23,14 +23,14 @@ namespace CTRPluginFramework
     {
     public:
         void Tetris_Loop(HotkeyManager Hotkeys); //yes my tintin
+        static u8 tetris_level;
+        static bool tetris_colorful;
         Tetris_Class()
         {
             tetris_level = 0;
             tetris_colorful = false;
         }
         
-        u8 tetris_level;
-        bool tetris_colorful;
 
     private:
         std::vector<std::vector<u8>> tetris_field(10,std::vector<u8>(18,0));

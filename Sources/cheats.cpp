@@ -979,8 +979,6 @@ namespace CTRPluginFramework
     }
   }
 
-  u8 Tetris_Class::tetris_level = 0;
-  bool Tetris_Class::tetris_colorful = false;
   void Tetris(MenuEntry *entry)
   {
     static Tetris_Class tetris;
