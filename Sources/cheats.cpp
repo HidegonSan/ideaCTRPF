@@ -832,7 +832,7 @@ namespace CTRPluginFramework
       tetris_score = 0;
       mino_turn = 0;
       tetris_level = 0;
-      tetris_field = std::vector<std::vector<u8>>(10,std::vector<u8>(18,0));
+      tetris_field = std::vector<std::vector<u8>>(10, std::vector<u8>(18, 0));
     }
     tetris_blocks = _tetris_blocks[0][mino = Utils::Random(0, _tetris_blocks[0].size() - 1)];
     for (int i = 0; i < tetris_blocks.size(); i++)
@@ -842,10 +842,7 @@ namespace CTRPluginFramework
 
   void Tetris_Class::TurnBlock(bool turn_right)
   {
-    if ((int)(tetris_blocks[0].x) - (int)(_tetris_blocks[mino_turn][mino][0].x) < 0 || (int)(tetris_blocks[0].y) - (int)(_tetris_blocks[mino_turn][mino][0].y) < 0)
-      return;
-    UIntVector pos = {tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x,
-                      tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y};
+    IntVector pos = {tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x, tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y};
     if (turn_right)
     {
       if (mino_turn == 3)
@@ -860,6 +857,9 @@ namespace CTRPluginFramework
       else
         mino_turn--;
     }
+    for (UIntVector block : _tetris_blocks[mino_turn][mino])
+      if ((int)(block.x) + pos.x < 0 || (int)(block.y) + pos.y < 0)
+        goto RESET_TURN;
     tetris_blocks = _tetris_blocks[mino_turn][mino];
     for (int i = 0; i < tetris_blocks.size(); i++)
     {
@@ -869,28 +869,30 @@ namespace CTRPluginFramework
     for (UIntVector block : tetris_blocks)
       if (block.x < 0 || tetris_field.size() - 1 < block.x || tetris_field[0].size() - 1 < block.y || tetris_field[block.x][block.y])
       {
-        if (turn_right)
-        {
-          if (mino_turn == 0)
-            mino_turn = 3;
-          else
-            mino_turn--;
-        }
-        else
-        {
-          if (mino_turn == 3)
-            mino_turn = 0;
-          else
-            mino_turn++;
-        }
-        tetris_blocks = _tetris_blocks[mino_turn][mino];
-        for (int i = 0; i < tetris_blocks.size(); i++)
-        {
-          tetris_blocks[i].x += pos.x;
-          tetris_blocks[i].y += pos.y;
-        }
-        break;
+        goto RESET_TURN;
       }
+    return;
+  RESET_TURN:
+    if (turn_right)
+    {
+      if (mino_turn == 0)
+        mino_turn = 3;
+      else
+        mino_turn--;
+    }
+    else
+    {
+      if (mino_turn == 3)
+        mino_turn = 0;
+      else
+        mino_turn++;
+    }
+    tetris_blocks = _tetris_blocks[mino_turn][mino];
+    for (int i = 0; i < tetris_blocks.size(); i++)
+    {
+      tetris_blocks[i].x += pos.x;
+      tetris_blocks[i].y += pos.y;
+    }
   }
 
   void Tetris_Class::Tetris_Loop(HotkeyManager Hotkeys)
