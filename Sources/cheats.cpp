@@ -938,9 +938,9 @@ namespace CTRPluginFramework
           }
     }
     else if (Hotkeys[4].IsPressed())
-      TurnBlock(true);
-    else if (Hotkeys[5].IsPressed())
       TurnBlock(false);
+    else if (Hotkeys[5].IsPressed())
+      TurnBlock(true);
   END:
 
     if (clock.HasTimePassed(Milliseconds(1000 - tetris_level * 30)))
