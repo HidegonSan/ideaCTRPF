@@ -40,36 +40,7 @@ namespace CTRPluginFramework
     return (entry);
   }
 
-  static Handle mcuHwcHandle;
-  static int mcuHwcRefCount;
-  Result mcuHwcInit(void)
-  {
-    if (AtomicPostIncrement(&mcuHwcRefCount))
-      return (0);
-    Result res = srvGetServiceHandle(&mcuHwcHandle, "mcu::HWC");
-    if (res < 0)
-      AtomicDecrement(&mcuHwcRefCount);
-    return (res);
-  }
-  void mcuHwcExit(void)
-  {
-    if (AtomicDecrement(&mcuHwcRefCount))
-      return;
-    svcCloseHandle(mcuHwcHandle);
-  }
-  Result MCUHWC_ReadRegister(u8 reg, void *data, u32 size)
-  {
-    Result ret = 0;
-    u32 *cmdbuf = getThreadCommandBuffer();
-    cmdbuf[0] = IPC_MakeHeader(0x1, 2, 2);
-    cmdbuf[1] = reg;
-    cmdbuf[2] = size;
-    cmdbuf[3] = IPC_Desc_Buffer(size, IPC_BUFFER_W);
-    cmdbuf[4] = (u32)data;
-    if ((ret = svcSendSyncRequest(mcuHwcHandle)) < 0)
-      return (ret);
-    return ((Result)cmdbuf[1]);
-  }
+  
   void StoreBatteryPercentage(float &percentage)
   {
     u8 data[4];

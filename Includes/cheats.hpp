@@ -19,6 +19,7 @@ namespace CTRPluginFramework
   void PlayMusic(MenuEntry *entry);
   void Command(MenuEntry *entry);
   void ColorPicker(MenuEntry *entry);
+
   class Tetris_Class
   {
   public:
@@ -26,12 +27,12 @@ namespace CTRPluginFramework
 
     void SetLevel(u8 level)
     {
-      GetInstance()->tetris_level = level;
+      GetInstance()->_level = level;
     }
 
     void SetColorful(bool colorful)
     {
-      GetInstance()->tetris_colorful = colorful;
+      GetInstance()->_colorfulMode = colorful;
     }
 
     static Tetris_Class *GetInstance()
@@ -47,19 +48,35 @@ namespace CTRPluginFramework
     }
 
   private:
-    std::vector<std::vector<u8>> tetris_field = std::vector<std::vector<u8>>(10, std::vector<u8>(18, 0));
+    static constexpr u8 MINO_KINDS_COUNT = 7;
+    static constexpr u8 FIELD_WIDTH = 10;
+    static constexpr u8 FIELD_HEIGHT = 18;
+    static constexpr u8 BLOCK_WIDTH = 12;
 
-    std::vector<Color> tetris_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
+    const std::vector<Color> _mino_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
+    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, {{0, 1}, {1, 1}, {1, 2}, {2, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, {{2, 1}, {1, 2}, {2, 2}, {1, 3}}}, {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}, {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{1, 1}, {2, 1}, {2, 2}, {3, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}};
+    std::vector<std::vector<u8>> _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
 
-    std::vector<std::vector<std::vector<UIntVector>>> _tetris_blocks = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, {{0, 1}, {1, 1}, {1, 2}, {2, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, {{2, 1}, {1, 2}, {2, 2}, {1, 3}}}, {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}, {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{1, 1}, {2, 1}, {2, 2}, {3, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}};
-    std::vector<UIntVector> tetris_blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
-    u8 mino = 0, mino_turn = 0, tetris_score = 0, tetris_level = 0;
-    bool tetris_colorful = false;
     static Tetris_Class *_instance;
-    Clock clock;
+
+    // 落下中のミノ
+    struct {
+      u8 kind = 0;
+      u8 turn = 0;
+      Clock dropClock;
+      Clock moveClock;
+      Clock softdropClock;
+      std::vector<UIntVector> blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
+    } _mino;
+
+    u8 _score = 0;
+    u8 _level = 0;
+    bool _colorfulMode = false;
 
     void Restart(void);
+    void GameOver(void);
     void TurnBlock(bool turn_right);
+    void MoveMino(int moveX, int moveY);
     Tetris_Class()
     {
       _instance = this;

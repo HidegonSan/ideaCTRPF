@@ -817,94 +817,110 @@ namespace CTRPluginFramework
     colorPicker(out);
   }
 
+  void Tetris_Class::GameOver(void)
+  {
+    MessageBox(Utils::Format("Game Over\nyour score is %d", _score))();
+    _score = 0;
+    _mino.turn = 0;
+    _level = 0;
+    _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+  }
+
   void Tetris_Class::Restart(void)
   {
-    for (UIntVector block : tetris_blocks)
+    for (UIntVector block : _mino.blocks)
     {
       if (block.y == 1)
-        goto RESTART;
-      tetris_field[block.x][block.y] = mino + 1;
+        GameOver();
+
+      _field[block.x][block.y] = _mino.kind + 1;
     }
-    if (tetris_field[4][0])
-    {
-    RESTART:
-      MessageBox(Utils::Format("Game Over\nyour score is %d", tetris_score))();
-      tetris_score = 0;
-      mino_turn = 0;
-      tetris_level = 0;
-      tetris_field = std::vector<std::vector<u8>>(10, std::vector<u8>(18, 0));
-    }
-    tetris_blocks = _tetris_blocks[0][mino = Utils::Random(0, _tetris_blocks[0].size() - 1)];
-    for (int i = 0; i < tetris_blocks.size(); i++)
-      tetris_blocks[i].x += 3;
-    mino_turn = 0;
+    if (_field[4][0])
+      GameOver();
+
+    // 新しいミノを生成
+    _mino.kind = Utils::Random(0, MINO_KINDS_COUNT - 1);
+    _mino.turn = 0;
+    _mino.dropClock.Restart();
+    _mino.blocks = _mino_templates[0][_mino.kind];
+    for (int i = 0; i < _mino.blocks.size(); i++)
+      _mino.blocks[i].x += 3;
   }
 
   void Tetris_Class::TurnBlock(bool turn_right)
   {
-    IntVector pos = {(int)(tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x), (int)(tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y)};
+    IntVector pos = {(int)((int)_mino.blocks[0].x - (int)_mino_templates[_mino.turn][_mino.kind][0].x), (int)((int)_mino.blocks[0].y - (int)_mino_templates[_mino.turn][_mino.kind][0].y)};
     if (turn_right)
     {
-      if (mino_turn == 3)
-        mino_turn = 0;
+      if (_mino.turn == 3)
+        _mino.turn = 0;
       else
-        mino_turn++;
+        _mino.turn++;
     }
     else
     {
-      if (mino_turn == 0)
-        mino_turn = 3;
+      if (_mino.turn == 0)
+        _mino.turn = 3;
       else
-        mino_turn--;
+        _mino.turn--;
     }
-    for (UIntVector block : _tetris_blocks[mino_turn][mino])
+    for (UIntVector block : _mino_templates[_mino.turn][_mino.kind])
     {
       if ((int)(block.x) + pos.x < 0)
       {
         pos.x += abs((int)(block.x) + pos.x);
-        if (tetris_field[block.x + pos.x][block.y + pos.y])
+        if (_field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
-      if (tetris_field.size() - 1 < block.x + pos.x)
+      if (_field.size() - 1 < block.x + pos.x)
       {
-        pos.x -= block.x + pos.x - tetris_field.size() + 1;
+        pos.x -= block.x + pos.x - _field.size() + 1;
         OSD::Notify(Utils::Format("%d", pos.x));
-        if (tetris_field[block.x + pos.x][block.y + pos.y])
+        if (_field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
       if ((int)(block.y) + pos.y < 0)
         pos.y += abs((int)(block.y) + pos.y);
-      if (tetris_field[block.x + pos.x][block.y + pos.y])
+      if (_field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
     }
-    tetris_blocks = _tetris_blocks[mino_turn][mino];
-    for (int i = 0; i < tetris_blocks.size(); i++)
+    _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
+    for (int i = 0; i < _mino.blocks.size(); i++)
     {
-      tetris_blocks[i].x += pos.x;
-      tetris_blocks[i].y += pos.y;
+      _mino.blocks[i].x += pos.x;
+      _mino.blocks[i].y += pos.y;
     }
     return;
   RESET_TURN:
     if (turn_right)
     {
-      if (mino_turn == 0)
-        mino_turn = 3;
+      if (_mino.turn == 0)
+        _mino.turn = 3;
       else
-        mino_turn--;
+        _mino.turn--;
     }
     else
     {
-      if (mino_turn == 3)
-        mino_turn = 0;
+      if (_mino.turn == 3)
+        _mino.turn = 0;
       else
-        mino_turn++;
+        _mino.turn++;
     }
-    pos = {(int)(tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x), (int)(tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y)};
-    tetris_blocks = _tetris_blocks[mino_turn][mino];
-    for (int i = 0; i < tetris_blocks.size(); i++)
+    pos = {(int)(_mino.blocks[0].x - _mino_templates[_mino.turn][_mino.kind][0].x), (int)(_mino.blocks[0].y - _mino_templates[_mino.turn][mino][0].y)};
+    _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
+    for (int i = 0; i < _mino.blocks.size(); i++)
     {
-      tetris_blocks[i].x += pos.x;
-      tetris_blocks[i].y += pos.y;
+      _mino.blocks[i].x += pos.x;
+      _mino.blocks[i].y += pos.y;
+    }
+  }
+
+  void Tetris_Class::MoveMino(int moveX, int moveY)
+  {
+    for (int i = 0; i < _mino.blocks.size(); i++)
+    {
+      _mino.blocks[i].x += moveX;
+      _mino.blocks[i].y += moveY;
     }
   }
 
@@ -914,38 +930,52 @@ namespace CTRPluginFramework
     topScr.DrawRect(137, 9, 126, 222, Color::Black);
     topScr.DrawRect(139, 11, 122, 218, Color::White, false);
 
-    if (Hotkeys[0].IsPressed())
+    if (Hotkeys[0].IsDown())
     {
-      for (UIntVector block : tetris_blocks)
-        if (block.x <= 0 || tetris_field[block.x - 1][block.y])
+      for (UIntVector block : _mino.blocks)
+        if (block.x <= 0 || _field[block.x - 1][block.y])
           goto END;
-      for (int i = 0; i < tetris_blocks.size(); i++)
-        tetris_blocks[i].x--;
+      if(Hotkeys[0].IsPressed())
+      {
+        MoveMino(-1, 0);
+        _mino.moveClock.Restart();
+      }
+      else if(_mino.moveClock.HasTimePassed(Seconds(0.2)))
+      {
+        MoveMino(-1, 0);
+      }
     }
-    else if (Hotkeys[1].IsPressed())
+    else if (Hotkeys[1].IsDown())
     {
-      for (UIntVector block : tetris_blocks)
-        if (tetris_field.size() - 1 <= block.x || tetris_field[block.x + 1][block.y])
+      for (UIntVector block : _mino.blocks)
+        if (_field.size() - 1 <= block.x || _field[block.x + 1][block.y])
           goto END;
-      for (int i = 0; i < tetris_blocks.size(); i++)
-        tetris_blocks[i].x++;
+      if(Hotkeys[1].IsPressed())
+      {
+        MoveMino(1, 0);
+        _mino.moveClock.Restart();
+      }
+      else if(_mino.moveClock.HasTimePassed(Seconds(0.2)))
+      {
+        MoveMino(1, 0);
+      }
     }
-    else if (Hotkeys[2].IsPressed())
+    else if (Hotkeys[2].IsDown() && _mino.softdropClock.HasTimePassed(Seconds(0.08)))
     {
-      for (UIntVector block : tetris_blocks)
-        if (tetris_field[0].size() - 1 <= block.y || tetris_field[block.x][block.y + 1])
+      for (UIntVector block : _mino.blocks)
+        if (_field[0].size() - 1 <= block.y || _field[block.x][block.y + 1])
           goto END;
-      for (int i = 0; i < tetris_blocks.size(); i++)
-        tetris_blocks[i].y++;
+      MoveMino(0, 1);
+      _mino.softdropClock.Restart();
     }
     else if (Hotkeys[3].IsPressed())
     {
-      for (int i = 0; i < tetris_field[0].size(); i++)
-        for (UIntVector block : tetris_blocks)
-          if (block.y + i >= tetris_field[0].size() - 1 || tetris_field[block.x][block.y + 1 + i])
+      for (int i = 0; i < _field[0].size(); i++)
+        for (UIntVector block : _mino.blocks)
+          if (block.y + i >= _field[0].size() - 1 || _field[block.x][block.y + 1 + i])
           {
-            for (int j = 0; j < tetris_blocks.size(); j++)
-              tetris_blocks[j].y = tetris_blocks[j].y + i;
+            for (int j = 0; j < _mino.blocks.size(); j++)
+              _mino.blocks[j].y = _mino.blocks[j].y + i;
             Restart();
             goto END;
           }
@@ -956,40 +986,67 @@ namespace CTRPluginFramework
       TurnBlock(true);
   END:
 
-    if (clock.HasTimePassed(Milliseconds(1000 - tetris_level * 30)))
+    // ミノ落下
+    if (_mino.dropClock.HasTimePassed(Milliseconds(1000 - _level * 30)))
     {
-      for (UIntVector block : tetris_blocks)
-        if (block.y >= tetris_field[0].size() - 1 || tetris_field[block.x][block.y + 1])
+      for (UIntVector block : _mino.blocks)
+        if (block.y >= _field[0].size() - 1 || _field[block.x][block.y + 1])
         {
           Restart();
           break;
         }
-      for (int i = 0; i < tetris_blocks.size(); i++)
-        tetris_blocks[i].y++;
-      clock.Restart();
+      for (int i = 0; i < _mino.blocks.size(); i++)
+        _mino.blocks[i].y++;
+      _mino.dropClock.Restart();
     }
 
-    for (int i = 0; i < tetris_field.size(); i++)
-      for (int j = 0; j < tetris_field[i].size(); j++)
-        if (tetris_field[i][j])
-          topScr.DrawRect(140 + i * 12 + 1, 12 + j * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[tetris_field[i][j]] : tetris_colors[0]);
+    // フィールド上のブロック描画
+    for (int i = 0; i < _field.size(); i++)
+      for (int j = 0; j < _field[i].size(); j++)
+        if (_field[i][j])
+          topScr.DrawRect(140 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_field[i][j]] : _mino_colors[0]);
 
-    for (UIntVector block : tetris_blocks)
-      topScr.DrawRect(140 + block.x * 12 + 1, 12 + block.y * 12 + 1, 10, 10, tetris_colorful ? tetris_colors[mino + 1] : tetris_colors[0]);
+    // 落下中のミノ描画
+    for (UIntVector block : _mino.blocks)
+      topScr.DrawRect(140 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0]);
 
-    for (int i = 0; i < tetris_field[0].size(); i++)
+    // 落下位置描画
+    for (int i = 0; i < FIELD_HEIGHT; i++)
+    {
+      for (UIntVector block : _mino.blocks)
+      {
+        if (block.y + i >= FIELD_HEIGHT - 1 || _field[block.x][block.y + 1 + i])
+        {
+          for (int j = 0; j < _mino.blocks.size(); j++)
+          {
+            for (UIntVector block : _mino.blocks)
+            {
+              u32 y = block.y + i;
+              topScr.DrawRect(140 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0], false);
+            }
+            goto SUPER_BREAK;
+          }
+        }
+      }
+    }
+
+  SUPER_BREAK:
+
+    for (int i = 0; i < FIELD_HEIGHT; i++)
     {
       u8 count = 0;
-      for (int j = 0; j < tetris_field.size(); j++)
-        count += tetris_field[j][i] ? 1 : 0;
-      if (count == tetris_field.size())
+      for (int j = 0; j < FIELD_WIDTH; j++)
+        count += _field[j][i] ? 1 : 0;
+      if (count == FIELD_WIDTH)
       {
-        tetris_score++;
-        if (!(tetris_score % 10) && tetris_level < 11)
-          tetris_level++;
+        _score++;
+        // 10ごとにレベルを上げる
+        if (!(_score % 10) && _level < 11)
+          _level++;
+
         for (int k = i - 1; k >= 0; k--)
-          for (int j = 0; j < tetris_field.size(); j++)
-            tetris_field[j][k + 1] = tetris_field[j][k];
+          for (int j = 0; j < FIELD_WIDTH; j++)
+            _field[j][k + 1] = _field[j][k];
       }
     }
   }
