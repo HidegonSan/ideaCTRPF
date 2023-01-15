@@ -858,19 +858,31 @@ namespace CTRPluginFramework
         mino_turn--;
     }
     for (UIntVector block : _tetris_blocks[mino_turn][mino])
-      if ((int)(block.x) + pos.x < 0 || (int)(block.y) + pos.y < 0)
+    {
+      if ((int)(block.x) + pos.x < 0)
+      {
+        pos.x += abs((int)(block.x) + pos.x);
+        if (tetris_field[block.x + pos.x][block.y + pos.y])
+          goto RESET_TURN;
+      }
+      if (tetris_field.size() - 1 < block.x + pos.x)
+      {
+        pos.x -= block.x + pos.x - tetris_field.size() + 1;
+        OSD::Notify(Utils::Format("%d", pos.x));
+        if (tetris_field[block.x + pos.x][block.y + pos.y])
+          goto RESET_TURN;
+      }
+      if ((int)(block.y) + pos.y < 0)
+        pos.y += abs((int)(block.y) + pos.y);
+      if (tetris_field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
+    }
     tetris_blocks = _tetris_blocks[mino_turn][mino];
     for (int i = 0; i < tetris_blocks.size(); i++)
     {
       tetris_blocks[i].x += pos.x;
       tetris_blocks[i].y += pos.y;
     }
-    for (UIntVector block : tetris_blocks)
-      if (block.x < 0 || tetris_field.size() - 1 < block.x || tetris_field[0].size() - 1 < block.y || tetris_field[block.x][block.y])
-      {
-        goto RESET_TURN;
-      }
     return;
   RESET_TURN:
     if (turn_right)
@@ -887,6 +899,7 @@ namespace CTRPluginFramework
       else
         mino_turn++;
     }
+    pos = {(int)(tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x), (int)(tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y)};
     tetris_blocks = _tetris_blocks[mino_turn][mino];
     for (int i = 0; i < tetris_blocks.size(); i++)
     {
@@ -982,7 +995,7 @@ namespace CTRPluginFramework
   }
 
   Tetris_Class *Tetris_Class::_instance = nullptr;
-  
+
   void Tetris(MenuEntry *entry)
   {
     Tetris_Class::GetInstance()->Tetris_Loop(entry->Hotkeys);
