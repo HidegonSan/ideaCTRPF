@@ -981,21 +981,19 @@ namespace CTRPluginFramework
     }
   }
 
-  u8 Tetris_Class::tetris_level = 0;
-  bool Tetris_Class::tetris_colorful = false;
-
+  Tetris_Class *Tetris_Class::_instance = nullptr;
+  
   void Tetris(MenuEntry *entry)
   {
-    static Tetris_Class tetris;
-    tetris.Tetris_Loop(entry->Hotkeys);
+    Tetris_Class::GetInstance()->Tetris_Loop(entry->Hotkeys);
   }
 
   void SetTetrisSetting(MenuEntry *entry)
   {
     s8 answer;
     if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
-      Tetris_Class::tetris_colorful = answer;
+      Tetris_Class::GetInstance()->SetColorful(answer);
     if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
-      Tetris_Class::tetris_level = answer * 5;
+      Tetris_Class::GetInstance()->SetLevel(answer * 5);
   }
 }
