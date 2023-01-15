@@ -40,36 +40,7 @@ namespace CTRPluginFramework
     return (entry);
   }
 
-  static Handle mcuHwcHandle;
-  static int mcuHwcRefCount;
-  Result mcuHwcInit(void)
-  {
-    if (AtomicPostIncrement(&mcuHwcRefCount))
-      return (0);
-    Result res = srvGetServiceHandle(&mcuHwcHandle, "mcu::HWC");
-    if (res < 0)
-      AtomicDecrement(&mcuHwcRefCount);
-    return (res);
-  }
-  void mcuHwcExit(void)
-  {
-    if (AtomicDecrement(&mcuHwcRefCount))
-      return;
-    svcCloseHandle(mcuHwcHandle);
-  }
-  Result MCUHWC_ReadRegister(u8 reg, void *data, u32 size)
-  {
-    Result ret = 0;
-    u32 *cmdbuf = getThreadCommandBuffer();
-    cmdbuf[0] = IPC_MakeHeader(0x1, 2, 2);
-    cmdbuf[1] = reg;
-    cmdbuf[2] = size;
-    cmdbuf[3] = IPC_Desc_Buffer(size, IPC_BUFFER_W);
-    cmdbuf[4] = (u32)data;
-    if ((ret = svcSendSyncRequest(mcuHwcHandle)) < 0)
-      return (ret);
-    return ((Result)cmdbuf[1]);
-  }
+  
   void StoreBatteryPercentage(float &percentage)
   {
     u8 data[4];
@@ -277,7 +248,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
-    menu += EntryWithHotkeys(new MenuEntry("Tetris", Tetris, SetTetrisSetting, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::R, "右回転"), Hotkey(Key::L, "左回転")});
+    menu += EntryWithHotkeys(new MenuEntry("Tetris", Tetris, SetTetrisSetting, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転")});
   }
 
   int main(void)
