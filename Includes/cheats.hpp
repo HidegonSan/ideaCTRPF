@@ -23,6 +23,7 @@ namespace CTRPluginFramework
   class Tetris_Class
   {
   public:
+
     void Tetris_Loop(HotkeyManager Hotkeys);
 
     void SetLevel(u8 level)
@@ -42,20 +43,17 @@ namespace CTRPluginFramework
       return _instance;
     }
 
-    ~Tetris_Class()
-    {
-      _instance = nullptr;
-    }
-
   private:
     static constexpr u8 MINO_KINDS_COUNT = 7;
     static constexpr u8 FIELD_WIDTH = 10;
     static constexpr u8 FIELD_HEIGHT = 18;
     static constexpr u8 BLOCK_WIDTH = 12;
+    static constexpr u8 NEXT_COUNT = 5;
 
     const std::vector<Color> _mino_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
-    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates = {{{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, {{0, 1}, {1, 1}, {1, 2}, {2, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, {{2, 1}, {1, 2}, {2, 2}, {1, 3}}}, {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}, {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{1, 1}, {2, 1}, {2, 2}, {3, 2}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}};
+    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates = {{{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, {{0, 1}, {1, 1}, {1, 2}, {2, 2}}}, {{{2, 0}, {2, 1}, {2, 2}, {2, 3}}, {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, {{2, 1}, {1, 2}, {2, 2}, {1, 3}}}, {{{0, 2}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, {{1, 1}, {2, 1}, {2, 2}, {3, 2}}}, {{{1, 0}, {1, 1}, {1, 2}, {1, 3}}, {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, {{2, 0}, {1, 1}, {2, 1}, {1, 2}}}};
     std::vector<std::vector<u8>> _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+    std::vector<u8> _nexts;
 
     static Tetris_Class *_instance;
 
@@ -66,21 +64,21 @@ namespace CTRPluginFramework
       Clock dropClock;
       Clock moveClock;
       Clock softdropClock;
-      std::vector<UIntVector> blocks = {{4, 0}, {4, 1}, {4, 2}, {4, 3}};
+      std::vector<UIntVector> blocks;
     } _mino;
 
     u8 _score = 0;
     u8 _level = 0;
-    bool _colorfulMode = false;
+    bool _colorfulMode = true;
 
     void Restart(void);
     void GameOver(void);
     void TurnBlock(bool turn_right);
     void MoveMino(int moveX, int moveY);
-    Tetris_Class()
-    {
-      _instance = this;
-    }
+    void NextMino(void);
+
+    Tetris_Class(void);
+    ~Tetris_Class(void);
   };
 
   void Tetris(MenuEntry *entry);

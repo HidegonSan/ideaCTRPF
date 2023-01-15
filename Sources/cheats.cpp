@@ -817,13 +817,44 @@ namespace CTRPluginFramework
     colorPicker(out);
   }
 
+  Tetris_Class::Tetris_Class()
+  {
+    _instance = this;
+
+    _nexts.clear();
+    for(u8 i = 0; i < NEXT_COUNT; i++)
+    {
+      _nexts.push_back((u8)Utils::Random(0, MINO_KINDS_COUNT - 1));
+    }
+
+    NextMino();
+  }
+
+  Tetris_Class::~Tetris_Class()
+  {
+    _instance = nullptr;
+  }
+
+  void Tetris_Class::NextMino(void)
+  {
+    _mino.kind = _nexts[0];
+    _nexts.erase(_nexts.begin());
+    _nexts.push_back((u8)Utils::Random(0, MINO_KINDS_COUNT - 1));
+    _mino.turn = 0;
+    _mino.dropClock.Restart();
+    _mino.blocks = _mino_templates[0][_mino.kind];
+    for (int i = 0; i < _mino.blocks.size(); i++)
+      _mino.blocks[i].x += 3;
+  }
+
   void Tetris_Class::GameOver(void)
   {
     MessageBox(Utils::Format("Game Over\nyour score is %d", _score))();
     _score = 0;
-    _mino.turn = 0;
     _level = 0;
     _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+
+    NextMino();
   }
 
   void Tetris_Class::Restart(void)
@@ -838,13 +869,7 @@ namespace CTRPluginFramework
     if (_field[4][0])
       GameOver();
 
-    // 新しいミノを生成
-    _mino.kind = Utils::Random(0, MINO_KINDS_COUNT - 1);
-    _mino.turn = 0;
-    _mino.dropClock.Restart();
-    _mino.blocks = _mino_templates[0][_mino.kind];
-    for (int i = 0; i < _mino.blocks.size(); i++)
-      _mino.blocks[i].x += 3;
+    NextMino();
   }
 
   void Tetris_Class::TurnBlock(bool turn_right)
@@ -1009,6 +1034,17 @@ namespace CTRPluginFramework
     // 落下中のミノ描画
     for (UIntVector block : _mino.blocks)
       topScr.DrawRect(140 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0]);
+
+    // Next
+    for(u8 i = 0; i < NEXT_COUNT; i++)
+    {
+      u8 next = _nexts[i];
+      u32 posY = 12 + 40 * i;
+      topScr.DrawRect(265, posY, 50, 40, Color::White, false);
+      topScr.DrawRect(266, posY + 1, 48, 38, Color::Black);
+      for (UIntVector block : _mino_templates[0][next])
+        topScr.DrawRect(270 + block.x * BLOCK_WIDTH + 1, posY + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[next + 1] : _mino_colors[0]);
+    }
 
     // 落下位置描画
     for (int i = 0; i < FIELD_HEIGHT; i++)
