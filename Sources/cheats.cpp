@@ -842,7 +842,7 @@ namespace CTRPluginFramework
 
   void Tetris_Class::TurnBlock(bool turn_right)
   {
-    IntVector pos = {tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x, tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y};
+    IntVector pos = {(int)(tetris_blocks[0].x - _tetris_blocks[mino_turn][mino][0].x), (int)(tetris_blocks[0].y - _tetris_blocks[mino_turn][mino][0].y)};
     if (turn_right)
     {
       if (mino_turn == 3)

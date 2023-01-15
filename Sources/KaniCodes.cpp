@@ -8434,6 +8434,8 @@ namespace CTRPluginFramework
     }
     if (!flagShowScreenBuffer)
       return true;
+
+    return false;
   }
 
   std::string
