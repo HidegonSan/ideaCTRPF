@@ -906,7 +906,7 @@ namespace CTRPluginFramework
       else
         _mino.turn++;
     }
-    pos = {(int)(_mino.blocks[0].x - _mino_templates[_mino.turn][_mino.kind][0].x), (int)(_mino.blocks[0].y - _mino_templates[_mino.turn][mino][0].y)};
+    pos = {(int)(_mino.blocks[0].x - _mino_templates[_mino.turn][_mino.kind][0].x), (int)(_mino.blocks[0].y - _mino_templates[_mino.turn][_mino.kind][0].y)};
     _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
     for (int i = 0; i < _mino.blocks.size(); i++)
     {
