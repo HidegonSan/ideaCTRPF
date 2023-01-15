@@ -1,4 +1,4 @@
-Build/
-.vscode/
-CTRPFData.bin
+/Build
+/.vscode
+/CTRPFData.bin
 *.3gx
