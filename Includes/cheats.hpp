@@ -23,7 +23,6 @@ namespace CTRPluginFramework
   class Tetris_Class
   {
   public:
-
     void Tetris_Loop(HotkeyManager Hotkeys);
 
     void SetLevel(u8 level)
@@ -36,16 +35,25 @@ namespace CTRPluginFramework
       GetInstance()->_colorfulMode = colorful;
     }
 
+    void SetField_width(u8 width)
+    {
+      if (GetInstance()->FIELD_WIDTH == width)
+        return;
+      NextMino();
+      GetInstance()->FIELD_WIDTH = width < 24 ? width : 10;
+      GameOver();
+    }
+
     static Tetris_Class *GetInstance()
     {
-      if(!_instance)
+      if (!_instance)
         _instance = new Tetris_Class();
       return _instance;
     }
 
   private:
     static constexpr u8 MINO_KINDS_COUNT = 7;
-    static constexpr u8 FIELD_WIDTH = 10;
+    u8 FIELD_WIDTH = 10;
     static constexpr u8 FIELD_HEIGHT = 18;
     static constexpr u8 BLOCK_WIDTH = 12;
     static constexpr u8 NEXT_COUNT = 5;
@@ -58,7 +66,8 @@ namespace CTRPluginFramework
     static Tetris_Class *_instance;
 
     // 落下中のミノ
-    struct {
+    struct
+    {
       u8 kind = 0;
       u8 turn = 0;
       Clock dropClock;
