@@ -853,6 +853,7 @@ namespace CTRPluginFramework
     MessageBox(Utils::Format("Game Over\nyour score is %d", _score))();
     _score = 0;
     _level = 0;
+    _mino.heldKind = 9;
     _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
   }
 
@@ -868,8 +869,6 @@ namespace CTRPluginFramework
 
       _field[block.x][block.y] = _mino.kind + 1;
     }
-    if (_field[4][0])
-      GameOver();
 
     NextMino();
   }
@@ -1133,7 +1132,7 @@ namespace CTRPluginFramework
       Tetris_Class::GetInstance()->SetColorful(answer);
     if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
       Tetris_Class::GetInstance()->SetLevel(answer * 5);
-    Keyboard key("input field's width\ndefault is 10\n23以下でよろ");
+    Keyboard key("input field's width\ndefault is 10\n4以上23以下でよろ");
     key.IsHexadecimal(false);
     if (0 <= key.Open(out))
       Tetris_Class::GetInstance()->SetField_width(out);

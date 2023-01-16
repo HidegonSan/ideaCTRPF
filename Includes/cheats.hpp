@@ -37,11 +37,17 @@ namespace CTRPluginFramework
 
     void SetField_width(u8 width)
     {
-      if (GetInstance()->FIELD_WIDTH == width)
-        return;
-      NextMino();
-      GetInstance()->FIELD_WIDTH = width < 24 ? width : 10;
-      GameOver();
+      width = width < 4 || 23 < width ? 10 : width;
+      if (GetInstance()->FIELD_WIDTH > width)
+        for (int i = 0; i < GetInstance()->FIELD_WIDTH - width; i++)
+          GetInstance()->_field.erase(GetInstance()->_field.end());
+
+      if (GetInstance()->FIELD_WIDTH < width)
+        for (int i = 0; i < width - GetInstance()->FIELD_WIDTH; i++)
+          GetInstance()->_field.push_back(std::vector<u8>(FIELD_HEIGHT, 0));
+
+      GetInstance()->FIELD_WIDTH = width;
+      GetInstance()->NextMino();
     }
 
     static Tetris_Class *GetInstance()
