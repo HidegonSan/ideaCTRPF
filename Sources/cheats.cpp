@@ -824,7 +824,7 @@ namespace CTRPluginFramework
     _nexts.clear();
     for (u8 i = 0; i < NEXT_COUNT; i++)
     {
-      _nexts.push_back((u8)Utils::Random(0, MINO_KINDS_COUNT - 1));
+      _nexts.push_back(GenerateNextMino());
     }
 
     NextMino();
@@ -835,11 +835,30 @@ namespace CTRPluginFramework
     _instance = nullptr;
   }
 
+  u8 Tetris_Class::GenerateNextMino(void)
+  {
+    if(_srcNexts.empty())
+    {
+      _srcNexts = {0, 1, 2, 3, 4, 5, 6, 7};
+
+      for(u8 i = 0; i < MINO_KINDS_COUNT; i++)
+      {
+        u8 r = (u8)Utils::Random(i, 6);
+        std::swap(_srcNexts[i], _srcNexts[r]);
+      }
+    }
+
+    u8 next = _srcNexts[0];
+    _srcNexts.erase(_srcNexts.begin());
+
+    return std::min(next, (u8)6);
+  }
+
   void Tetris_Class::NextMino(void)
   {
     _mino.kind = _nexts[0];
     _nexts.erase(_nexts.begin());
-    _nexts.push_back((u8)Utils::Random(0, MINO_KINDS_COUNT - 1));
+    _nexts.push_back(GenerateNextMino());
     _mino.turn = 0;
     _mino.dropClock.Restart();
     _mino.blocks = _mino_templates[0][_mino.kind];
