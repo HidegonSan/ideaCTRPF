@@ -839,7 +839,7 @@ namespace CTRPluginFramework
   {
     if(_srcNexts.empty())
     {
-      _srcNexts = {0, 1, 2, 3, 4, 5, 6, 7};
+      _srcNexts = {0, 1, 2, 3, 4, 5, 6};
 
       for(u8 i = 0; i < MINO_KINDS_COUNT; i++)
       {
@@ -851,7 +851,7 @@ namespace CTRPluginFramework
     u8 next = _srcNexts[0];
     _srcNexts.erase(_srcNexts.begin());
 
-    return std::min(next, (u8)6);
+    return next;
   }
 
   void Tetris_Class::NextMino(void)

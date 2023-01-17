@@ -95,7 +95,7 @@ namespace CTRPluginFramework
     void MoveMino(int moveX, int moveY);
     void NextMino(void);
     void HoldMino(void);
-    u8 GenerateNextMino();
+    u8 GenerateNextMino(void);
 
     Tetris_Class(void);
     ~Tetris_Class(void);
