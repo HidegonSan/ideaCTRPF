@@ -995,6 +995,9 @@ namespace CTRPluginFramework
     const Screen &btmScr = OSD::GetBottomScreen();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     draw_tetris_image();
+    OSD::SwapBuffers();
+    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+    draw_tetris_image();
     while (isOpened)
     {
       Controller::Update();
@@ -1079,6 +1082,11 @@ namespace CTRPluginFramework
           else if (ans == 2)
             isOpened = false;
         }
+        topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+        draw_tetris_image();
+        OSD::SwapBuffers();
+        topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+        draw_tetris_image();
       }
     END:
 
@@ -1174,19 +1182,5 @@ namespace CTRPluginFramework
     if (!Process::IsPaused())
       return;
     Tetris_Class::GetInstance()->Tetris_Loop(entry->Hotkeys);
-  }
-
-  void SetTetrisSetting(MenuEntry *entry)
-  {
-    s8 answer;
-    u8 out;
-    if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
-      Tetris_Class::GetInstance()->SetColorful(answer);
-    if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
-      Tetris_Class::GetInstance()->SetLevel(answer * 5);
-    Keyboard key("input field's width\ndefault is 10\n4以上23以下でよろ");
-    key.IsHexadecimal(false);
-    if (0 <= key.Open(out))
-      Tetris_Class::GetInstance()->SetField_width(out);
   }
 }

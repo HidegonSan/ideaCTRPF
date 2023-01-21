@@ -141,7 +141,6 @@ namespace CTRPluginFramework
   };
   void draw_tetris_image(void);
   void Tetris(MenuEntry *entry);
-  void SetTetrisSetting(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
 }
