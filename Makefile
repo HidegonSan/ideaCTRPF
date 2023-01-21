@@ -22,7 +22,7 @@ SOURCES 	:= 	Sources
 ARCH		:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS		:=	$(ARCH) -Os -mword-relocations \
-				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing `curl-config --cflags`
+				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing
 
 CFLAGS		+=	$(INCLUDE) -D__3DS__
 
@@ -31,7 +31,7 @@ CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 -Wno-psabi
 ASFLAGS		:=	$(ARCH)
 LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -Os -Wl,--gc-sections,--strip-discarded,--strip-debug
 
-LIBS		:= -lctrpf -lctru `curl-config --libs`
+LIBS		:= -lctrpf -lctru
 LIBDIRS		:= 	$(CTRPFLIB) $(CTRULIB) $(PORTLIBS)
 
 #---------------------------------------------------------------------------------

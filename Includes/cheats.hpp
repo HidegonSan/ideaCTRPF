@@ -88,7 +88,7 @@ namespace CTRPluginFramework
     u8 _level = 0;
     bool _colorfulMode = true;
 
-    void Restart(void);
+    bool Restart(void);
     void GameOver(void);
     void TurnBlock(bool turn_right);
     void MoveMino(int moveX, int moveY);
@@ -139,7 +139,7 @@ namespace CTRPluginFramework
       }, 
     };
   };
-
+  void draw_tetris_image(void);
   void Tetris(MenuEntry *entry);
   void SetTetrisSetting(MenuEntry *entry);
 
