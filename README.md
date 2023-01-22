@@ -22,16 +22,16 @@ pip install python-dotenv
 SEND_TO=both
 
 # Send plugin as default.3gx
-AS_DEFAULT=true
+AS_DEFAULT=false
 
 # Plugin file name to send
-PLUGIN_NAME=./EasyCTRPF.3gx
+PLUGIN_NAME=./ideaCTRPF.3gx
 
 # Target title id
 TITLE_ID=0004000000155100
 
 # 3ds hostname
-HOSTNAME=192.168.2.100
+HOSTNAME=192.168.2.10
 
 # sdmc path of citra
 CITRA_SDMC_PATH=/home/user/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
