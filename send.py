@@ -14,14 +14,17 @@ def ftp_upload(hostname, port, upload_src_path, upload_dst_path, timeout):
                 ftp.storbinary(upload_dst_path, fp)
 
         except ftplib.all_errors as e:
-            pass
+            print("FTP error:", e)
 
 load_dotenv()
 
-hostname = os.getenv("HOSTNAME")
-
-upload_src_path = "./ideaCTRPF.3gx"
-upload_dst_path = "STOR /luma/plugins/" + os.getenv("TITLE_ID") + "/ideaCTRPF.3gx"
+try:
+    hostname = os.getenv("HOSTNAME")
+    upload_src_path = "./ideaCTRPF.3gx"
+    upload_dst_path = "STOR /luma/plugins/" + os.getenv("TITLE_ID") + "/ideaCTRPF.3gx"
+except:
+    print("Error: .env file not found or invalid.")
+    exit(1)
 
 port = 5000
 timeout = 500
