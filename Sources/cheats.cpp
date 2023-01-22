@@ -1063,7 +1063,7 @@ namespace CTRPluginFramework
         HoldMino();
       else if (Hotkeys[7].IsPressed())
       {
-        u8 ans;
+        s8 ans;
         if (0 <= (ans = Keyboard("Paused", {"continue", "settings", "quit"}).Open()))
         {
           if (ans == 1)
