@@ -40,7 +40,6 @@ namespace CTRPluginFramework
     return (entry);
   }
 
-  
   void StoreBatteryPercentage(float &percentage)
   {
     u8 data[4];
@@ -239,7 +238,7 @@ namespace CTRPluginFramework
     *searchFolder += new MenuEntry("Search", nullptr, Search);
     menu += searchFolder;
 
-    menu += new MenuEntry("Test1", Test1);
+    menu += new MenuEntry("Test1", nullptr, Test1);
     menu += new MenuEntry("command", nullptr, Command, "コマンド");
     menu += new MenuEntry("pipes", Pipes, "パイプス\nstartで消せます\n(たまにクラッシュするような気がする誰か直してくれ)");
     menu += new MenuEntry("Cube", Cube, "キューブ\nCPadとCStickで回転,拡大,縮小できるよ");
@@ -248,7 +247,8 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
-    menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"),Hotkey(Key::Y,"Pause")});
+    menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")});
+    menu += new MenuEntry("Paint", nullptr, Paint, "ペイント");
   }
 
   int main(void)

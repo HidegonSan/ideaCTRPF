@@ -8303,7 +8303,7 @@ namespace CTRPluginFramework
   std::string
   Convert::hiraganaToKanji(std::string hiragana)
   {
-    for (auto&& hk : hiragana_kanji)
+    for (auto &&hk : hiragana_kanji)
     {
       if (hk.hiragana == hiragana)
       {
@@ -8399,8 +8399,7 @@ namespace CTRPluginFramework
   }
 
   bool flagShowScreenBuffer = false;
-  std::vector<std::vector<Color>>
-      screenBuffer(400, std::vector<Color>(240, Color::Black));
+  std::vector<std::vector<Color>> screenBuffer(400, std::vector<Color>(240, Color(0, 0, 0, 0)));
 
   void setFlagShowScreenBuffer(bool flag)
   {
@@ -8426,7 +8425,7 @@ namespace CTRPluginFramework
     {
       for (int j = 0; j < 240; j++)
       {
-        if (screenBuffer[i][j] != Color::Black)
+        if (screenBuffer[i][j].a)
         {
           screen.DrawPixel(i, j, screenBuffer[i][j]);
         }

@@ -7,10 +7,7 @@
 
 namespace CTRPluginFramework
 {
-
-  void Test1(MenuEntry *entry)
-  {
-  }
+  void Test1(MenuEntry *entry) {}
 
   void JPNotify(MenuEntry *entry)
   {
@@ -39,7 +36,7 @@ namespace CTRPluginFramework
     static bool isReset = false;
     if (entry->WasJustActivated())
     {
-      fillScreenBuffer(Color::Black);
+      fillScreenBuffer(Color(0, 0, 0, 0));
       setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
@@ -94,56 +91,56 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color::Black);
+              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
             else
-              setScreenBuffer(xPos - 2, yPos, Color::Black);
+              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
             yPos++;
             break;
           }
-          setScreenBuffer(xPos + 2, yPos, Color::Black);
-          setScreenBuffer(xPos - 2, yPos, Color::Black);
+          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos++;
           break;
         case 1:
           if (j == 0)
           {
             if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color::Black);
+              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
             else
-              setScreenBuffer(xPos, yPos - 2, Color::Black);
+              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
             xPos++;
             break;
           }
-          setScreenBuffer(xPos, yPos + 2, Color::Black);
-          setScreenBuffer(xPos, yPos - 2, Color::Black);
+          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos++;
           break;
         case 2:
           if (j == 0)
           {
             if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color::Black);
+              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
             else
-              setScreenBuffer(xPos, yPos - 2, Color::Black);
+              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
             xPos--;
             break;
           }
-          setScreenBuffer(xPos, yPos + 2, Color::Black);
-          setScreenBuffer(xPos, yPos - 2, Color::Black);
+          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos--;
           break;
         default:
           if (j == 0)
           {
             if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color::Black);
+              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
             else
-              setScreenBuffer(xPos - 2, yPos, Color::Black);
+              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
             yPos--;
             break;
           }
-          setScreenBuffer(xPos + 2, yPos, Color::Black);
-          setScreenBuffer(xPos - 2, yPos, Color::Black);
+          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos--;
           break;
         }
@@ -165,7 +162,7 @@ namespace CTRPluginFramework
     }
     if (Controller::IsKeyPressed(Key::Start))
     {
-      fillScreenBuffer(Color::Black);
+      fillScreenBuffer(Color(0, 0, 0, 0));
       isReset = true;
     }
   }
@@ -293,7 +290,7 @@ namespace CTRPluginFramework
         calculateForSurface(cubeX, cubeWidth, cubeY, '+');
       }
     }
-    fillScreenBuffer(Color::Black);
+    fillScreenBuffer(Color(0, 0, 0, 0));
     for (int k = 0; k < width * height; k++)
     {
       switch (buffer[k])
@@ -374,7 +371,7 @@ namespace CTRPluginFramework
         if (frame[i] & j)
           screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::White);
         else
-          screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::Black);
+          screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color(0, 0, 0, 0));
         index++;
       }
     }
@@ -862,7 +859,7 @@ namespace CTRPluginFramework
     _mino.dropClock.Restart();
     _mino.blocks = _mino_templates[0][_mino.kind];
     _mino.IsHeld = false;
-    for (auto&& block : _mino.blocks)
+    for (auto &&block : _mino.blocks)
       block.x += FIELD_WIDTH / 2 - 2;
   }
 
@@ -877,7 +874,7 @@ namespace CTRPluginFramework
 
   bool Tetris_Class::Restart(void)
   {
-    for (auto&& block : _mino.blocks)
+    for (auto &&block : _mino.blocks)
     {
       if (block.y == 1 || _field[block.x][block.y])
       {
@@ -909,7 +906,7 @@ namespace CTRPluginFramework
       else
         _mino.turn--;
     }
-    for (auto&& block : _mino_templates[_mino.turn][_mino.kind])
+    for (auto &&block : _mino_templates[_mino.turn][_mino.kind])
     {
       if ((int)(block.x) + pos.x < 0)
       {
@@ -929,7 +926,7 @@ namespace CTRPluginFramework
         goto RESET_TURN;
     }
     _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
-    for (auto&& block : _mino.blocks)
+    for (auto &&block : _mino.blocks)
     {
       block.x += pos.x;
       block.y += pos.y;
@@ -952,7 +949,7 @@ namespace CTRPluginFramework
     }
     pos = {(int)(_mino.blocks[0].x - _mino_templates[_mino.turn][_mino.kind][0].x), (int)(_mino.blocks[0].y - _mino_templates[_mino.turn][_mino.kind][0].y)};
     _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
-    for (auto&& block : _mino.blocks)
+    for (auto &&block : _mino.blocks)
     {
       block.x += pos.x;
       block.y += pos.y;
@@ -961,7 +958,7 @@ namespace CTRPluginFramework
 
   void Tetris_Class::MoveMino(int moveX, int moveY)
   {
-    for (auto&& block : _mino.blocks)
+    for (auto &&block : _mino.blocks)
     {
       block.x += moveX;
       block.y += moveY;
@@ -982,7 +979,7 @@ namespace CTRPluginFramework
       _mino.blocks = _mino_templates[0][_mino.heldKind];
       std::swap(_mino.heldKind, _mino.kind);
       _mino.IsHeld = true;
-      for (auto&& block : _mino.blocks)
+      for (auto &&block : _mino.blocks)
         block.x += FIELD_WIDTH / 2 - 2;
     }
   }
@@ -1006,7 +1003,7 @@ namespace CTRPluginFramework
 
       if (Hotkeys[0].IsDown())
       {
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
           if (block.x <= 0 || _field[block.x - 1][block.y])
             goto END;
         if (Hotkeys[0].IsPressed())
@@ -1021,7 +1018,7 @@ namespace CTRPluginFramework
       }
       else if (Hotkeys[1].IsDown())
       {
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
           if (_field.size() - 1 <= block.x || _field[block.x + 1][block.y])
             goto END;
         if (Hotkeys[1].IsPressed())
@@ -1036,7 +1033,7 @@ namespace CTRPluginFramework
       }
       else if (Hotkeys[2].IsDown() && _mino.softdropClock.HasTimePassed(Seconds(0.08)))
       {
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
           if (_field[0].size() - 1 <= block.y || _field[block.x][block.y + 1])
             goto END;
         MoveMino(0, 1);
@@ -1045,10 +1042,10 @@ namespace CTRPluginFramework
       else if (Hotkeys[3].IsPressed())
       {
         for (size_t i = 0; i < _field[0].size(); i++)
-          for (auto&& block : _mino.blocks)
+          for (auto &&block : _mino.blocks)
             if (block.y + i >= _field[0].size() - 1 || _field[block.x][block.y + 1 + i])
             {
-              for (auto&& block : _mino.blocks)
+              for (auto &&block : _mino.blocks)
                 block.y += i;
               isOpened = Restart();
               goto END;
@@ -1092,13 +1089,13 @@ namespace CTRPluginFramework
       // ミノ落下
       if (_mino.dropClock.HasTimePassed(Milliseconds(1000 - _level * 30)))
       {
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
           if (block.y >= _field[0].size() - 1 || _field[block.x][block.y + 1])
           {
             isOpened = Restart();
             break;
           }
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
           block.y++;
         _mino.dropClock.Restart();
       }
@@ -1110,7 +1107,7 @@ namespace CTRPluginFramework
             topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_field[i][j]] : _mino_colors[0]);
 
       // 落下中のミノ描画
-      for (auto&& block : _mino.blocks)
+      for (auto &&block : _mino.blocks)
         topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0]);
 
       // Next
@@ -1120,7 +1117,7 @@ namespace CTRPluginFramework
         u32 posY = 12 + 40 * i;
         topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 2, posY, 55, 40, Color::White, false);
         topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 3, posY + 1, 53, 38, Color::Black);
-        for (auto&& block : _mino_templates[0][next])
+        for (auto &&block : _mino_templates[0][next])
           topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 7 + block.x * BLOCK_WIDTH + 1, posY + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[next + 1] : _mino_colors[0]);
       }
 
@@ -1128,17 +1125,17 @@ namespace CTRPluginFramework
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 58, 12, 55, 40, Color::White, false);
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 57, 12 + 1, 53, 38, Color::Black);
       if (_mino.heldKind != 9)
-        for (auto&& block : _mino_templates[0][_mino.heldKind])
+        for (auto &&block : _mino_templates[0][_mino.heldKind])
           topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 53 + block.x * BLOCK_WIDTH + 1, 12 + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.heldKind + 1] : _mino_colors[0]);
 
       // 落下位置描画
       for (int i = 0; i < FIELD_HEIGHT; i++)
       {
-        for (auto&& block : _mino.blocks)
+        for (auto &&block : _mino.blocks)
         {
           if (block.y + i >= FIELD_HEIGHT - 1 || _field[block.x][block.y + 1 + i])
           {
-            for (auto&& block : _mino.blocks)
+            for (auto &&block : _mino.blocks)
             {
               u32 y = block.y + i;
               topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0], false);
@@ -1178,5 +1175,98 @@ namespace CTRPluginFramework
     if (!Process::IsPaused())
       return;
     Tetris_Class::GetInstance()->Tetris_Loop(entry->Hotkeys);
+  }
+
+  void ShowPallet(MenuEntry *entry)
+  {
+    if (entry->WasJustActivated())
+    {
+      setFlagShowScreenBuffer(true);
+      OSD::Run(ShowScreenBuffer);
+    }
+    if (!entry->IsActivated())
+    {
+      setFlagShowScreenBuffer(false);
+      OSD::Stop(ShowScreenBuffer);
+    }
+  }
+
+  void Paint(MenuEntry *entry)
+  {
+    bool isOpened = true;
+    const Screen &topScr = OSD::GetTopScreen();
+    const Screen &btmScr = OSD::GetBottomScreen();
+    Color paintColor = Color::Black;
+    UIntVector lastPos;
+    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color::White));
+  START:
+    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+    btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
+    for (size_t x = 0; x < 200; x++)
+      for (size_t y = 0; y < 200; y++)
+        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+    btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
+    btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
+    btmScr.DrawSysfont("cancel", 202, 218);
+    btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
+    btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
+    btmScr.DrawSysfont("OK", 272, 218);
+    OSD::SwapBuffers();
+    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+    btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
+    for (size_t x = 0; x < 200; x++)
+      for (size_t y = 0; y < 200; y++)
+        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+    btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
+    btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
+    btmScr.DrawSysfont("cancel", 202, 218);
+    btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
+    btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
+    btmScr.DrawSysfont("OK", 272, 218);
+    while (isOpened)
+    {
+      Controller::Update();
+      lastPos = Touch::GetPosition();
+      while (TouchRect(20, 10, 200, 200))
+      {
+        UIntVector pos = Touch::GetPosition();
+        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
+        OSD::SwapBuffers();
+        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
+        lastPos = Touch::GetPosition();
+        Controller::Update();
+      }
+      if (TouchRect(200, 215, 50, 22))
+        isOpened = false;
+      if (TouchRect(260, 215, 50, 22))
+      {
+        for (size_t x = 0; x < 200; x++)
+          for (size_t y = 0; y < 200; y++)
+          {
+            Color color;
+            btmScr.ReadPixel(x + 20, y + 10, color);
+            setScreenBuffer(x + 100, y + 20, color);
+          }
+        entry->SetGameFunc(ShowPallet);
+        isOpened = false;
+      }
+      if (Controller::IsKeyPressed(Key::B))
+        isOpened = false;
+      if (Controller::IsKeyPressed(Key::X))
+      {
+        for (size_t x = 0; x < 200; x++)
+          for (size_t y = 0; y < 200; y++)
+          {
+            Color color;
+            btmScr.ReadPixel(x + 20, y + 10, color);
+            paintPallet[x][y] = color;
+          }
+        colorPicker(paintColor);
+        goto START;
+      }
+      OSD::SwapBuffers();
+    }
   }
 }
