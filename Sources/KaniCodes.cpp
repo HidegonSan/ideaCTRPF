@@ -267,7 +267,7 @@ namespace CTRPluginFramework
     {
     }
 
-    for (int r = miniRadius; r < radiusEnd; r++)
+    for (u32 r = miniRadius; r < radiusEnd; r++)
     {
       for (int angle = start; angle < end; angle++)
       {
@@ -538,7 +538,7 @@ namespace CTRPluginFramework
     {
       InputStr.clear();
       u16 str[100] = {0};
-      for (int i = 0; i < InputChrs.size(); i++)
+      for (u8 i = 0; i < InputChrs.size(); i++)
       {
         str[i] = InputChrs[i];
       }
@@ -682,7 +682,7 @@ namespace CTRPluginFramework
         a.SetLayout(Layout::QWERTY);
         a.Run();
         input = a.GetInput();
-        for (int i = 0; i < input.length(); i++)
+        for (size_t i = 0; i < input.length(); i++)
         {
           if (InputChrs.size() > _maxLength)
             break;
@@ -8303,15 +8303,15 @@ namespace CTRPluginFramework
   std::string
   Convert::hiraganaToKanji(std::string hiragana)
   {
-    for (int i = 0; i < hiragana_kanji.size(); i++)
+    for (auto&& hk : hiragana_kanji)
     {
-      if (hiragana_kanji[i].hiragana == hiragana)
+      if (hk.hiragana == hiragana)
       {
-        return hiragana_kanji[i].kanji;
+        return hk.kanji;
       }
-      else if (hiragana_kanji[i].kanji == hiragana)
+      else if (hk.kanji == hiragana)
       {
-        hiragana = hiragana_kanji[i].hiragana;
+        hiragana = hk.hiragana;
       }
     }
     return hiragana;
@@ -8468,7 +8468,7 @@ namespace CTRPluginFramework
   }
 
   bool colorPickerOpened = false;
-  u16 barLength = 24;
+  size_t barLength = 24;
   UIntVector pickerPos = {126, 27};
   Color barColor = Color::Red, selectedColor;
   std::vector<Color> barColorVector;
@@ -8667,7 +8667,7 @@ namespace CTRPluginFramework
         barColor.r = Value;
         if (Value == 254)
           Value = 255;
-        for (int i = 0; i < barColorVector.size(); i++)
+        for (size_t i = 0; i < barColorVector.size(); i++)
         {
           if ((Value == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
           {
@@ -8687,7 +8687,7 @@ namespace CTRPluginFramework
         barColor.g = Value;
         if (Value == 254)
           Value = 255;
-        for (int i = 0; i < barColorVector.size(); i++)
+        for (size_t i = 0; i < barColorVector.size(); i++)
         {
           if ((barColor.r == barColorVector[i].r) && (Value == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
           {
@@ -8707,7 +8707,7 @@ namespace CTRPluginFramework
         barColor.b = Value;
         if (Value == 254)
           Value = 255;
-        for (int i = 0; i < barColorVector.size(); i++)
+        for (size_t i = 0; i < barColorVector.size(); i++)
         {
           if ((barColor.r == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (Value == barColorVector[i].b))
           {

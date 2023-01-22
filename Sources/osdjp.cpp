@@ -6,7 +6,7 @@ namespace CTRPluginFramework
 
   bool OSDJP(const Screen &screen)
   {
-    int i = 0;
+    size_t i = 0;
     if (!screen.IsTop)
       return false;
     while (i < OSDJPlist.size())
