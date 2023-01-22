@@ -22,7 +22,7 @@ SOURCES 	:= 	Sources
 ARCH		:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS		:=	$(ARCH) -Os -mword-relocations \
-				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing -Wall -Wno-sign-compare -Wno-unused
+				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing -Wall -Wextra -Wno-sign-compare -Wno-unused
 
 CFLAGS		+=	$(INCLUDE) -D__3DS__
 
