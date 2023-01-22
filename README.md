@@ -34,7 +34,7 @@ TITLE_ID=0004000000155100
 HOSTNAME=192.168.2.100
 
 # sdmc path of citra
-CITRA_SDMC_PATH=/home/hidegon/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
+CITRA_SDMC_PATH=/home/user/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
 ```
 
 #### 3. Run the script:
