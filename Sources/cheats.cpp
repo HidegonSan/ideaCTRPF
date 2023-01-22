@@ -497,11 +497,11 @@ namespace CTRPluginFramework
     return "no folder";
   }
 
-  u8 getReturnCount(std::string &str)
+  size_t getReturnCount(std::string &str)
   {
-    u16 count = 0;
+    size_t count = 0;
     count = find_all(str, "\n").size();
-    for (int i = 0; i < count - 1; i++)
+    for (size_t i = 0; i < count - 1; i++)
     {
       if (
           OSD::GetTextWidth(true, str.substr(find_all(str, "\n")[i], find_all(str, "\n")[i + 1] - find_all(str, "\n")[i])) > 330)
@@ -596,8 +596,7 @@ namespace CTRPluginFramework
       }
       if (args[0] == "ls")
       {
-      LS:
-        u16 buff_size = commandLine_buffer.size();
+        size_t buff_size = commandLine_buffer.size();
         for (auto file : files)
           commandLine_buffer += "\n" + file;
         for (auto folder : folders)

@@ -538,7 +538,7 @@ namespace CTRPluginFramework
     {
       InputStr.clear();
       u16 str[100] = {0};
-      for (u8 i = 0; i < InputChrs.size(); i++)
+      for (size_t i = 0; i < InputChrs.size(); i++)
       {
         str[i] = InputChrs[i];
       }
