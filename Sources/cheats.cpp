@@ -400,11 +400,11 @@ namespace CTRPluginFramework
     {
       switch (Keyboard("which", {"Top", "Bottom"}).Open())
       {
-      case 0:
+      case BMP_TOP:
         AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
         Sleep(Milliseconds(500));
         break;
-      case 1:
+      case BMP_BOTTOM:
         AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
         Sleep(Milliseconds(500));
         break;
