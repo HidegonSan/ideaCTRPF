@@ -1214,6 +1214,8 @@ namespace CTRPluginFramework
 
     while (i <= step)
     {
+      if (x < 0 || y < 0 || paintPallet.size() <= x || paintPallet[0].size() <= y)
+        break;
       paintPallet[x][y] = color;
       x = x + dx;
       y = y + dy;
