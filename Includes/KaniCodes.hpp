@@ -43,6 +43,14 @@ namespace CTRPluginFramework
     bool Open(std::string &out,std::string defaultText);
 
   private:
+    enum
+    {
+      DELETE,
+      KOMOJI,
+      HYPHEN,
+      DAKUTEN,
+      HANDAKUTEN
+    };
     std::string _text;
     u32 _maxLength;
     bool _canSwich;

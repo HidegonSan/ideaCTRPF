@@ -577,21 +577,21 @@ namespace CTRPluginFramework
         selectedIndex = 0;
         switch (i)
         {
-        case 0:
+        case DELETE:
           if (!InputChrs.empty())
             InputChrs.pop_back();
           break;
-        case 1:
+        case KOMOJI:
           Komoji(InputChrs[InputChrs.size() - 1]);
           break;
-        case 2:
+        case HYPHEN:
           if (InputChrs.size() < _maxLength)
             InputChrs.push_back(0x30FC);
           break;
-        case 3:
+        case DAKUTEN:
           Dakuten(false, InputChrs[InputChrs.size() - 1]);
           break;
-        case 4:
+        case HANDAKUTEN:
           Dakuten(true, InputChrs[InputChrs.size() - 1]);
           break;
         }
