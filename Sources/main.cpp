@@ -3,7 +3,6 @@
 #include <CTRPluginFramework.hpp>
 #include "cheats.hpp"
 #include "KaniCodes.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 #include <ctime>
 
 namespace CTRPluginFramework

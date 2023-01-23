@@ -2,8 +2,6 @@
 #include "osdjp.hpp"
 #include "AliceCodes.hpp"
 #include "KaniCodes.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
 {
@@ -1191,6 +1189,38 @@ namespace CTRPluginFramework
     }
   }
 
+  void PaintDrawLine(std::vector<std::vector<Color>> &paintPallet, int srcX, int srcY, int dstX, int dstY, const Color &color)
+  {
+    float x, y, dx, dy, step;
+    int i;
+
+    dx = (dstX - srcX);
+    dy = (dstY - srcY);
+
+    if (abs(dx) >= abs(dy))
+    {
+      step = abs(dx);
+    }
+    else
+    {
+      step = abs(dy);
+    }
+
+    dx = dx / step;
+    dy = dy / step;
+    x = srcX;
+    y = srcY;
+    i = 1;
+
+    while (i <= step)
+    {
+      paintPallet[x][y] = color;
+      x = x + dx;
+      y = y + dy;
+      i++;
+    }
+  }
+
   void Paint(MenuEntry *entry)
   {
     bool isOpened = true;
@@ -1198,14 +1228,14 @@ namespace CTRPluginFramework
     const Screen &btmScr = OSD::GetBottomScreen();
     Color paintColor = Color::Black;
     UIntVector lastPos;
-    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color::White));
+    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color(0, 0, 0, 0)));
   START:
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
-    for (size_t x = 0; x < 200; x++)
-      for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+    for (size_t x = 0; x < 20; x++)
+      for (size_t y = 0; y < 20; y++)
+        btmScr.DrawRect(x * 10 + 20, y * 10 + 10, 10, 10, (x + y) % 2 ? Color::White : Color::DarkGrey);
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
@@ -1216,9 +1246,9 @@ namespace CTRPluginFramework
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
-    for (size_t x = 0; x < 200; x++)
-      for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+    for (size_t x = 0; x < 20; x++)
+      for (size_t y = 0; y < 20; y++)
+        btmScr.DrawRect(x * 10 + 20, y * 10 + 10, 10, 10, (x + y) % 2 ? Color::White : Color::DarkGrey);
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
@@ -1232,10 +1262,16 @@ namespace CTRPluginFramework
       while (TouchRect(20, 10, 200, 200))
       {
         UIntVector pos = Touch::GetPosition();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
-        OSD::SwapBuffers();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
+        PaintDrawLine(paintPallet, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintColor);
         lastPos = Touch::GetPosition();
+        for (size_t x = 0; x < 200; x++)
+          for (size_t y = 0; y < 200; y++)
+          {
+            Color color = paintPallet[x][y];
+            if (color.a)
+              btmScr.DrawPixel(x + 20, y + 10, color);
+          }
+        OSD::SwapBuffers();
         Controller::Update();
       }
       if (TouchRect(200, 215, 50, 22))
@@ -1245,8 +1281,7 @@ namespace CTRPluginFramework
         for (size_t x = 0; x < 200; x++)
           for (size_t y = 0; y < 200; y++)
           {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
+            Color color = paintPallet[x][y];
             setScreenBuffer(x + 100, y + 20, color);
           }
         entry->SetGameFunc(ShowPallet);
@@ -1256,16 +1291,16 @@ namespace CTRPluginFramework
         isOpened = false;
       if (Controller::IsKeyPressed(Key::X))
       {
-        for (size_t x = 0; x < 200; x++)
-          for (size_t y = 0; y < 200; y++)
-          {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
-            paintPallet[x][y] = color;
-          }
         colorPicker(paintColor);
         goto START;
       }
+      for (size_t x = 0; x < 200; x++)
+        for (size_t y = 0; y < 200; y++)
+        {
+          Color color = paintPallet[x][y];
+          if (color.a)
+            btmScr.DrawPixel(x + 20, y + 10, color);
+        }
       OSD::SwapBuffers();
     }
   }

@@ -2,6 +2,7 @@
 #define CHEATS_H
 
 #include <CTRPluginFramework.hpp>
+#include <CTRPluginFrameworkImpl.hpp>
 #include "Helpers.hpp"
 #include "Unicode.h"
 
