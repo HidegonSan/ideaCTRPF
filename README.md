@@ -10,6 +10,16 @@ libctrpf
 3gxtool
 ```
 
+### Clone
+
+```bash
+# HTTPS
+git clone --recursive https://github.com/kani537/ideaCTRPF.git
+
+# SSH
+git clone --recursive git@github.com:kani537/ideaCTRPF.git
+```
+
 ### Build
 
 ```bash
@@ -26,9 +36,8 @@ make
 pip install python-dotenv
 ```
 
-#### 2. Create a `.env` file in the root directory of the project and add settings according to the following
-
-```env
+#### 2. Create a `.env` file in the `plugin-sender` directory of the project and add settings according to the following
+```
 # Plugin file name to send
 PLUGIN_NAME=ideaCTRPF.3gx
 
@@ -51,5 +60,5 @@ CITRA_SDMC_PATH=/home/user/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
 #### 3. Run the script
 
 ```bash
-python send.py
+make send
 ```

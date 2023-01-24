@@ -60,7 +60,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I $(CURDIR)/$(dir) ) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L $(dir)/lib)
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all re send
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
@@ -75,6 +75,13 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
 re: clean all
+
+send:
+ifeq ($(shell uname),Linux)
+	@python3 plugin-sender/send.py
+else
+	@python plugin-sender/send.py
+endif
 
 #---------------------------------------------------------------------------------
 
