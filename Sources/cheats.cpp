@@ -1,6 +1,5 @@
 #include "cheats.hpp"
 #include "osdjp.hpp"
-#include "AliceCodes.hpp"
 #include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
@@ -376,40 +375,6 @@ namespace CTRPluginFramework
     Sleep(Milliseconds(100));
     frame_num++;
     OSD::SwapBuffers();
-  }
-
-  void ChangeBackGround(MenuEntry *entry)
-  {
-    StringVector files_name = {};
-    Directory("BMP", true).ListFiles(files_name);
-    if (!(files_name.size()))
-    {
-      MessageBox("no files found")();
-      Sleep(Milliseconds(500));
-      return;
-    }
-    for (size_t i = 0; i < files_name.size(); i++)
-      if (files_name[i].substr(files_name[i].length() - 4, 4) != ".bmp")
-      {
-        files_name.erase(files_name.begin() + i);
-        i--;
-      }
-    Keyboard key("select BMP:", files_name);
-    s8 i = key.Open();
-    if (i != -1)
-    {
-      switch (Keyboard("which", {"Top", "Bottom"}).Open())
-      {
-      case BMP_TOP:
-        AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
-        Sleep(Milliseconds(500));
-        break;
-      case BMP_BOTTOM:
-        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
-        Sleep(Milliseconds(500));
-        break;
-      }
-    }
   }
 
   void PlayMusic(MenuEntry *entry)

@@ -20,7 +20,6 @@ namespace CTRPluginFramework
   void Cube(MenuEntry *entry);
   void BadApple(MenuEntry *entry);
   void JPNotify(MenuEntry *entry);
-  void ChangeBackGround(MenuEntry *entry);
   void PlayMusic(MenuEntry *entry);
   void Command(MenuEntry *entry);
   void ColorPicker(MenuEntry *entry);

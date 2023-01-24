@@ -244,7 +244,6 @@ namespace CTRPluginFramework
     menu += new MenuEntry("Cube", Cube, "キューブ\nCPadとCStickで回転,拡大,縮小できるよ");
     menu += new MenuEntry("Bad Apple!!", BadApple, "バッドアップル!!");
     menu += new MenuEntry("JPNotify", JPNotify, "ジェーピーノティファイ\nstartで表示\n(Y押しながら押すんじゃないぞ！)");
-    menu += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
     menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")});
