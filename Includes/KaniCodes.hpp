@@ -1,7 +1,6 @@
 #pragma once
 
 #include <CTRPluginFramework.hpp>
-#include <CTRPluginFrameworkImpl.hpp>
 #include <math.h>
 #include "types.h"
 #include "Helpers.hpp"

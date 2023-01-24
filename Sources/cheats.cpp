@@ -351,10 +351,10 @@ namespace CTRPluginFramework
   {
     if (!entry->IsActivated())
     {
-      ProcessImpl::Play(true);
+      Process::Play();
       return;
     }
-    ProcessImpl::Pause(false);
+    Process::Pause();
     if (entry->WasJustActivated())
       frame_num = 0;
 
@@ -574,12 +574,12 @@ namespace CTRPluginFramework
       commandLine_buffer += "\n->";
       std::string input;
       u8 count = getReturnCount(commandLine_buffer);
-      KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-      key.SetLayout(Layout::QWERTY);
-      if (key.Run() <= -1)
+
+      Keyboard key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+      if (key.Open(input) <= -1)
         break;
       std::string space_delimiter = " ";
-      input = key.GetInput() + space_delimiter;
+      input += space_delimiter;
       commandLine_buffer += input + "\n";
       std::vector<std::string> args{};
 
@@ -716,22 +716,22 @@ namespace CTRPluginFramework
             {
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + getFolderObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = getReturnCount(commandLine_buffer);
-              KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              key.SetLayout(Layout::QWERTY);
-              if (key.Run() <= -1)
+              std::string output;
+              Keyboard(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+              if (key.Open(output) <= -1)
                 break;
-              if (key.GetInput() == "y")
+              if (output == "y")
                 Directory::Remove(dir.GetFullName() + "/" + getFolderObscurely(dir, args[1]));
             }
             else if (File::Exists(dir.GetFullName() + "/" + getFileObscurely(dir, args[1])))
             {
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + getFileObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = getReturnCount(commandLine_buffer);
-              KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              key.SetLayout(Layout::QWERTY);
-              if (key.Run() <= -1)
+              std::string output;
+              Keyboard(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+              if (key.Open(output) <= -1)
                 break;
-              if (key.GetInput() == "y")
+              if (output == "y")
                 File::Remove(dir.GetFullName() + "/" + getFileObscurely(dir, args[1]));
             }
             else
@@ -1308,8 +1308,9 @@ namespace CTRPluginFramework
       ERASER,
       BUCKET
     };
-    std::string enum_mode_str[] = {"PEN", "ERASER", "BUCKET"};
+    std::string paintModeName[] = {"PEN", "ERASER", "BUCKET"};
     u8 paintMode = PEN;
+    Clock dropperClock;
   START:
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
@@ -1330,6 +1331,7 @@ namespace CTRPluginFramework
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
     btmScr.DrawSysfont("モード", 230, 10);
+    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
     OSD::SwapBuffers();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
@@ -1350,13 +1352,21 @@ namespace CTRPluginFramework
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
     btmScr.DrawSysfont("モード", 230, 10);
+    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
     while (isOpened)
     {
       Controller::Update();
       lastPos = Touch::GetPosition();
+      UIntVector dropperPos = lastPos;
+      dropperClock.Restart();
       while (TouchRect(20, 10, 200, 200) && (paintMode == PEN || paintMode == ERASER))
       {
         UIntVector pos = Touch::GetPosition();
+        if (dropperClock.HasTimePassed(Seconds(1)) && TouchRect(dropperPos.x - 5, dropperPos.y - 5, 10, 10))
+        {
+          paintColor = paintPallet[pos.x][pos.y];
+          btmScr.DrawRect(231, 51, 10, 10, paintColor);
+        }
         PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
         lastPos = Touch::GetPosition();
         OSD::SwapBuffers();
@@ -1395,8 +1405,9 @@ namespace CTRPluginFramework
         else
           paintMode++;
       }
-      btmScr.DrawRect(230, 20, OSD::GetTextWidth(true, enum_mode_str[paintMode]), 20, Color::Gray);
-      btmScr.DrawSysfont(enum_mode_str[paintMode], 230, 20);
+      btmScr.DrawRect(230, 20, OSD::GetTextWidth(true, paintModeName[paintMode]), 20, Color::Gray);
+      btmScr.DrawSysfont(paintModeName[paintMode], 230, 20);
+      btmScr.DrawRect(231, 51, 10, 10, paintColor);
       OSD::SwapBuffers();
     }
   }

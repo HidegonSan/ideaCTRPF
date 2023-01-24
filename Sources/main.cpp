@@ -139,10 +139,11 @@ namespace CTRPluginFramework
       if (buff != (answer[j] + diff[j] + hash))
       {
         u16 utf16[answer_length];
-        KeyboardImpl key("input password");
-        key.SetLayout(Layout::QWERTY);
-        key.Run();
-        Process::WriteString((u32)&utf16, key.GetInput().substr(0, answer_length), StringFormat::Utf16);
+        std::string output;
+        Keyboard key("");
+        key.CanAbort(false);
+        key.Open(output);
+        Process::WriteString((u32)&utf16, output.substr(0, answer_length), StringFormat::Utf16);
         for (int i = 0; i < answer_length; i++)
           utf16[i] += diff[answer_length - i - 1];
         Sleep(Seconds(1));
