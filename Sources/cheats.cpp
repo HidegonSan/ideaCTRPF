@@ -1367,8 +1367,8 @@ namespace CTRPluginFramework
         else
           paintMode++;
       }
-      btmScr.DrawRect(230, 25, 90, 20, Color::Gray);
-      btmScr.DrawSysfont(paintModeName[paintMode], 230, 25);
+      btmScr.DrawRect(230, 20, 90, 20, Color::Gray);
+      btmScr.DrawSysfont(paintModeName[paintMode], 230, 20);
       btmScr.DrawRect(231, 51, 10, 10, paintColor);
       OSD::SwapBuffers();
     }
