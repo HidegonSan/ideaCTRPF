@@ -1316,24 +1316,34 @@ namespace CTRPluginFramework
       lastPos = Touch::GetPosition();
       UIntVector dropperPos = lastPos;
       dropperClock.Restart();
-      while (TouchRect(20, 10, 200, 200) && (paintMode == PEN || paintMode == ERASER))
+      while (TouchRect(20, 10, 200, 200))
       {
-        UIntVector pos = Touch::GetPosition();
-        if (dropperClock.HasTimePassed(Seconds(1)) && TouchRect(dropperPos.x - 5, dropperPos.y - 5, 10, 10))
+        if (paintMode == BUCKET)
         {
-          paintColor = paintPallet[pos.x][pos.y];
-          btmScr.DrawRect(231, 51, 10, 10, paintColor);
+          UIntVector pos = Touch::GetPosition();
+          floodFill(paintPallet, pos.x - 20, pos.y - 10, paintPallet[pos.x][pos.y], paintColor);
+          goto START;
         }
-        PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
-        lastPos = Touch::GetPosition();
+        while (TouchRect(dropperPos.x - 2, dropperPos.y - 2, 5, 5))
+        {
+          if (dropperClock.HasTimePassed(Seconds(1)))
+          {
+            paintColor = paintPallet[dropperPos.x][dropperPos.y];
+            btmScr.DrawRect(231, 51, 10, 10, paintColor);
+            OSD::SwapBuffers();
+            btmScr.DrawRect(231, 51, 10, 10, paintColor);
+            break;
+          }
+          Controller::Update();
+        }
+        if (paintMode == PEN || paintMode == ERASER)
+        {
+          UIntVector pos = Touch::GetPosition();
+          PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
+          lastPos = Touch::GetPosition();
+        }
         OSD::SwapBuffers();
         Controller::Update();
-      }
-      if (TouchRect(20, 10, 200, 200) && paintMode == BUCKET)
-      {
-        UIntVector pos = Touch::GetPosition();
-        floodFill(paintPallet, pos.x - 20, pos.y - 10, paintPallet[pos.x][pos.y], paintColor);
-        goto START;
       }
       if (TouchRect(200, 215, 50, 22))
         isOpened = false;
@@ -1362,7 +1372,7 @@ namespace CTRPluginFramework
         else
           paintMode++;
       }
-      btmScr.DrawRect(230, 20, OSD::GetTextWidth(true, paintModeName[paintMode]), 20, Color::Gray);
+      btmScr.DrawRect(230, 20, 90, 20, Color::Gray);
       btmScr.DrawSysfont(paintModeName[paintMode], 230, 20);
       btmScr.DrawRect(231, 51, 10, 10, paintColor);
       OSD::SwapBuffers();
