@@ -8,6 +8,7 @@
 devkitARM
 libctrpf
 3gxtool
+Python (for sending)
 ```
 
 ### Clone
@@ -23,8 +24,7 @@ git clone --recursive git@github.com:kani537/ideaCTRPF.git
 ### Build
 
 ```bash
-git clone https://github.com/kani537/ideaCTRPF.git
-cd ./ideaCTRPF
+cd ideaCTRPF
 make
 ```
 
