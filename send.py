@@ -31,55 +31,54 @@ def ftp_upload(hostname: str, port: int, upload_src_path: str, upload_dst_path: 
 def main() -> None:
     dotenv.load_dotenv()
 
-    try:
-        send_to:         (str | None)  =  os.getenv("SEND_TO")
-        as_default:      (str | None)  =  os.getenv("AS_DEFAULT")
-        plugin_name:     (str | None)  =  os.getenv("PLUGIN_NAME")
-        title_id:        (str | None)  =  os.getenv("TITLE_ID")
-        hostname:        (str | None)  =  os.getenv("HOSTNAME")
-        citra_sdmc_path: (str | None)  =  os.getenv("CITRA_SDMC_PATH")
+    # Required
+    plugin_name:     (str | None) = os.getenv("PLUGIN_NAME")
+    title_id:        (str | None) = os.getenv("TITLE_ID")
+    hostname:        (str | None) = os.getenv("HOSTNAME")
 
-        if (any([i is None for i in (send_to, as_default, plugin_name, title_id, hostname, citra_sdmc_path)])):
-            raise ValueError("Property is None")
+    # Optional
+    send_to:         str = os.getenv("SEND_TO", default="3ds")
+    as_default:      str = os.getenv("AS_DEFAULT", default="false")
+    citra_sdmc_path: str = os.getenv("CITRA_SDMC_PATH", default="")
 
-    except Exception:
+    if (any([i is None for i in (plugin_name, title_id, hostname)])):
         print("Error: .env file not found or invalid.")
         sys.exit(1)
 
-    send_to = send_to.casefold()
-    plugin_name: str        = plugin_name[2:] if plugin_name.startswith("./") else plugin_name
-    citra_sdmc_path: str    = citra_sdmc_path[:-1] if citra_sdmc_path.endswith("/") else citra_sdmc_path
-    dst_path: str           = f"/luma/plugins/{title_id}/{plugin_name}"
-    port: int               = 5000
-    timeout:int             = 500
+    send_to                 = send_to.casefold()
+    plugin_name             = plugin_name[2:] if plugin_name.startswith("./") else plugin_name
+    citra_sdmc_path         = citra_sdmc_path[:-1] if citra_sdmc_path.endswith("/") else citra_sdmc_path
+    dst_path:           str = f"/luma/plugins/{title_id}/{plugin_name}"
+    port:               int = 5000
+    timeout:            int = 500
 
-    if (send_to == "3ds" or send_to == "both"):
-        print(f"\n[3ds] Trying to upload {plugin_name} to {hostname + ':' + str(port) + dst_path[5:]}")
+    if (send_to in ("3ds", "both")):
+        print(f"\n[3ds Title] Trying to upload {plugin_name} to {hostname + ':' + str(port) + dst_path[5:]}")
         is_upload_successful: bool = ftp_upload(hostname, port, plugin_name, "STOR " + dst_path, timeout)
-        print("[3ds] Successfully uploaded!" if is_upload_successful else "[3ds] Upload failed...")
+        print("[3ds Title] Successfully uploaded!" if is_upload_successful else "[3ds Title] Upload failed...")
 
         if (as_default.casefold() == "true"):
-            print(f"\n[3ds] Trying to upload {plugin_name} to {hostname + ':' + str(port) + '/luma/plugins/default.3gx'}")
-            is_upload_successful: bool = ftp_upload(hostname, port, plugin_name, "STOR /luma/plugins/default.3gx", timeout)
-            print("[3ds] Successfully uploaded!" if is_upload_successful else "[3ds] Upload failed...")
+            print(f"\n[3ds Default] Trying to upload {plugin_name} to {hostname + ':' + str(port) + '/luma/plugins/default.3gx'}")
+            is_upload_successful = ftp_upload(hostname, port, plugin_name, "STOR /luma/plugins/default.3gx", timeout)
+            print("[3ds Default] Successfully uploaded!" if is_upload_successful else "[3ds Default] Upload failed...")
 
-    if (send_to == "citra" or send_to == "both"):
-        print(f"\n[Citra] Trying to copy {plugin_name} to {citra_sdmc_path + dst_path}")
+    if (send_to in ("citra", "both")):
+        print(f"\n[Citra Title] Trying to copy {plugin_name} to {citra_sdmc_path + dst_path}")
 
         try:
             shutil.copyfile(plugin_name, citra_sdmc_path + dst_path)
-            print("[Citra] Successfully copied!")
+            print("[Citra Title] Successfully copied!")
         except Exception:
-            print("[Citra] Copy failed...")
+            print("[Citra Title] Copy failed...")
 
         if (as_default.casefold() == "true"):
-            print(f"\n[Citra] Trying to copy {plugin_name} to {citra_sdmc_path + '/luma/plugins/default.3gx'}")
+            print(f"\n[Citra Default] Trying to copy {plugin_name} to {citra_sdmc_path + '/luma/plugins/default.3gx'}")
 
             try:
                 shutil.copyfile(plugin_name, citra_sdmc_path + "/luma/plugins/default.3gx")
-                print("[Citra] Successfully copied!")
+                print("[Citra Default] Successfully copied!")
             except Exception:
-                print("[Citra] Copy failed...")
+                print("[Citra Default] Copy failed...")
 
 
 if __name__ == "__main__":
@@ -90,21 +89,21 @@ if __name__ == "__main__":
 """
 # .env example
 
-# Send type: 3ds, citra, both
-SEND_TO="both"
-
-# Send plugin as default.3gx
-AS_DEFAULT="true"
-
 # Plugin file name to send
-PLUGIN_NAME="./EasyCTRPF.3gx"
+PLUGIN_NAME=ideaCTRPF.3gx
 
 # Target title id
-TITLE_ID="0004000000155100"
+TITLE_ID=0004000000155100
 
 # 3ds hostname
-HOSTNAME="192.168.2.100"
+HOSTNAME=192.168.2.10
 
-# sdmc path of citra
-CITRA_SDMC_PATH="/home/hidegon/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/"
+# Send type (Optional): 3ds(default), citra, both
+SEND_TO=3ds
+
+# Send plugin as default.3gx (Optional): true, false(default)
+AS_DEFAULT=false
+
+# sdmc path of citra (Optional)
+CITRA_SDMC_PATH=/home/user/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
 """
