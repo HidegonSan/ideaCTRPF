@@ -1,6 +1,6 @@
 #include "osdjp.hpp"
 
-static constexpr auto notify_list_elements_max = 20;
+static constexpr auto notify_list_elements_max = 12;
 
 namespace CTRPluginFramework
 {
@@ -38,8 +38,9 @@ namespace CTRPluginFramework
 
     static const _reg_cb __cb;
 
-    if (OSDJPlist.size() >= notify_list_elements_max)
-      return false;
+    if (OSDJPlist.size() >= notify_list_elements_max) {
+      OSDJPlist.erase(OSDJPlist.begin());
+    }
 
     OSDJPlist.push_back({str, Color(fg.ToU32()), Color(bg.ToU32()), Clock()});
 
