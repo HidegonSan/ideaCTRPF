@@ -1159,20 +1159,13 @@ namespace CTRPluginFramework
     float x, y, dx, dy, step;
     int i;
 
-    dx = (dstX - srcX);
-    dy = (dstY - srcY);
+    dx = dstX - srcX;
+    dy = dstY - srcY;
 
-    if (abs(dx) >= abs(dy))
-    {
-      step = abs(dx);
-    }
-    else
-    {
-      step = abs(dy);
-    }
+    step = abs(dx) >= abs(dy) ? abs(dx) : abs(dy);
 
-    dx = dx / step;
-    dy = dy / step;
+    dx /= step;
+    dy /= step;
     x = srcX;
     y = srcY;
     i = 1;
@@ -1180,12 +1173,12 @@ namespace CTRPluginFramework
     std::vector<UIntVector> poses;
     while (i <= step)
     {
-      if (x < 0 || y < 0 || paintPallet.size() <= x || paintPallet[0].size() <= y)
+      if (x < 0 || y < 0 || std::ssize(paintPallet) <= x || std::size(paintPallet[0]) <= y)
         break;
       paintPallet[x][y] = color;
-      poses.push_back({x, y});
-      x = x + dx;
-      y = y + dy;
+      poses.push_back({static_cast<u32>(x), static_cast<u32>(y)});
+      x += dx;
+      y += dy;
       i++;
     }
     for (UIntVector pos : poses)
@@ -1204,11 +1197,10 @@ namespace CTRPluginFramework
         screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
     }
   }
+
   bool isValid(const std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
   {
-    if (x < 0 || x >= paintPallet.size() || y < 0 || y >= paintPallet[0].size() || paintPallet[x][y] != prevC || paintPallet[x][y] == newC)
-      return false;
-    return true;
+    return x >= 0 && x < std::ssize(paintPallet) && y >= 0 && y < std::ssize(paintPallet[0]) && paintPallet[x][y] == prevC && paintPallet[x][y] != newC;
   }
 
   void floodFill(std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
