@@ -2,6 +2,14 @@
 
 ## Usage
 
+### Requirements
+
+```
+devkitARM
+libctrpf
+3gxtool
+```
+
 ### Clone
 
 ```bash
@@ -15,12 +23,14 @@ git clone --recursive git@github.com:kani537/ideaCTRPF.git
 ### Build
 
 ```bash
+git clone https://github.com/kani537/ideaCTRPF.git
+cd ./ideaCTRPF
 make
 ```
 
 ### Send
 
-#### 1. To install the dependencies, run:
+#### 1. To install the dependencies, run
 
 ```bash
 pip install python-dotenv
@@ -47,7 +57,7 @@ AS_DEFAULT=false
 CITRA_SDMC_PATH=/home/user/.var/app/org.citra_emu.citra/data/citra-emu/sdmc/
 ```
 
-#### 3. Run the script:
+#### 3. Run the script
 
 ```bash
 make send

@@ -1,9 +1,6 @@
 #include "cheats.hpp"
 #include "osdjp.hpp"
-#include "AliceCodes.hpp"
 #include "KaniCodes.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
 {
@@ -353,10 +350,10 @@ namespace CTRPluginFramework
   {
     if (!entry->IsActivated())
     {
-      ProcessImpl::Play(true);
+      Process::Play();
       return;
     }
-    ProcessImpl::Pause(false);
+    Process::Pause();
     if (entry->WasJustActivated())
       frame_num = 0;
 
@@ -378,40 +375,6 @@ namespace CTRPluginFramework
     Sleep(Milliseconds(100));
     frame_num++;
     OSD::SwapBuffers();
-  }
-
-  void ChangeBackGround(MenuEntry *entry)
-  {
-    StringVector files_name = {};
-    Directory("BMP", true).ListFiles(files_name);
-    if (!(files_name.size()))
-    {
-      MessageBox("no files found")();
-      Sleep(Milliseconds(500));
-      return;
-    }
-    for (size_t i = 0; i < files_name.size(); i++)
-      if (files_name[i].substr(files_name[i].length() - 4, 4) != ".bmp")
-      {
-        files_name.erase(files_name.begin() + i);
-        i--;
-      }
-    Keyboard key("select BMP:", files_name);
-    s8 i = key.Open();
-    if (i != -1)
-    {
-      switch (Keyboard("which", {"Top", "Bottom"}).Open())
-      {
-      case 0:
-        AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
-        Sleep(Milliseconds(500));
-        break;
-      case 1:
-        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
-        Sleep(Milliseconds(500));
-        break;
-      }
-    }
   }
 
   void PlayMusic(MenuEntry *entry)
@@ -576,12 +539,12 @@ namespace CTRPluginFramework
       commandLine_buffer += "\n->";
       std::string input;
       u8 count = getReturnCount(commandLine_buffer);
-      KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-      key.SetLayout(Layout::QWERTY);
-      if (key.Run() <= -1)
+
+      Keyboard key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+      if (key.Open(input) <= -1)
         break;
       std::string space_delimiter = " ";
-      input = key.GetInput() + space_delimiter;
+      input += space_delimiter;
       commandLine_buffer += input + "\n";
       std::vector<std::string> args{};
 
@@ -718,22 +681,22 @@ namespace CTRPluginFramework
             {
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + getFolderObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = getReturnCount(commandLine_buffer);
-              KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              key.SetLayout(Layout::QWERTY);
-              if (key.Run() <= -1)
+              std::string output;
+              Keyboard(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+              if (key.Open(output) <= -1)
                 break;
-              if (key.GetInput() == "y")
+              if (output == "y")
                 Directory::Remove(dir.GetFullName() + "/" + getFolderObscurely(dir, args[1]));
             }
             else if (File::Exists(dir.GetFullName() + "/" + getFileObscurely(dir, args[1])))
             {
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + getFileObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = getReturnCount(commandLine_buffer);
-              KeyboardImpl key(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              key.SetLayout(Layout::QWERTY);
-              if (key.Run() <= -1)
+              std::string output;
+              Keyboard(11 < count ? commandLine_buffer.substr(find_all(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
+              if (key.Open(output) <= -1)
                 break;
-              if (key.GetInput() == "y")
+              if (output == "y")
                 File::Remove(dir.GetFullName() + "/" + getFileObscurely(dir, args[1]));
             }
             else
@@ -1191,6 +1154,111 @@ namespace CTRPluginFramework
     }
   }
 
+  void PaintDrawLine(std::vector<std::vector<Color>> &paintPallet, const Screen &screen, int srcX, int srcY, int dstX, int dstY, const Color &color)
+  {
+    float x, y, dx, dy, step;
+    int i;
+
+    dx = (dstX - srcX);
+    dy = (dstY - srcY);
+
+    if (abs(dx) >= abs(dy))
+    {
+      step = abs(dx);
+    }
+    else
+    {
+      step = abs(dy);
+    }
+
+    dx = dx / step;
+    dy = dy / step;
+    x = srcX;
+    y = srcY;
+    i = 1;
+
+    std::vector<UIntVector> poses;
+    while (i <= step)
+    {
+      if (x < 0 || y < 0 || paintPallet.size() <= x || paintPallet[0].size() <= y)
+        break;
+      paintPallet[x][y] = color;
+      poses.push_back({x, y});
+      x = x + dx;
+      y = y + dy;
+      i++;
+    }
+    for (UIntVector pos : poses)
+    {
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
+    }
+    OSD::SwapBuffers();
+    for (UIntVector pos : poses)
+    {
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
+    }
+  }
+  bool isValid(const std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
+  {
+    if (x < 0 || x >= paintPallet.size() || y < 0 || y >= paintPallet[0].size() || paintPallet[x][y] != prevC || paintPallet[x][y] == newC)
+      return false;
+    return true;
+  }
+
+  void floodFill(std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
+  {
+    std::vector<std::pair<int, int>> queue = {{x, y}};
+
+    std::pair<int, int> p(x, y);
+    queue.push_back(p);
+
+    paintPallet[x][y] = newC;
+
+    while (queue.size() > 0)
+    {
+      std::pair<int, int> currPixel = queue[queue.size() - 1];
+      queue.pop_back();
+
+      int posX = currPixel.first;
+      int posY = currPixel.second;
+
+      if (isValid(paintPallet, posX + 1, posY, prevC, newC))
+      {
+        paintPallet[posX + 1][posY] = newC;
+        p.first = posX + 1;
+        p.second = posY;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX - 1, posY, prevC, newC))
+      {
+        paintPallet[posX - 1][posY] = newC;
+        p.first = posX - 1;
+        p.second = posY;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX, posY + 1, prevC, newC))
+      {
+        paintPallet[posX][posY + 1] = newC;
+        p.first = posX;
+        p.second = posY + 1;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX, posY - 1, prevC, newC))
+      {
+        paintPallet[posX][posY - 1] = newC;
+        p.first = posX;
+        p.second = posY - 1;
+        queue.push_back(p);
+      }
+    }
+  }
+
   void Paint(MenuEntry *entry)
   {
     bool isOpened = true;
@@ -1198,45 +1266,82 @@ namespace CTRPluginFramework
     const Screen &btmScr = OSD::GetBottomScreen();
     Color paintColor = Color::Black;
     UIntVector lastPos;
-    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color::White));
+    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color(0, 0, 0, 0)));
+    enum
+    {
+      PEN,
+      ERASER,
+      BUCKET
+    };
+    std::string paintModeName[] = {"PEN", "ERASER", "BUCKET"};
+    u8 paintMode = PEN;
+    Clock dropperClock;
   START:
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
     for (size_t x = 0; x < 200; x++)
       for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+      {
+        Color color = paintPallet[x][y];
+        if (color.a)
+          btmScr.DrawPixel(x + 20, y + 10, color);
+        else
+          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
+      }
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
     btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
+    btmScr.DrawSysfont("モード", 230, 10);
+    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
     OSD::SwapBuffers();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
     for (size_t x = 0; x < 200; x++)
       for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+      {
+        Color color = paintPallet[x][y];
+        if (color.a)
+          btmScr.DrawPixel(x + 20, y + 10, color);
+        else
+          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
+      }
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
     btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
+    btmScr.DrawSysfont("モード", 230, 10);
+    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
     while (isOpened)
     {
       Controller::Update();
       lastPos = Touch::GetPosition();
-      while (TouchRect(20, 10, 200, 200))
+      UIntVector dropperPos = lastPos;
+      dropperClock.Restart();
+      while (TouchRect(20, 10, 200, 200) && (paintMode == PEN || paintMode == ERASER))
       {
         UIntVector pos = Touch::GetPosition();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
-        OSD::SwapBuffers();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
+        if (dropperClock.HasTimePassed(Seconds(1)) && TouchRect(dropperPos.x - 5, dropperPos.y - 5, 10, 10))
+        {
+          paintColor = paintPallet[pos.x][pos.y];
+          btmScr.DrawRect(231, 51, 10, 10, paintColor);
+        }
+        PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
         lastPos = Touch::GetPosition();
+        OSD::SwapBuffers();
         Controller::Update();
+      }
+      if (TouchRect(20, 10, 200, 200) && paintMode == BUCKET)
+      {
+        UIntVector pos = Touch::GetPosition();
+        floodFill(paintPallet, pos.x - 20, pos.y - 10, paintPallet[pos.x][pos.y], paintColor);
+        goto START;
       }
       if (TouchRect(200, 215, 50, 22))
         isOpened = false;
@@ -1245,8 +1350,7 @@ namespace CTRPluginFramework
         for (size_t x = 0; x < 200; x++)
           for (size_t y = 0; y < 200; y++)
           {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
+            Color color = paintPallet[x][y];
             setScreenBuffer(x + 100, y + 20, color);
           }
         entry->SetGameFunc(ShowPallet);
@@ -1256,16 +1360,19 @@ namespace CTRPluginFramework
         isOpened = false;
       if (Controller::IsKeyPressed(Key::X))
       {
-        for (size_t x = 0; x < 200; x++)
-          for (size_t y = 0; y < 200; y++)
-          {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
-            paintPallet[x][y] = color;
-          }
         colorPicker(paintColor);
         goto START;
       }
+      if (Controller::IsKeyPressed(Key::Y))
+      {
+        if (paintMode == BUCKET)
+          paintMode = PEN;
+        else
+          paintMode++;
+      }
+      btmScr.DrawRect(230, 20, OSD::GetTextWidth(true, paintModeName[paintMode]), 20, Color::Gray);
+      btmScr.DrawSysfont(paintModeName[paintMode], 230, 20);
+      btmScr.DrawRect(231, 51, 10, 10, paintColor);
       OSD::SwapBuffers();
     }
   }
