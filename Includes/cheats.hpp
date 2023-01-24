@@ -2,12 +2,18 @@
 #define CHEATS_H
 
 #include <CTRPluginFramework.hpp>
+#include <CTRPluginFrameworkImpl.hpp>
 #include "Helpers.hpp"
 #include "Unicode.h"
 
 namespace CTRPluginFramework
 {
   using StringVector = std::vector<std::string>;
+
+  enum {
+    BMP_TOP,
+    BMP_BOTTOM
+  };
 
   void Test1(MenuEntry *entry);
   void Pipes(MenuEntry *entry);

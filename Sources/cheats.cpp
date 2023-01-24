@@ -2,8 +2,6 @@
 #include "osdjp.hpp"
 #include "AliceCodes.hpp"
 #include "KaniCodes.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
 {
@@ -402,11 +400,11 @@ namespace CTRPluginFramework
     {
       switch (Keyboard("which", {"Top", "Bottom"}).Open())
       {
-      case 0:
+      case BMP_TOP:
         AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
         Sleep(Milliseconds(500));
         break;
-      case 1:
+      case BMP_BOTTOM:
         AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
         Sleep(Milliseconds(500));
         break;
@@ -1191,6 +1189,111 @@ namespace CTRPluginFramework
     }
   }
 
+  void PaintDrawLine(std::vector<std::vector<Color>> &paintPallet, const Screen &screen, int srcX, int srcY, int dstX, int dstY, const Color &color)
+  {
+    float x, y, dx, dy, step;
+    int i;
+
+    dx = (dstX - srcX);
+    dy = (dstY - srcY);
+
+    if (abs(dx) >= abs(dy))
+    {
+      step = abs(dx);
+    }
+    else
+    {
+      step = abs(dy);
+    }
+
+    dx = dx / step;
+    dy = dy / step;
+    x = srcX;
+    y = srcY;
+    i = 1;
+
+    std::vector<UIntVector> poses;
+    while (i <= step)
+    {
+      if (x < 0 || y < 0 || paintPallet.size() <= x || paintPallet[0].size() <= y)
+        break;
+      paintPallet[x][y] = color;
+      poses.push_back({x, y});
+      x = x + dx;
+      y = y + dy;
+      i++;
+    }
+    for (UIntVector pos : poses)
+    {
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
+    }
+    OSD::SwapBuffers();
+    for (UIntVector pos : poses)
+    {
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
+    }
+  }
+  bool isValid(const std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
+  {
+    if (x < 0 || x >= paintPallet.size() || y < 0 || y >= paintPallet[0].size() || paintPallet[x][y] != prevC || paintPallet[x][y] == newC)
+      return false;
+    return true;
+  }
+
+  void floodFill(std::vector<std::vector<Color>> &paintPallet, int x, int y, Color prevC, Color newC)
+  {
+    std::vector<std::pair<int, int>> queue = {{x, y}};
+
+    std::pair<int, int> p(x, y);
+    queue.push_back(p);
+
+    paintPallet[x][y] = newC;
+
+    while (queue.size() > 0)
+    {
+      std::pair<int, int> currPixel = queue[queue.size() - 1];
+      queue.pop_back();
+
+      int posX = currPixel.first;
+      int posY = currPixel.second;
+
+      if (isValid(paintPallet, posX + 1, posY, prevC, newC))
+      {
+        paintPallet[posX + 1][posY] = newC;
+        p.first = posX + 1;
+        p.second = posY;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX - 1, posY, prevC, newC))
+      {
+        paintPallet[posX - 1][posY] = newC;
+        p.first = posX - 1;
+        p.second = posY;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX, posY + 1, prevC, newC))
+      {
+        paintPallet[posX][posY + 1] = newC;
+        p.first = posX;
+        p.second = posY + 1;
+        queue.push_back(p);
+      }
+      if (isValid(paintPallet, posX, posY - 1, prevC, newC))
+      {
+        paintPallet[posX][posY - 1] = newC;
+        p.first = posX;
+        p.second = posY - 1;
+        queue.push_back(p);
+      }
+    }
+  }
+
   void Paint(MenuEntry *entry)
   {
     bool isOpened = true;
@@ -1198,45 +1301,72 @@ namespace CTRPluginFramework
     const Screen &btmScr = OSD::GetBottomScreen();
     Color paintColor = Color::Black;
     UIntVector lastPos;
-    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color::White));
+    std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color(0, 0, 0, 0)));
+    enum
+    {
+      PEN,
+      ERASER,
+      BUCKET
+    };
+    std::string enum_mode_str[] = {"PEN", "ERASER", "BUCKET"};
+    u8 paintMode = PEN;
   START:
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
     for (size_t x = 0; x < 200; x++)
       for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+      {
+        Color color = paintPallet[x][y];
+        if (color.a)
+          btmScr.DrawPixel(x + 20, y + 10, color);
+        else
+          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
+      }
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
     btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
+    btmScr.DrawSysfont("モード", 230, 10);
     OSD::SwapBuffers();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
     for (size_t x = 0; x < 200; x++)
       for (size_t y = 0; y < 200; y++)
-        btmScr.DrawPixel(x + 20, y + 10, paintPallet[x][y]);
+      {
+        Color color = paintPallet[x][y];
+        if (color.a)
+          btmScr.DrawPixel(x + 20, y + 10, color);
+        else
+          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
+      }
     btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("cancel", 202, 218);
     btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
     btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
     btmScr.DrawSysfont("OK", 272, 218);
+    btmScr.DrawSysfont("モード", 230, 10);
     while (isOpened)
     {
       Controller::Update();
       lastPos = Touch::GetPosition();
-      while (TouchRect(20, 10, 200, 200))
+      while (TouchRect(20, 10, 200, 200) && (paintMode == PEN || paintMode == ERASER))
       {
         UIntVector pos = Touch::GetPosition();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
-        OSD::SwapBuffers();
-        DrawLine(btmScr, pos.x, pos.y, lastPos.x, lastPos.y, paintColor);
+        PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
         lastPos = Touch::GetPosition();
+        OSD::SwapBuffers();
         Controller::Update();
+      }
+      if (TouchRect(20, 10, 200, 200) && paintMode == BUCKET)
+      {
+        UIntVector pos = Touch::GetPosition();
+        floodFill(paintPallet, pos.x - 20, pos.y - 10, paintPallet[pos.x][pos.y], paintColor);
+        goto START;
       }
       if (TouchRect(200, 215, 50, 22))
         isOpened = false;
@@ -1245,8 +1375,7 @@ namespace CTRPluginFramework
         for (size_t x = 0; x < 200; x++)
           for (size_t y = 0; y < 200; y++)
           {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
+            Color color = paintPallet[x][y];
             setScreenBuffer(x + 100, y + 20, color);
           }
         entry->SetGameFunc(ShowPallet);
@@ -1256,16 +1385,18 @@ namespace CTRPluginFramework
         isOpened = false;
       if (Controller::IsKeyPressed(Key::X))
       {
-        for (size_t x = 0; x < 200; x++)
-          for (size_t y = 0; y < 200; y++)
-          {
-            Color color;
-            btmScr.ReadPixel(x + 20, y + 10, color);
-            paintPallet[x][y] = color;
-          }
         colorPicker(paintColor);
         goto START;
       }
+      if (Controller::IsKeyPressed(Key::Y))
+      {
+        if (paintMode == BUCKET)
+          paintMode = PEN;
+        else
+          paintMode++;
+      }
+      btmScr.DrawRect(230, 20, OSD::GetTextWidth(true, enum_mode_str[paintMode]), 20, Color::Gray);
+      btmScr.DrawSysfont(enum_mode_str[paintMode], 230, 20);
       OSD::SwapBuffers();
     }
   }
