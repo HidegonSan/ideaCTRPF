@@ -534,8 +534,7 @@ namespace CTRPluginFramework
           i += 3;
         }
         j++;
-        width = OSD::GetTextWidth(
-            true, InputStr.substr(i, InputStr.length() - i));
+        width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
       scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
@@ -601,8 +600,7 @@ namespace CTRPluginFramework
 
       if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
       {
-        std::string kanji = Convert::hiraganaToKanji(InputStr.substr(
-            InputStr.length() - selectedIndex * 3, selectedIndex * 3));
+        std::string kanji = Convert::hiraganaToKanji(InputStr.substr(InputStr.length() - selectedIndex * 3, selectedIndex * 3));
         if (!kanji.empty())
         {
           for (int j = 0; j < selectedIndex; j++)
@@ -706,66 +704,57 @@ namespace CTRPluginFramework
             if (posX > 10)
             {
               i = 1;
-              scr.DrawRect(120 + wx * 30 - 20, 70 + wy * 30, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 - 18, 70 + wy * 30 + 3, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 1], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 1], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx - 15, sy + 3, Color::Black);
             }
             else if (posY > 10)
             {
               i = 2;
-              scr.DrawRect(120 + wx * 30, 70 + wy * 30 - 20, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 2, 70 + wy * 30 - 17, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 2], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 2], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 5, sy - 17, Color::Black);
             }
             else if (posX < -10)
             {
               i = 3;
-              scr.DrawRect(120 + wx * 30 + 20, 70 + wy * 30, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 22, 70 + wy * 30 + 3, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 3], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 3], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 25, sy + 3, Color::Black);
             }
             else if (posY < -10)
             {
               i = 4;
-              scr.DrawRect(120 + wx * 30, 70 + wy * 30 + 20, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 2, 70 + wy * 30 + 23, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 4], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 4], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 5, sy + 23, Color::Black);
             }
             else
             {
               i = 0;
-              scr.DrawRect(120 + wx * 30, 70 + wy * 30, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 2, 70 + wy * 30 + 3, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 5, sy + 3, Color::Black);
-              scr.DrawRect(120 + wx * 30 - 20, 70 + wy * 30, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 - 18, 70 + wy * 30 + 3, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 1], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 1], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx - 15, sy + 3, Color::Black);
-              scr.DrawRect(120 + wx * 30, 70 + wy * 30 - 20, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 2, 70 + wy * 30 - 17, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 2], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 2], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 5, sy - 17, Color::Black);
-              scr.DrawRect(120 + wx * 30 + 20, 70 + wy * 30, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 22, 70 + wy * 30 + 3, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 3], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 3], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 25, sy + 3, Color::Black);
-              scr.DrawRect(120 + wx * 30, 70 + wy * 30 + 20, 20, 20, Color::White);
+              scr.DrawRect(120 + wx * 30 + 2, 70 + wy * 30 + 23, 20, 20, Color::White);
               key.clear();
-              Process::ReadString(
-                  (u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 4], key, 2, StringFormat::Utf16);
+              Process::ReadString((u32)&U16_ChrArray[(wy * 3 + wx) * 5 + 4], key, 2, StringFormat::Utf16);
               scr.DrawSysfont(key, sx + 5, sy + 23, Color::Black);
             }
             OSD::SwapBuffers();
@@ -8367,8 +8356,7 @@ namespace CTRPluginFramework
 
   void fillScreenBuffer(Color color)
   {
-    screenBuffer = std::vector<std::vector<Color>>(
-        400, std::vector<Color>(240, color));
+    screenBuffer = std::vector<std::vector<Color>>(400, std::vector<Color>(240, color));
   }
 
   bool ShowScreenBuffer(const Screen &screen)
@@ -8468,8 +8456,7 @@ namespace CTRPluginFramework
       u8 g = (int)(color.g * d + 255.0 * dd);
       u8 b = (int)(color.b * d + 255.0 * dd);
 
-      color_vector.push_back(drawVerticalGradation(
-          x, 1, 27, 100, Color(r, g, b), Color::Black, scr));
+      color_vector.push_back(drawVerticalGradation(x, 1, 27, 100, Color(r, g, b), Color::Black, scr));
     }
     return color_vector;
   }
@@ -8525,8 +8512,7 @@ namespace CTRPluginFramework
 
     DrawRectPlus(scr, 160, 30, 70, 19, Color::White, true, 0);
     DrawSysfontPlus(scr, "H", 150, 30, 0, 0, Color::White, Color::Black, Color::Red, true, 8, 0);
-    DrawSysfontPlus(
-        scr, Utils::Format("%d", (int)((double)(barLength - 24) / 192.0 * 360.0)), 230, 30, 0, 0, Color::Black, Color::Black, Color::Red, false, true, 8);
+    DrawSysfontPlus(scr, Utils::Format("%d", (int)((double)(barLength - 24) / 192.0 * 360.0)), 230, 30, 0, 0, Color::Black, Color::Black, Color::Red, false, true, 8);
     DrawRectPlus(scr, 160, 50, 70, 19, Color::White, true, 0);
     DrawSysfontPlus(scr, "S", 150, 50, 0, 0, Color::White, Color::Black, Color::Red, true, 8, 0);
     DrawSysfontPlus(scr, Utils::Format("%d", pickerPos.x - 26), 230, 50, 0, 0, Color::Black, Color::Black, Color::Red, false, true, 8);
