@@ -555,17 +555,20 @@ namespace CTRPluginFramework
             InputChrs.pop_back();
           break;
         case KOMOJI:
-          Komoji(InputChrs[InputChrs.size() - 1]);
+          if (!InputChrs.empty())
+            Komoji(InputChrs[InputChrs.size() - 1]);
           break;
         case HYPHEN:
           if (InputChrs.size() < _maxLength)
             InputChrs.push_back(0x30FC);
           break;
         case DAKUTEN:
-          Dakuten(false, InputChrs[InputChrs.size() - 1]);
+          if (!InputChrs.empty())
+            Dakuten(false, InputChrs[InputChrs.size() - 1]);
           break;
         case HANDAKUTEN:
-          Dakuten(true, InputChrs[InputChrs.size() - 1]);
+          if (!InputChrs.empty())
+            Dakuten(true, InputChrs[InputChrs.size() - 1]);
           break;
         }
         scr.DrawRect(263, 68 + i * 22, 34, 22, Color::White);
@@ -768,15 +771,18 @@ namespace CTRPluginFramework
             OSD::SwapBuffers();
             DrawKeyboard(scr, out);
           }
-          if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309B)
-            Dakuten(false, InputChrs[InputChrs.size() - 1]);
-          else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5C0F)
-            Komoji(InputChrs[InputChrs.size() - 1]);
-          else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309C)
-            Dakuten(true, InputChrs[InputChrs.size() - 1]);
-          else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5927)
-            Komoji(InputChrs[InputChrs.size() - 1]);
-          else if (InputChrs.size() < _maxLength)
+          if (!InputChrs.empty())
+          {
+            if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309B)
+              Dakuten(false, InputChrs[InputChrs.size() - 1]);
+            else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5C0F)
+              Komoji(InputChrs[InputChrs.size() - 1]);
+            else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309C)
+              Dakuten(true, InputChrs[InputChrs.size() - 1]);
+            else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5927)
+              Komoji(InputChrs[InputChrs.size() - 1]);
+          }
+          if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
             InputChrs.push_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
         }
       }
