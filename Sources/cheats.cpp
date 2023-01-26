@@ -1332,7 +1332,7 @@ namespace CTRPluginFramework
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
             OSD::SwapBuffers();
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
-            break;
+            goto START;
           }
           Controller::Update();
         }
