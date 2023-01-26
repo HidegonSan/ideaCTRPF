@@ -1,3 +1,6 @@
 [submodule "plugin-sender"]
 	path = plugin-sender
 	url = ../../HidegonSan/plugin-sender.git
+[submodule "libctrpf"]
+	path = libctrpf
+	url = https://github.com/kani537/libctrpf
