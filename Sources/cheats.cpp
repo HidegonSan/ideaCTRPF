@@ -1,5 +1,7 @@
 #include "cheats.hpp"
 #include "osdjp.hpp"
+#include "Convert.hpp"
+#include "JPKeyboard.hpp"
 #include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
