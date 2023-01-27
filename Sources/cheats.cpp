@@ -1162,7 +1162,7 @@ namespace CTRPluginFramework
     }
   }
 
-  void PaintDrawLine(std::vector<std::vector<Color>> &paintPallet, const Screen &screen, int srcX, int srcY, int dstX, int dstY, u32 size, const Color &color)
+  void PaintDrawLine(std::vector<std::vector<Color>> &paintPallet, const Screen &screen, int srcX, int srcY, int dstX, int dstY, const Color &color)
   {
     float x, y, dx, dy, step;
     int i;
@@ -1183,34 +1183,26 @@ namespace CTRPluginFramework
     {
       if (x < 0 || y < 0 || std::ssize(paintPallet) <= x || std::size(paintPallet[0]) <= y)
         break;
-
-      u32 originX = x - (size / 2);
-      u32 originY = y - (size / 2);
-      for(u32 drawX = 0; drawX < size; drawX++)
-      {
-        for(u32 drawY = 0; drawY < size; drawY++)
-        {
-          paintPallet[originX + drawX][originY + drawY] = color;
-          poses.push_back({static_cast<u32>(originX + drawX), static_cast<u32>(originY + drawY)});
-        }
-      }
-
+      paintPallet[x][y] = color;
+      poses.push_back({static_cast<u32>(x), static_cast<u32>(y)});
       x += dx;
       y += dy;
       i++;
     }
-
-    for(u8 i = 0; i < 2; i++)
+    for (UIntVector pos : poses)
     {
-      for (auto &&pos : poses)
-      {
-        if (color.a) // pen
-          screen.DrawPixel(pos.x + 20, pos.y + 10, color);
-        else // eraser
-          screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
-      }
-      if(i == 0)
-        OSD::SwapBuffers();
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
+    }
+    OSD::SwapBuffers();
+    for (UIntVector pos : poses)
+    {
+      if (color.a)
+        screen.DrawPixel(pos.x + 20, pos.y + 10, color);
+      else
+        screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
     }
   }
 
@@ -1273,7 +1265,6 @@ namespace CTRPluginFramework
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
     Color paintColor = Color::Black;
-    u32 penSize = 1;
     UIntVector lastPos;
     std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color(0, 0, 0, 0)));
     enum
@@ -1342,38 +1333,32 @@ namespace CTRPluginFramework
         if (paintMode == PEN || paintMode == ERASER)
         {
           UIntVector pos = Touch::GetPosition();
-          PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, penSize, paintMode ? Color(0, 0, 0, 0) : paintColor);
+          PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, paintMode ? Color(0, 0, 0, 0) : paintColor);
           lastPos = Touch::GetPosition();
         }
         OSD::SwapBuffers();
         Controller::Update();
       }
-
-      if (Controller::IsKeyPressed(Key::B) || TouchRect(200, 215, 50, 22))
-      {
+      if (TouchRect(200, 215, 50, 22))
         isOpened = false;
-      }
-
       if (TouchRect(260, 215, 50, 22))
       {
         for (size_t x = 0; x < 200; x++)
-        {
           for (size_t y = 0; y < 200; y++)
           {
             Color color = paintPallet[x][y];
             setScreenBuffer(x + 100, y + 20, color);
           }
-        }
         entry->SetGameFunc(ShowPallet);
         isOpened = false;
       }
-
+      if (Controller::IsKeyPressed(Key::B))
+        isOpened = false;
       if (Controller::IsKeyPressed(Key::X))
       {
         colorPicker(paintColor);
         goto START;
       }
-
       if (Controller::IsKeyPressed(Key::Y))
       {
         if (paintMode == BUCKET)
@@ -1381,23 +1366,9 @@ namespace CTRPluginFramework
         else
           paintMode++;
       }
-      if (Controller::IsKeyPressed(Key::R))
-      {
-        if (penSize < 30)
-          penSize++;
-      }
-      if (Controller::IsKeyPressed(Key::L))
-      {
-        if (penSize > 1)
-          penSize--;
-      }
       btmScr.DrawRect(230, 25, 90, 20, Color::Gray);
       btmScr.DrawSysfont(paintModeName[paintMode], 230, 25);
-
       btmScr.DrawRect(231, 51, 10, 10, paintColor);
-
-      btmScr.DrawRect(230, 65, 90, 20, Color::Gray);
-      btmScr.DrawSysfont(Utils::Format("Pen: %upx", penSize), 230, 65);
       OSD::SwapBuffers();
     }
   }
