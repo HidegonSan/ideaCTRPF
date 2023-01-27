@@ -269,8 +269,10 @@ namespace CTRPluginFramework
       }
     }
   }
-  void rotateCube(void)
+  void rotateCube(const Screen &screen)
   {
+    if (!screen.IsTop)
+      return;
     memset(buffer, 10, sizeof(buffer));
     memset(zBuffer, 0, width * height * 4);
     horizontalOffset = 1 * cubeWidth;
@@ -287,62 +289,68 @@ namespace CTRPluginFramework
         calculateForSurface(cubeX, cubeWidth, cubeY, '+');
       }
     }
-    fillScreenBuffer(Color(0, 0, 0, 0));
-    for (int k = 0; k < width * height; k++)
+    for (size_t i = 0; i < 2; i++)
     {
-      switch (buffer[k])
+      screen.DrawRect(0, 0, 400, 240, Color::Gray);
+      screen.DrawSysfont("B:return to menu", 0, 0);
+      screen.DrawSysfont("START:toggle auto rotate", 0, 15);
+      for (int k = 0; k < width * height; k++)
       {
-      case 64:
-        setScreenBuffer(k % width, k / width, Color::Red);
-        break;
-      case 36:
-        setScreenBuffer(k % width, k / width, Color::Blue);
-        break;
-      case 126:
-        setScreenBuffer(k % width, k / width, Color::Orange);
-        break;
-      case 35:
-        setScreenBuffer(k % width, k / width, Color::Green);
-        break;
-      case 59:
-        setScreenBuffer(k % width, k / width, Color::White);
-        break;
-      case 43:
-        setScreenBuffer(k % width, k / width, Color::Yellow);
-        break;
+        switch (buffer[k])
+        {
+        case 64:
+          screen.DrawPixel(k % width, k / width, Color::Red);
+          break;
+        case 36:
+          screen.DrawPixel(k % width, k / width, Color::Blue);
+          break;
+        case 126:
+          screen.DrawPixel(k % width, k / width, Color::Orange);
+          break;
+        case 35:
+          screen.DrawPixel(k % width, k / width, Color::Green);
+          break;
+        case 59:
+          screen.DrawPixel(k % width, k / width, Color::White);
+          break;
+        case 43:
+          screen.DrawPixel(k % width, k / width, Color::Yellow);
+          break;
+        }
       }
+      OSD::SwapBuffers();
     }
   }
 
   void Cube(MenuEntry *entry)
   {
-    if (entry->WasJustActivated())
+    const Screen &screen = OSD::GetTopScreen();
+    bool autoRotate = false;
+    rotateCube(screen);
+    while (!Controller::IsKeyPressed(Key::B))
     {
-      setFlagShowScreenBuffer(true);
-      OSD::Run(ShowScreenBuffer);
+      if (Controller::IsKeyDown(Key::CPadLeft) || autoRotate)
+        BB -= 0.05;
+      if (Controller::IsKeyDown(Key::CPadRight))
+        BB += 0.05;
+      if (Controller::IsKeyDown(Key::CPadUp) || autoRotate)
+        AA += 0.15;
+      if (Controller::IsKeyDown(Key::CPadDown))
+        AA -= 0.05;
+      if (Controller::IsKeyDown(Key::CStickUp) || autoRotate)
+        CC -= 0.10;
+      if (Controller::IsKeyDown(Key::CStickDown))
+        CC += 0.05;
+      if (Controller::IsKeyDown(Key::CStickLeft))
+        distanceFromCam -= 5;
+      if (Controller::IsKeyDown(Key::CStickRight))
+        distanceFromCam += 5;
+      if (Controller::IsKeyPressed(Key::Start))
+        autoRotate = !autoRotate;
+      if (Controller::GetKeysDown() || autoRotate)
+        rotateCube(screen);
+      Controller::Update();
     }
-    if (!entry->IsActivated())
-    {
-      setFlagShowScreenBuffer(false);
-      OSD::Stop(ShowScreenBuffer);
-    }
-    rotateCube();
-    if (Controller::IsKeyDown(Key::CPadLeft))
-      BB -= 0.05;
-    if (Controller::IsKeyDown(Key::CPadRight))
-      BB += 0.05;
-    if (Controller::IsKeyDown(Key::CPadUp))
-      AA += 0.05;
-    if (Controller::IsKeyDown(Key::CPadDown))
-      AA -= 0.05;
-    if (Controller::IsKeyDown(Key::CStickUp))
-      CC -= 0.05;
-    if (Controller::IsKeyDown(Key::CStickDown))
-      CC += 0.05;
-    if (Controller::IsKeyDown(Key::CStickLeft))
-      distanceFromCam -= 5;
-    if (Controller::IsKeyDown(Key::CStickRight))
-      distanceFromCam += 5;
   }
 
   int frame_num = 0;
