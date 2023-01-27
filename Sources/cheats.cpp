@@ -1269,47 +1269,33 @@ namespace CTRPluginFramework
     u8 paintMode = PEN;
     Clock dropperClock;
   START:
-    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
-    btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
-    for (size_t x = 0; x < 200; x++)
-      for (size_t y = 0; y < 200; y++)
-      {
-        Color color = paintPallet[x][y];
-        if (color.a)
-          btmScr.DrawPixel(x + 20, y + 10, color);
-        else
-          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
-      }
-    btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
-    btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
-    btmScr.DrawSysfont("cancel", 202, 218);
-    btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
-    btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
-    btmScr.DrawSysfont("OK", 272, 218);
-    btmScr.DrawSysfont("モード", 230, 10);
-    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
-    OSD::SwapBuffers();
-    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
-    btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
-    for (size_t x = 0; x < 200; x++)
-      for (size_t y = 0; y < 200; y++)
-      {
-        Color color = paintPallet[x][y];
-        if (color.a)
-          btmScr.DrawPixel(x + 20, y + 10, color);
-        else
-          btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
-      }
-    btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
-    btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
-    btmScr.DrawSysfont("cancel", 202, 218);
-    btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
-    btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
-    btmScr.DrawSysfont("OK", 272, 218);
-    btmScr.DrawSysfont("モード", 230, 10);
-    btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
+    for (size_t i = 0; i < 2; i++)
+    {
+      topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+      btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+      btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
+      for (size_t x = 0; x < 200; x++)
+        for (size_t y = 0; y < 200; y++)
+        {
+          Color color = paintPallet[x][y];
+          if (color.a)
+            btmScr.DrawPixel(x + 20, y + 10, color);
+          else
+            btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
+        }
+      btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
+      btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
+      btmScr.DrawSysfont("cancel", 202, 218);
+      btmScr.DrawRect(260, 215, 50, 22, Color::Gray);
+      btmScr.DrawRect(260, 215, 50, 22, Color::White, false);
+      btmScr.DrawSysfont("OK", 272, 218);
+      btmScr.DrawSysfont("モード", 230, 10);
+      btmScr.DrawRect(230, 50, 12, 12, Color::White, false);
+      btmScr.DrawSysfont(paintModeName[paintMode], 230, 25);
+      btmScr.DrawRect(231, 51, 10, 10, paintColor);
+      OSD::SwapBuffers();
+    }
+
     while (isOpened)
     {
       Controller::Update();
