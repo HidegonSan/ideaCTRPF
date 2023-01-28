@@ -2,6 +2,7 @@
 #include "csvc.h"
 #include <CTRPluginFramework.hpp>
 #include "cheats.hpp"
+#include "JPKeyboard.hpp"
 #include "KaniCodes.hpp"
 #include <ctime>
 
