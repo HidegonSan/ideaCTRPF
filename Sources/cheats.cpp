@@ -49,20 +49,20 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(2, 397);
-        yPos = 2;
+        xPos = Utils::Random(3, 397);
+        yPos = 3;
         break;
       case 1:
-        xPos = 2;
-        yPos = Utils::Random(2, 237);
+        xPos = 3;
+        yPos = Utils::Random(3, 237);
         break;
       case 2:
-        xPos = 398;
-        yPos = Utils::Random(2, 237);
+        xPos = 397;
+        yPos = Utils::Random(3, 237);
         break;
       default:
-        xPos = Utils::Random(2, 397);
-        yPos = 238;
+        xPos = Utils::Random(3, 397);
+        yPos = 237;
         break;
       }
       isReset = false;
@@ -74,7 +74,7 @@ namespace CTRPluginFramework
     }
     if (len > 0)
     {
-      if (xPos == 1 || xPos == 399 || yPos == 1 || yPos == 239)
+      if (xPos == 2 || xPos == 398 || yPos == 2 || yPos == 238)
       {
         isReset = true;
       }
