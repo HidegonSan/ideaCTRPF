@@ -963,10 +963,10 @@ namespace CTRPluginFramework
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    draw_tetris_image();
+    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     OSD::SwapBuffers();
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    draw_tetris_image();
+    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     while (isOpened)
     {
       Controller::Update();
@@ -1052,10 +1052,10 @@ namespace CTRPluginFramework
             isOpened = false;
         }
         topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-        draw_tetris_image();
+        btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
         OSD::SwapBuffers();
         topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-        draw_tetris_image();
+        btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       }
     END:
 
@@ -1188,9 +1188,9 @@ namespace CTRPluginFramework
 
       u32 originX = x - (size / 2);
       u32 originY = y - (size / 2);
-      for(u32 drawX = 0; drawX < size; drawX++)
+      for (u32 drawX = 0; drawX < size; drawX++)
       {
-        for(u32 drawY = 0; drawY < size; drawY++)
+        for (u32 drawY = 0; drawY < size; drawY++)
         {
           paintPallet[originX + drawX][originY + drawY] = color;
           poses.push_back({static_cast<u32>(originX + drawX), static_cast<u32>(originY + drawY)});
@@ -1202,7 +1202,7 @@ namespace CTRPluginFramework
       i++;
     }
 
-    for(u8 i = 0; i < 2; i++)
+    for (u8 i = 0; i < 2; i++)
     {
       for (auto &&pos : poses)
       {
@@ -1211,7 +1211,7 @@ namespace CTRPluginFramework
         else // eraser
           screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
       }
-      if(i == 0)
+      if (i == 0)
         OSD::SwapBuffers();
     }
   }
@@ -1370,7 +1370,7 @@ namespace CTRPluginFramework
         isOpened = false;
       }
 
-      if (Controller::IsKeyPressed(Key::X))
+      if (Controller::IsKeyPressed(Key::X) || TouchRect(230, 50, 12, 12))
       {
         colorPicker(paintColor);
         goto START;
