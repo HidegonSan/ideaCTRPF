@@ -241,7 +241,7 @@ namespace CTRPluginFramework
 
     menu += new MenuEntry("Test1", nullptr, Test1);
     menu += new MenuEntry("command", nullptr, Command, "コマンド");
-    menu += new MenuEntry("pipes", Pipes, "パイプス\nstartで消せます\n(たまにクラッシュするような気がする誰か直してくれ)");
+    menu += new MenuEntry("pipes", Pipes, "パイプス\nstartで消せます");
     menu += new MenuEntry("Cube", nullptr, Cube, "キューブ\nCPadとCStickで回転,拡大,縮小できるよ\nBで終了");
     menu += new MenuEntry("Bad Apple!!", BadApple, "バッドアップル!!");
     menu += new MenuEntry("JPNotify", JPNotify, "ジェーピーノティファイ\nstartで表示\n(Y押しながら押すんじゃないぞ！)");

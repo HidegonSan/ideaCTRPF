@@ -26,7 +26,6 @@ namespace CTRPluginFramework
     }
   }
 
-  // たまにクラッシュするからだれか直してくれ
   void Pipes(MenuEntry *entry)
   {
     static u32 xPos = 150, yPos = 120;
