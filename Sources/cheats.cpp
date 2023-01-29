@@ -6,7 +6,10 @@
 
 namespace CTRPluginFramework
 {
-  void Test1(MenuEntry *entry) {}
+  void Test1(MenuEntry *entry)
+  {
+    LifeGame_Class::GetInstance()->LifeGame_Loop();
+  }
 
   void JPNotify(MenuEntry *entry)
   {
@@ -1187,9 +1190,9 @@ namespace CTRPluginFramework
 
       u32 originX = x - (size / 2);
       u32 originY = y - (size / 2);
-      for(u32 drawX = 0; drawX < size; drawX++)
+      for (u32 drawX = 0; drawX < size; drawX++)
       {
-        for(u32 drawY = 0; drawY < size; drawY++)
+        for (u32 drawY = 0; drawY < size; drawY++)
         {
           paintPallet[originX + drawX][originY + drawY] = color;
           poses.push_back({static_cast<u32>(originX + drawX), static_cast<u32>(originY + drawY)});
@@ -1201,7 +1204,7 @@ namespace CTRPluginFramework
       i++;
     }
 
-    for(u8 i = 0; i < 2; i++)
+    for (u8 i = 0; i < 2; i++)
     {
       for (auto &&pos : poses)
       {
@@ -1210,7 +1213,7 @@ namespace CTRPluginFramework
         else // eraser
           screen.DrawPixel(pos.x + 20, pos.y + 10, (int(pos.x) / 10 + int(pos.y) / 10) % 2 ? Color::White : Color::DarkGrey);
       }
-      if(i == 0)
+      if (i == 0)
         OSD::SwapBuffers();
     }
   }
@@ -1401,5 +1404,123 @@ namespace CTRPluginFramework
       btmScr.DrawSysfont(Utils::Format("Pen: %upx", penSize), 230, 65);
       OSD::SwapBuffers();
     }
+  }
+
+  LifeGame_Class *LifeGame_Class::_instance = nullptr;
+  LifeGame_Class::LifeGame_Class()
+  {
+    _instance = this;
+  }
+
+  LifeGame_Class::~LifeGame_Class()
+  {
+    _instance = nullptr;
+  }
+
+  void LifeGame_Class::LifeGame_Loop(void)
+  {
+    bool loopingGen = false;
+    Clock clock;
+    while (!Controller::IsKeyPressed(Key::B))
+    {
+      if (Controller::IsKeyPressed(Key::A))
+      {
+        if (_field[_selector.x + _selector.y * FIELD_WIDTH])
+          _field.reset(_selector.x + _selector.y * FIELD_WIDTH);
+        else
+          _field.set(_selector.x + _selector.y * FIELD_WIDTH);
+      }
+      if (Controller::IsKeyPressed(Key::Up) && _selector.y != 0)
+        _selector.y--;
+      if (Controller::IsKeyPressed(Key::Left) && _selector.x != 0)
+        _selector.x--;
+      if (Controller::IsKeyPressed(Key::Right) && _selector.x != FIELD_WIDTH - 1)
+        _selector.x++;
+      if (Controller::IsKeyPressed(Key::Down) && _selector.y != FIELD_HEIGHT - 1)
+        _selector.y++;
+      u32 lastTouch = FIELD_WIDTH * BLOCK_WIDTH + 1;
+      while (TouchRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2, FIELD_WIDTH * BLOCK_WIDTH, FIELD_HEIGHT * BLOCK_WIDTH))
+      {
+        for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
+          if (TouchRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH) && i != lastTouch)
+          {
+            _selector.x = i % FIELD_WIDTH;
+            _selector.y = i / FIELD_WIDTH;
+            if (_field[i])
+              _field.reset(i);
+            else
+              _field.set(i);
+            DrawField();
+            lastTouch = i;
+            break;
+          }
+        Controller::Update();
+      }
+      if (Controller::IsKeyPressed(Key::X))
+        loopingGen = !loopingGen;
+      if (Controller::IsKeyPressed(Key::Y))
+        _field = std::bitset<FIELD_HEIGHT * FIELD_WIDTH>(0);
+
+      if (loopingGen && clock.HasTimePassed(Milliseconds(500)))
+      {
+        NextGen();
+        DrawField();
+        clock.Restart();
+      }
+      if (Controller::GetKeysDown())
+        DrawField();
+      Controller::Update();
+    }
+  }
+
+  void LifeGame_Class::DrawField(void)
+  {
+    for (size_t j = 0; j < 2; j++)
+    {
+      topScr.DrawRect(0, 0, 400, 240, Color::Gray);
+      btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+      for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
+      {
+        topScr.DrawRect((400 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
+        btmScr.DrawRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
+        if (_field[i])
+        {
+          topScr.DrawRect((400 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH + 1, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, Color::SkyBlue);
+          btmScr.DrawRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH + 1, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, Color::SkyBlue);
+        }
+      }
+      OSD::SwapBuffers();
+    }
+  }
+
+  void LifeGame_Class::NextGen(void)
+  {
+    std::bitset<FIELD_HEIGHT * FIELD_WIDTH> newGen;
+    for (size_t i = 0; i < _field.size(); i++)
+    {
+      s8 count = LivesAround(i % FIELD_WIDTH, i / FIELD_WIDTH);
+      if (i == 0)
+        OSD::Notify(Utils::Format("%d", count));
+      if (_field[i])
+      {
+        if (count == 2 || count == 3)
+          newGen.set(i);
+      }
+      else if (count == 3)
+        newGen.set(i);
+    }
+    _field = newGen;
+  }
+
+  s8 LifeGame_Class::LivesAround(s16 x, s16 y)
+  {
+    s8 count = 0;
+    for (s16 a = x - 1; a < x + 2; a++)
+      for (s16 b = y - 1; b < y + 2; b++)
+        if (-1 < a && a < FIELD_WIDTH && -1 < b && b < FIELD_HEIGHT && _field[a + b * FIELD_WIDTH])
+          count++;
+    if (_field[x + y * FIELD_WIDTH])
+      count--;
+    return count;
   }
 }

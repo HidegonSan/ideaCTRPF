@@ -2,6 +2,7 @@
 #define CHEATS_H
 
 #include <CTRPluginFramework.hpp>
+#include <bitset>
 #include "Helpers.hpp"
 #include "Unicode.h"
 
@@ -9,7 +10,8 @@ namespace CTRPluginFramework
 {
   using StringVector = std::vector<std::string>;
 
-  enum {
+  enum
+  {
     BMP_TOP,
     BMP_BOTTOM
   };
@@ -103,48 +105,81 @@ namespace CTRPluginFramework
     Tetris_Class(void);
     ~Tetris_Class(void);
 
-    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates = 
-    {
-      {
-        {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-        {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
-        {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
-        {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-        {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-        {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
-        {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
-      }, 
-      {
-        {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
-        {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
-        {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
-        {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-        {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
-        {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
-        {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
-      }, 
-      {
-        {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-        {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
-        {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
-        {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-        {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-        {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
-        {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
-      }, 
-      {
-        {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
-        {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
-        {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
-        {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-        {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
-        {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
-        {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
-      }, 
+    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates =
+        {
+            {
+                {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+                {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
+                {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
+                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+                {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+                {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
+                {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
+            },
+            {
+                {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
+                {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
+                {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
+                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+                {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
+                {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
+                {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
+            },
+            {
+                {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+                {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
+                {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
+                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+                {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+                {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
+                {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
+            },
+            {
+                {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
+                {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
+                {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
+                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+                {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
+                {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
+                {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
+            },
     };
   };
   void Tetris(MenuEntry *entry);
   void Paint(MenuEntry *entry);
+
+  class LifeGame_Class
+  {
+  public:
+    void LifeGame_Loop(void);
+    static LifeGame_Class *GetInstance(void)
+    {
+      if (!_instance)
+        _instance = new LifeGame_Class();
+      return _instance;
+    }
+
+  private:
+    static constexpr u8 FIELD_WIDTH = 26;
+    static constexpr u8 FIELD_HEIGHT = 18;
+    static constexpr u8 BLOCK_WIDTH = 12;
+
+    UIntVector _selector = {0,0};
+
+    std::bitset<FIELD_HEIGHT * FIELD_WIDTH> _field;
+
+    static LifeGame_Class *_instance;
+    
+    const Screen &topScr = OSD::GetTopScreen();
+    const Screen &btmScr = OSD::GetBottomScreen();
+
+    void DrawField(void);
+    void NextGen(void);
+    s8 LivesAround(s16 x,s16 y);
+
+    LifeGame_Class();
+    ~LifeGame_Class();
+  };
 
   std::vector<u64> getFrame(int &frame);
 }
