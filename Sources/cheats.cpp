@@ -892,6 +892,8 @@ namespace CTRPluginFramework
       }
       if ((int)(block.y) + pos.y < 0)
         pos.y += abs((int)(block.y) + pos.y);
+      if (_field[0].size() - 1 < block.y + pos.y)
+        goto RESET_TURN;
       if (_field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
     }
