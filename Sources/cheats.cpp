@@ -1519,12 +1519,22 @@ namespace CTRPluginFramework
         _isLoopingGen = !_isLoopingGen;
       if (Controller::IsKeyPressed(Key::Y))
       {
-        switch (Keyboard("Paused", {"continue", "clear", "settings", "quit"}).Open())
+        switch (Keyboard("Paused", {"continue", "clear", "random", "settings", "quit"}).Open())
         {
         case 1:
           _field.reset();
           break;
         case 2:
+        {
+          Keyboard key("how many?");
+          key.IsHexadecimal(false);
+          u16 ans;
+          if (0 <= key.Open(ans))
+            for (u16 i = 0; i < ans; i++)
+              _field.set(Utils::Random(0, FIELD_WIDTH * FIELD_HEIGHT - 1));
+          break;
+        }
+        case 3:
         {
           u16 ans;
           Keyboard key("speed\ndefault is 200");
@@ -1544,7 +1554,7 @@ namespace CTRPluginFramework
           }
           break;
         }
-        case 3:
+        case 4:
           isOpened = false;
           break;
         default:
