@@ -1330,7 +1330,8 @@ namespace CTRPluginFramework
         {
           if (dropperClock.HasTimePassed(Seconds(1)))
           {
-            paintColor = paintPallet[dropperPos.x][dropperPos.y];
+            if (paintPallet[dropperPos.x][dropperPos.y].a)
+              paintColor = paintPallet[dropperPos.x][dropperPos.y];
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
             OSD::SwapBuffers();
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
@@ -1338,7 +1339,7 @@ namespace CTRPluginFramework
           }
           Controller::Update();
         }
-        if (paintMode == PEN || paintMode == ERASER)
+        if ((paintMode == PEN || paintMode == ERASER) && TouchRect(20, 10, 200, 200))
         {
           UIntVector pos = Touch::GetPosition();
           PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, penSize, paintMode ? Color(0, 0, 0, 0) : paintColor);
