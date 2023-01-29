@@ -4,6 +4,8 @@
 #include "JPKeyboard.hpp"
 #include "KaniCodes.hpp"
 
+#include <sstream>
+
 namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry) {}
@@ -638,6 +640,12 @@ namespace CTRPluginFramework
       else if (args[0] == "kani")
       {
         commandLine_buffer += "(/)(;,,;)(/)\n>=<\nV=(° °)=V";
+      }
+      else if (args[0] == "commit")
+      {
+        std::stringstream ss;
+        ss << std::hex << COMMIT_HASH;
+        commandLine_buffer += ss.str();
       }
       else if (args[0] == "cat")
       {

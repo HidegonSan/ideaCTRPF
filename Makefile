@@ -16,13 +16,20 @@ BUILD		:= 	Build
 INCLUDES	:= 	Includes
 SOURCES 	:= 	Sources
 
+COMMIT		:= 	$(shell git rev-parse --short HEAD)
+
+ifeq ($(strip $(COMMIT)),)
+	COMMIT	:=  0
+endif
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH		:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS		:=	$(ARCH) -Os -mword-relocations \
-				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing -Wall -Wextra -Wno-unused
+				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing \
+				-Wall -Wextra -Wno-unused -DCOMMIT_HASH="0x$(COMMIT)"
 
 CFLAGS		+=	$(INCLUDE) -D__3DS__
 
