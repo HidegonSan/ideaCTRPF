@@ -160,8 +160,8 @@ namespace CTRPluginFramework
     }
 
   private:
-    static constexpr u8 FIELD_WIDTH = 50;
-    static constexpr u8 FIELD_HEIGHT = 30;
+    static constexpr u8 FIELD_WIDTH = 100;
+    static constexpr u8 FIELD_HEIGHT = 60;
     static constexpr u8 BLOCK_WIDTH = 16;
 
     UIntVector _selector = {4, 6};
