@@ -254,7 +254,7 @@ namespace CTRPluginFramework
 
   int main(void)
   {
-    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 0, 7, 4, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\nありがとうございます！！！");
+    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 0, 7, 4, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\nありがとうございます！！！\n変な機能ばっかりの自己満ロマンCTRPFです");
 
     // OSD::Run(LoadGameTitle);
     // Sleep(Seconds(1));

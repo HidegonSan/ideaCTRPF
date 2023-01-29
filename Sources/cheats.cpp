@@ -1436,7 +1436,7 @@ namespace CTRPluginFramework
             _btmPos.y--;
           btmClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        else if (btmClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y--;
           if (_selector.y == _btmPos.y && _btmPos.y != 0)
@@ -1452,7 +1452,7 @@ namespace CTRPluginFramework
             _btmPos.x--;
           btmClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        else if (btmClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x--;
           if (_selector.x == _btmPos.x && _btmPos.x != 0)
@@ -1468,7 +1468,7 @@ namespace CTRPluginFramework
             _btmPos.x++;
           btmClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        else if (btmClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x++;
           if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
@@ -1484,7 +1484,7 @@ namespace CTRPluginFramework
             _btmPos.y++;
           btmClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        else if (btmClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y++;
           if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
