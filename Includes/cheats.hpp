@@ -160,22 +160,24 @@ namespace CTRPluginFramework
     }
 
   private:
-    static constexpr u8 FIELD_WIDTH = 26;
-    static constexpr u8 FIELD_HEIGHT = 18;
-    static constexpr u8 BLOCK_WIDTH = 12;
+    static constexpr u8 FIELD_WIDTH = 50;
+    static constexpr u8 FIELD_HEIGHT = 30;
+    static constexpr u8 BLOCK_WIDTH = 16;
 
-    UIntVector _selector = {0,0};
+    UIntVector _selector = {4, 6};
+    UIntVector _btmPos = {3, 5};
+    bool loopingGen = false;
 
     std::bitset<FIELD_HEIGHT * FIELD_WIDTH> _field;
 
     static LifeGame_Class *_instance;
-    
+
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
 
     void DrawField(void);
     void NextGen(void);
-    s8 LivesAround(s16 x,s16 y);
+    s8 LivesAround(s16 x, s16 y);
 
     LifeGame_Class();
     ~LifeGame_Class();

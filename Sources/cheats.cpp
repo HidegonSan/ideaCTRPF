@@ -1416,8 +1416,8 @@ namespace CTRPluginFramework
 
   void LifeGame_Class::LifeGame_Loop(void)
   {
-    bool loopingGen = false;
-    Clock clock;
+    Clock genClock;
+    Clock btmClock;
     while (!Controller::IsKeyPressed(Key::B))
     {
       if (Controller::IsKeyPressed(Key::A))
@@ -1427,42 +1427,107 @@ namespace CTRPluginFramework
         else
           _field.set(_selector.x + _selector.y * FIELD_WIDTH);
       }
-      if (Controller::IsKeyPressed(Key::Up) && _selector.y != 0)
-        _selector.y--;
-      if (Controller::IsKeyPressed(Key::Left) && _selector.x != 0)
-        _selector.x--;
-      if (Controller::IsKeyPressed(Key::Right) && _selector.x != FIELD_WIDTH - 1)
-        _selector.x++;
-      if (Controller::IsKeyPressed(Key::Down) && _selector.y != FIELD_HEIGHT - 1)
-        _selector.y++;
+      if (Controller::IsKeyDown(Key::Up) && _selector.y != 0)
+      {
+        if (Controller::IsKeyPressed(Key::Up))
+        {
+          _selector.y--;
+          if (_selector.y == _btmPos.y && _btmPos.y != 0)
+            _btmPos.y--;
+          btmClock.Restart();
+        }
+        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        {
+          _selector.y--;
+          if (_selector.y == _btmPos.y && _btmPos.y != 0)
+            _btmPos.y--;
+        }
+      }
+      if (Controller::IsKeyDown(Key::Left) && _selector.x != 0)
+      {
+        if (Controller::IsKeyPressed(Key::Left))
+        {
+          _selector.x--;
+          if (_selector.x == _btmPos.x && _btmPos.x != 0)
+            _btmPos.x--;
+          btmClock.Restart();
+        }
+        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        {
+          _selector.x--;
+          if (_selector.x == _btmPos.x && _btmPos.x != 0)
+            _btmPos.x--;
+        }
+      }
+      if (Controller::IsKeyDown(Key::Right) && _selector.x != FIELD_WIDTH - 1)
+      {
+        if (Controller::IsKeyPressed(Key::Right))
+        {
+          _selector.x++;
+          if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
+            _btmPos.x++;
+          btmClock.Restart();
+        }
+        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        {
+          _selector.x++;
+          if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
+            _btmPos.x++;
+        }
+      }
+      if (Controller::IsKeyDown(Key::Down) && _selector.y != FIELD_HEIGHT - 1)
+      {
+        if (Controller::IsKeyPressed(Key::Down))
+        {
+          _selector.y++;
+          if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
+            _btmPos.y++;
+          btmClock.Restart();
+        }
+        else if (btmClock.HasTimePassed(Milliseconds(50)))
+        {
+          _selector.y++;
+          if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
+            _btmPos.y++;
+        }
+      }
       u32 lastTouch = FIELD_WIDTH * BLOCK_WIDTH + 1;
-      while (TouchRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2, FIELD_WIDTH * BLOCK_WIDTH, FIELD_HEIGHT * BLOCK_WIDTH))
+      while (Touch::IsDown())
       {
         for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
-          if (TouchRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH) && i != lastTouch)
-          {
-            _selector.x = i % FIELD_WIDTH;
-            _selector.y = i / FIELD_WIDTH;
-            if (_field[i])
-              _field.reset(i);
-            else
-              _field.set(i);
-            DrawField();
-            lastTouch = i;
-            break;
-          }
+          if (_btmPos.x < i % FIELD_WIDTH + 1 && _btmPos.y < i / FIELD_WIDTH + 1 && i % FIELD_WIDTH < _btmPos.x + 320 / BLOCK_WIDTH && i / FIELD_WIDTH < _btmPos.y + 240 / BLOCK_WIDTH)
+            if (TouchRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH) && i != lastTouch)
+            {
+              _selector.x = i % FIELD_WIDTH;
+              _selector.y = i / FIELD_WIDTH;
+              if (_field[i])
+                _field.reset(i);
+              else
+                _field.set(i);
+              if (_selector.y == _btmPos.y && _btmPos.y != 0)
+                _btmPos.y--;
+              if (_selector.x == _btmPos.x && _btmPos.x != 0)
+                _btmPos.x--;
+              if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
+                _btmPos.x++;
+              if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
+                _btmPos.y++;
+              DrawField();
+              lastTouch = i;
+              break;
+            }
         Controller::Update();
       }
       if (Controller::IsKeyPressed(Key::X))
         loopingGen = !loopingGen;
       if (Controller::IsKeyPressed(Key::Y))
-        _field = std::bitset<FIELD_HEIGHT * FIELD_WIDTH>(0);
+        _field.reset();
 
-      if (loopingGen && clock.HasTimePassed(Milliseconds(500)))
+      if (loopingGen && genClock.HasTimePassed(Milliseconds(200)))
       {
         NextGen();
         DrawField();
-        clock.Restart();
+        genClock.Restart();
       }
       if (Controller::GetKeysDown())
         DrawField();
@@ -1478,14 +1543,15 @@ namespace CTRPluginFramework
       btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
       {
-        topScr.DrawRect((400 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
-        btmScr.DrawRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
-        if (_field[i])
+        topScr.DrawRect((i % FIELD_WIDTH) * (400 / FIELD_WIDTH), (i / FIELD_WIDTH) * (240 / FIELD_HEIGHT), (400 / FIELD_WIDTH), (240 / FIELD_HEIGHT), _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH && !loopingGen ? Color::DimGrey : (_field[i] ? Color::SkyBlue : Color::Gray));
+        if (_btmPos.x < i % FIELD_WIDTH + 1 && _btmPos.y < i / FIELD_WIDTH + 1 && i % FIELD_WIDTH < _btmPos.x + 320 / BLOCK_WIDTH && i / FIELD_WIDTH < _btmPos.y + 240 / BLOCK_WIDTH)
         {
-          topScr.DrawRect((400 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH + 1, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, Color::SkyBlue);
-          btmScr.DrawRect((320 - FIELD_WIDTH * BLOCK_WIDTH) / 2 + (i % FIELD_WIDTH) * BLOCK_WIDTH + 1, (240 - FIELD_HEIGHT * BLOCK_WIDTH) / 2 + (i / FIELD_WIDTH) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, Color::SkyBlue);
+          btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
+          btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH + 1, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _field[i] ? Color::SkyBlue : Color::Gray);
         }
       }
+      if (!loopingGen)
+        topScr.DrawRect(_btmPos.x * (400 / FIELD_WIDTH), _btmPos.y * (240 / FIELD_HEIGHT), 320 / BLOCK_WIDTH * (400 / FIELD_WIDTH), 240 / BLOCK_WIDTH * (240 / FIELD_HEIGHT), Color::White, false);
       OSD::SwapBuffers();
     }
   }
@@ -1496,8 +1562,6 @@ namespace CTRPluginFramework
     for (size_t i = 0; i < _field.size(); i++)
     {
       s8 count = LivesAround(i % FIELD_WIDTH, i / FIELD_WIDTH);
-      if (i == 0)
-        OSD::Notify(Utils::Format("%d", count));
       if (_field[i])
       {
         if (count == 2 || count == 3)
