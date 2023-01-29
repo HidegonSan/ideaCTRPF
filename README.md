@@ -5,6 +5,7 @@
 ### Requirements
 
 ```
+Git
 devkitARM
 libctrpf
 3gxtool
