@@ -6,10 +6,7 @@
 
 namespace CTRPluginFramework
 {
-  void Test1(MenuEntry *entry)
-  {
-    LifeGame_Class::GetInstance()->LifeGame_Loop();
-  }
+  void Test1(MenuEntry *entry) {}
 
   void JPNotify(MenuEntry *entry)
   {
@@ -1522,5 +1519,10 @@ namespace CTRPluginFramework
     if (_field[x + y * FIELD_WIDTH])
       count--;
     return count;
+  }
+
+  void LifeGame(MenuEntry *entry)
+  {
+    LifeGame_Class::GetInstance()->LifeGame_Loop();
   }
 }

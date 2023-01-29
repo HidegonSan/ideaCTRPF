@@ -181,6 +181,8 @@ namespace CTRPluginFramework
     ~LifeGame_Class();
   };
 
+  void LifeGame(MenuEntry *entry);
+
   std::vector<u64> getFrame(int &frame);
 }
 #endif
