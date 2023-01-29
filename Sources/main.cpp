@@ -249,11 +249,12 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
     menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")});
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
+    menu += new MenuEntry("LifeGame", nullptr, LifeGame, "ライフゲーム\nA:put life\nB:exit\nX:start/stop\nY:clear");
   }
 
   int main(void)
   {
-    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 0, 7, 4, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\nありがとうございます！！！");
+    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 0, 7, 4, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\nありがとうございます！！！\n変な機能ばっかりの自己満ロマンCTRPFです");
 
     // OSD::Run(LoadGameTitle);
     // Sleep(Seconds(1));
