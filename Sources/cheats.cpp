@@ -46,24 +46,23 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(3, 397);
-        yPos = 3;
+        xPos = Utils::Random(2, 398);
+        yPos = 2;
         break;
       case 1:
-        xPos = 3;
-        yPos = Utils::Random(3, 237);
+        xPos = 2;
+        yPos = Utils::Random(2, 238);
         break;
       case 2:
-        xPos = 397;
-        yPos = Utils::Random(3, 237);
+        xPos = 398;
+        yPos = Utils::Random(2, 238);
         break;
       default:
-        xPos = Utils::Random(3, 397);
-        yPos = 237;
+        xPos = Utils::Random(2, 398);
+        yPos = 238;
         break;
       }
       isReset = false;
-      j = 0;
       if (i < 6)
         i++;
       else
@@ -71,10 +70,8 @@ namespace CTRPluginFramework
     }
     if (len > 0)
     {
-      if (xPos == 2 || xPos == 398 || yPos == 2 || yPos == 238)
-      {
+      if (xPos <= 1 || xPos >= 399 || yPos <= 1 || yPos >= 239)
         isReset = true;
-      }
       else
       {
         for (int k = -1; k < 2; k++)
@@ -84,59 +81,31 @@ namespace CTRPluginFramework
         switch (direct)
         {
         case 0:
-          if (j == 0)
-          {
-            if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
-            yPos++;
-            break;
-          }
-          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
+          if (buff_direct == 1)
+            setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos++;
           break;
         case 1:
-          if (j == 0)
-          {
-            if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
-            xPos++;
-            break;
-          }
-          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
+          if (buff_direct == 0)
+            setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos++;
           break;
         case 2:
-          if (j == 0)
-          {
-            if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
-            xPos--;
-            break;
-          }
-          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
+          if (buff_direct == 0)
+            setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos--;
           break;
         default:
-          if (j == 0)
-          {
-            if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
-            yPos--;
-            break;
-          }
-          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
+          if (buff_direct == 1)
+            setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos--;
           break;
         }
@@ -146,7 +115,6 @@ namespace CTRPluginFramework
     else
     {
       len = Utils::Random(3, 30);
-      j = 0;
       while (1)
       {
         temp_direct = Utils::Random(0, 3);
