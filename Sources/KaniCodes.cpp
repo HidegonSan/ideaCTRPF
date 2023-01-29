@@ -311,13 +311,7 @@ namespace CTRPluginFramework
     return false;
   }
 
-  bool flagShowScreenBuffer = false;
   std::vector<std::vector<Color>> screenBuffer(400, std::vector<Color>(240, Color(0, 0, 0, 0)));
-
-  void setFlagShowScreenBuffer(bool flag)
-  {
-    flagShowScreenBuffer = flag;
-  }
 
   void setScreenBuffer(u16 x, u16 y, Color color)
   {
@@ -343,10 +337,7 @@ namespace CTRPluginFramework
         }
       }
     }
-    if (!flagShowScreenBuffer)
-      return true;
-
-    return false;
+    return true;
   }
 
   std::string

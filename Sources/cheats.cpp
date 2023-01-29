@@ -35,12 +35,10 @@ namespace CTRPluginFramework
     if (entry->WasJustActivated())
     {
       fillScreenBuffer(Color(0, 0, 0, 0));
-      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
     if (isReset)
@@ -354,9 +352,9 @@ namespace CTRPluginFramework
     }
   }
 
-  int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
+    static int frame_num = 0;
     if (!entry->IsActivated())
     {
       Process::Play();
@@ -1153,12 +1151,10 @@ namespace CTRPluginFramework
   {
     if (entry->WasJustActivated())
     {
-      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
   }
