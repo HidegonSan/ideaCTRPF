@@ -1413,8 +1413,9 @@ namespace CTRPluginFramework
   void LifeGame_Class::LifeGame_Loop(void)
   {
     Clock genClock;
-    Clock btmClock;
-    while (!Controller::IsKeyPressed(Key::B))
+    Clock keyClock;
+    bool isOpened = true;
+    while (!Controller::IsKeyPressed(Key::B) && isOpened)
     {
       if (Controller::IsKeyPressed(Key::A))
       {
@@ -1430,9 +1431,9 @@ namespace CTRPluginFramework
           _selector.y--;
           if (_selector.y == _btmPos.y && _btmPos.y != 0)
             _btmPos.y--;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y--;
           if (_selector.y == _btmPos.y && _btmPos.y != 0)
@@ -1446,9 +1447,9 @@ namespace CTRPluginFramework
           _selector.x--;
           if (_selector.x == _btmPos.x && _btmPos.x != 0)
             _btmPos.x--;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x--;
           if (_selector.x == _btmPos.x && _btmPos.x != 0)
@@ -1462,9 +1463,9 @@ namespace CTRPluginFramework
           _selector.x++;
           if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
             _btmPos.x++;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x++;
           if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
@@ -1478,9 +1479,9 @@ namespace CTRPluginFramework
           _selector.y++;
           if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
             _btmPos.y++;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y++;
           if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
@@ -1515,11 +1516,43 @@ namespace CTRPluginFramework
         Controller::Update();
       }
       if (Controller::IsKeyPressed(Key::X))
-        loopingGen = !loopingGen;
+        _isLoopingGen = !_isLoopingGen;
       if (Controller::IsKeyPressed(Key::Y))
-        _field.reset();
+      {
+        switch (Keyboard("Paused", {"continue", "clear", "settings", "quit"}).Open())
+        {
+        case 1:
+          _field.reset();
+          break;
+        case 2:
+        {
+          u16 ans;
+          Keyboard key("speed\ndefault is 200");
+          key.IsHexadecimal(false);
+          if (0 <= key.Open(ans))
+            _speed = ans;
+          switch (Keyboard("torus?\nUp, down, left, and right will connect.", {"true", "false"}).Open())
+          {
+          case 0:
+            _isTorus = true;
+            break;
+          case 1:
+            _isTorus = false;
+            break;
+          default:
+            break;
+          }
+          break;
+        }
+        case 3:
+          isOpened = false;
+          break;
+        default:
+          break;
+        }
+      }
 
-      if (loopingGen && genClock.HasTimePassed(Milliseconds(200)))
+      if (_isLoopingGen && genClock.HasTimePassed(Milliseconds(_speed)))
       {
         NextGen();
         DrawField();
@@ -1539,14 +1572,14 @@ namespace CTRPluginFramework
       btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
       {
-        topScr.DrawRect((i % FIELD_WIDTH) * (400 / FIELD_WIDTH), (i / FIELD_WIDTH) * (240 / FIELD_HEIGHT), (400 / FIELD_WIDTH), (240 / FIELD_HEIGHT), _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH && !loopingGen ? Color::DimGrey : (_field[i] ? Color::SkyBlue : Color::Gray));
+        topScr.DrawRect((i % FIELD_WIDTH) * (400 / FIELD_WIDTH), (i / FIELD_WIDTH) * (240 / FIELD_HEIGHT), (400 / FIELD_WIDTH), (240 / FIELD_HEIGHT), _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH && !_isLoopingGen ? Color::DimGrey : (_field[i] ? Color::SkyBlue : Color::Gray));
         if (_btmPos.x < i % FIELD_WIDTH + 1 && _btmPos.y < i / FIELD_WIDTH + 1 && i % FIELD_WIDTH < _btmPos.x + 320 / BLOCK_WIDTH && i / FIELD_WIDTH < _btmPos.y + 240 / BLOCK_WIDTH)
         {
           btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
           btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH + 1, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _field[i] ? Color::SkyBlue : Color::Gray);
         }
       }
-      if (!loopingGen)
+      if (!_isLoopingGen)
         topScr.DrawRect(_btmPos.x * (400 / FIELD_WIDTH), _btmPos.y * (240 / FIELD_HEIGHT), 320 / BLOCK_WIDTH * (400 / FIELD_WIDTH), 240 / BLOCK_WIDTH * (240 / FIELD_HEIGHT), Color::White, false);
       OSD::SwapBuffers();
     }
@@ -1572,12 +1605,27 @@ namespace CTRPluginFramework
   s8 LifeGame_Class::LivesAround(s16 x, s16 y)
   {
     s8 count = 0;
-    for (s16 a = x - 1; a < x + 2; a++)
-      for (s16 b = y - 1; b < y + 2; b++)
-        if (-1 < a && a < FIELD_WIDTH && -1 < b && b < FIELD_HEIGHT && _field[a + b * FIELD_WIDTH])
-          count++;
     if (_field[x + y * FIELD_WIDTH])
       count--;
+    for (s16 a = x - 1; a < x + 2; a++)
+      for (s16 b = y - 1; b < y + 2; b++)
+      {
+        s16 xx = a;
+        s16 yy = b;
+        if (_isTorus)
+        {
+          if (xx == -1)
+            xx = FIELD_WIDTH - 1;
+          if (xx == FIELD_WIDTH)
+            xx = 0;
+          if (yy == -1)
+            yy = FIELD_HEIGHT - 1;
+          if (yy == FIELD_HEIGHT)
+            yy = 0;
+        }
+        if (-1 < xx && xx < FIELD_WIDTH && -1 < yy && yy < FIELD_HEIGHT && _field[xx + yy * FIELD_WIDTH])
+          count++;
+      }
     return count;
   }
 

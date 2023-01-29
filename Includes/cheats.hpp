@@ -166,7 +166,9 @@ namespace CTRPluginFramework
 
     UIntVector _selector = {4, 6};
     UIntVector _btmPos = {3, 5};
-    bool loopingGen = false;
+    bool _isLoopingGen = false;
+    int _speed = 200;
+    bool _isTorus = true;
 
     std::bitset<FIELD_HEIGHT * FIELD_WIDTH> _field;
 
