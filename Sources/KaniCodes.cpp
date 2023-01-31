@@ -459,9 +459,11 @@ namespace CTRPluginFramework
       barLength += 1;
 
     if (TouchRect(260, 24, 40, 192))
+    {
       barLength = Touch::GetPosition().y;
-    if (barLength - 24 < barColorVector.size())
+      // if (barLength - 24 < barColorVector.size())
       barColor = barColorVector[barLength - 24];
+    }
     scr.DrawRect(261, barLength, 20, 1, Color::White);
     scr.DrawRect(281, barLength - 2, 5, 5, barColor);
     pickerColorVector = DrawPicker(barColor, scr);
@@ -537,11 +539,9 @@ namespace CTRPluginFramework
       if (0 <= key.Open(Value))
       {
         barColor.r = Value;
-        if (Value == 254)
-          Value = 255;
         for (size_t i = 0; i < barColorVector.size(); i++)
         {
-          if ((Value == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
+          if (std::abs((s16)barColor.r - (s16)barColorVector[i].r) + std::abs((s16)barColor.g - (s16)barColorVector[i].g) + std::abs((s16)barColor.b - (s16)barColorVector[i].b) < std::abs((s16)barColor.r - (s16)barColorVector[barLength - 24].r) + std::abs((s16)barColor.g - (s16)barColorVector[barLength - 24].g) + std::abs((s16)barColor.b - (s16)barColorVector[barLength - 24].b))
           {
             barLength = i + 24;
           }
@@ -557,11 +557,9 @@ namespace CTRPluginFramework
       if (0 <= key.Open(Value))
       {
         barColor.g = Value;
-        if (Value == 254)
-          Value = 255;
         for (size_t i = 0; i < barColorVector.size(); i++)
         {
-          if ((barColor.r == barColorVector[i].r) && (Value == barColorVector[i].g) && (barColor.b == barColorVector[i].b))
+          if (std::abs((s16)barColor.r - (s16)barColorVector[i].r) + std::abs((s16)barColor.g - (s16)barColorVector[i].g) + std::abs((s16)barColor.b - (s16)barColorVector[i].b) < std::abs((s16)barColor.r - (s16)barColorVector[barLength - 24].r) + std::abs((s16)barColor.g - (s16)barColorVector[barLength - 24].g) + std::abs((s16)barColor.b - (s16)barColorVector[barLength - 24].b))
           {
             barLength = i + 24;
           }
@@ -577,11 +575,9 @@ namespace CTRPluginFramework
       if (0 <= key.Open(Value))
       {
         barColor.b = Value;
-        if (Value == 254)
-          Value = 255;
         for (size_t i = 0; i < barColorVector.size(); i++)
         {
-          if ((barColor.r == barColorVector[i].r) && (barColor.g == barColorVector[i].g) && (Value == barColorVector[i].b))
+          if (std::abs((s16)barColor.r - (s16)barColorVector[i].r) + std::abs((s16)barColor.g - (s16)barColorVector[i].g) + std::abs((s16)barColor.b - (s16)barColorVector[i].b) < std::abs((s16)barColor.r - (s16)barColorVector[barLength - 24].r) + std::abs((s16)barColor.g - (s16)barColorVector[barLength - 24].g) + std::abs((s16)barColor.b - (s16)barColorVector[barLength - 24].b))
           {
             barLength = i + 24;
           }
