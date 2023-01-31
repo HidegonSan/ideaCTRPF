@@ -20,7 +20,7 @@ namespace CTRPluginFramework
     bool Open(std::string &out,std::string defaultText);
 
   private:
-    enum
+    enum StringOp
     {
       DELETE,
       KOMOJI,
