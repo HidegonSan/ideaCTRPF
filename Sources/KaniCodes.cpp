@@ -376,8 +376,7 @@ namespace CTRPluginFramework
   std::vector<Color> barColorVector;
   std::vector<std::vector<Color>> pickerColorVector;
 
-  std::vector<Color>
-  drawVerticalGradation(u16 x, u16 w, u16 y, u16 h, Color start, Color end, Screen scr)
+  std::vector<Color> drawVerticalGradation(u16 x, u16 w, u16 y, u16 h, Color start, Color end, Screen scr)
   {
     std::vector<Color> color_vector;
     double d, dd;
@@ -461,7 +460,6 @@ namespace CTRPluginFramework
     if (TouchRect(260, 24, 40, 192))
     {
       barLength = Touch::GetPosition().y;
-      // if (barLength - 24 < barColorVector.size())
       barColor = barColorVector[barLength - 24];
     }
     scr.DrawRect(261, barLength, 20, 1, Color::White);
@@ -508,7 +506,10 @@ namespace CTRPluginFramework
       key.IsHexadecimal(false);
       u16 hue;
       if (0 <= key.Open(hue))
-        barLength = (int)((double)(hue) / 360.0 * 192.0 + 24);
+      {
+        if (0 <= hue <= 360)
+          barLength = (int)((double)(hue) / 360.0 * 192.0 + 24);
+      }
     }
     else if (TouchRect(160, 50, 70, 19))
     {
