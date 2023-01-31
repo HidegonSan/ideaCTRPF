@@ -118,7 +118,7 @@ namespace CTRPluginFramework
       while (1)
       {
         temp_direct = Utils::Random(0, 3);
-        if ((temp_direct == 0 && direct != 3) || (temp_direct == 1 && direct != 2) || (temp_direct == 2 && direct != 1) || (temp_direct == 3 && direct != 0))
+        if (direct != 3 - temp_direct)
           break;
       }
       buff_direct = direct;
@@ -131,7 +131,7 @@ namespace CTRPluginFramework
     }
   }
 
-  void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input)
+  void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input, std::vector<MenuFolder *> ancestorFolders)
   {
     if (folder->Name() == "Search")
       return;
@@ -139,7 +139,18 @@ namespace CTRPluginFramework
     std::vector<MenuFolder *> folders = folder->GetFolderList();
     for (auto folder1 : folders)
     {
-      addSearch(folder1, SearchFolder, input);
+      bool flag = true;
+      for (auto ancestorFolder : ancestorFolders)
+        if (folder1 == ancestorFolder)
+        {
+          flag = false;
+          break;
+        }
+      if (flag)
+      {
+        ancestorFolders.push_back(folder1);
+        addSearch(folder1, SearchFolder, input, ancestorFolders);
+      }
     }
     for (auto entry : entries)
     {
@@ -176,8 +187,9 @@ namespace CTRPluginFramework
         *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
     }
 
+    std::vector<MenuFolder *> ancestorFolders;
     for (auto folder : folders)
-      addSearch(folder, SearchFolder, input);
+      addSearch(folder, SearchFolder, input, ancestorFolders);
   }
 
   float AA, BB, CC;
@@ -1586,23 +1598,17 @@ namespace CTRPluginFramework
   s8 LifeGame_Class::LivesAround(s16 x, s16 y)
   {
     s8 count = 0;
-    if (_field[x + y * FIELD_WIDTH])
-      count--;
     for (s16 a = x - 1; a < x + 2; a++)
       for (s16 b = y - 1; b < y + 2; b++)
       {
+        if (a == x && b == y)
+          continue;
         s16 xx = a;
         s16 yy = b;
         if (_isTorus)
         {
-          if (xx == -1)
-            xx = FIELD_WIDTH - 1;
-          if (xx == FIELD_WIDTH)
-            xx = 0;
-          if (yy == -1)
-            yy = FIELD_HEIGHT - 1;
-          if (yy == FIELD_HEIGHT)
-            yy = 0;
+          xx = (xx + FIELD_WIDTH) % FIELD_WIDTH;
+          yy = (yy + FIELD_HEIGHT) % FIELD_HEIGHT;
         }
         if (-1 < xx && xx < FIELD_WIDTH && -1 < yy && yy < FIELD_HEIGHT && _field[xx + yy * FIELD_WIDTH])
           count++;
