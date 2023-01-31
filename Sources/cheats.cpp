@@ -593,7 +593,7 @@ namespace CTRPluginFramework
       {
         if (args.size() == 1)
         {
-          std::string _help = "command list\n・ls\n・clear|cls\n・cd\n・pwd\n・mkdir\n・tree\n・secret\n・cat\n・echo\n・rm\n・touch\n・entry\n・exit\n・help [command]\n" + (Color::Green << "Can be done even when files and directories are ambiguous." << Color::White);
+          std::string _help = "command list\n・ls\n・clear|cls\n・cd\n・pwd\n・mkdir\n・tree\n・secret\n・cat\n・echo\n・rm\n・touch\n・entry\n・commit\n・exit\n・help [command]\n" + (Color::Green << "Can be done even when files and directories are ambiguous." << Color::White);
           commandLine_buffer += _help;
           MessageBox(_help + "")();
         }
@@ -621,6 +621,8 @@ namespace CTRPluginFramework
           commandLine_buffer += "enable or disable entry(only GameFunc)\nentry\n-l list entries\n-e [entry] enable entry\n-d [entry] disable entry";
         else if (args[1] == "exit")
           commandLine_buffer += "exit command";
+        else if (args[1] == "commit")
+          commandLine_buffer += "show commit hash";
       }
       else if (args[0] == "mkdir")
       {
