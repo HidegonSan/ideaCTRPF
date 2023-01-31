@@ -37,12 +37,10 @@ namespace CTRPluginFramework
     if (entry->WasJustActivated())
     {
       fillScreenBuffer(Color(0, 0, 0, 0));
-      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
     if (isReset)
@@ -50,24 +48,23 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(3, 397);
-        yPos = 3;
+        xPos = Utils::Random(2, 398);
+        yPos = 2;
         break;
       case 1:
-        xPos = 3;
-        yPos = Utils::Random(3, 237);
+        xPos = 2;
+        yPos = Utils::Random(2, 238);
         break;
       case 2:
-        xPos = 397;
-        yPos = Utils::Random(3, 237);
+        xPos = 398;
+        yPos = Utils::Random(2, 238);
         break;
       default:
-        xPos = Utils::Random(3, 397);
-        yPos = 237;
+        xPos = Utils::Random(2, 398);
+        yPos = 238;
         break;
       }
       isReset = false;
-      j = 0;
       if (i < 6)
         i++;
       else
@@ -75,10 +72,8 @@ namespace CTRPluginFramework
     }
     if (len > 0)
     {
-      if (xPos == 2 || xPos == 398 || yPos == 2 || yPos == 238)
-      {
+      if (xPos <= 1 || xPos >= 399 || yPos <= 1 || yPos >= 239)
         isReset = true;
-      }
       else
       {
         for (int k = -1; k < 2; k++)
@@ -88,59 +83,31 @@ namespace CTRPluginFramework
         switch (direct)
         {
         case 0:
-          if (j == 0)
-          {
-            if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
-            yPos++;
-            break;
-          }
-          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
+          if (buff_direct == 1)
+            setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos++;
           break;
         case 1:
-          if (j == 0)
-          {
-            if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
-            xPos++;
-            break;
-          }
-          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
+          if (buff_direct == 0)
+            setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos++;
           break;
         case 2:
-          if (j == 0)
-          {
-            if (buff_direct == 0)
-              setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
-            xPos--;
-            break;
-          }
-          setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
+          if (buff_direct == 0)
+            setScreenBuffer(xPos, yPos + 2, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos, yPos - 2, Color(0, 0, 0, 0));
           xPos--;
           break;
         default:
-          if (j == 0)
-          {
-            if (buff_direct == 1)
-              setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-            else
-              setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
-            yPos--;
-            break;
-          }
-          setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
-          setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
+          if (buff_direct == 1)
+            setScreenBuffer(xPos + 2, yPos, Color(0, 0, 0, 0));
+          else
+            setScreenBuffer(xPos - 2, yPos, Color(0, 0, 0, 0));
           yPos--;
           break;
         }
@@ -150,11 +117,10 @@ namespace CTRPluginFramework
     else
     {
       len = Utils::Random(3, 30);
-      j = 0;
       while (1)
       {
         temp_direct = Utils::Random(0, 3);
-        if ((temp_direct == 0 && direct != 3) || (temp_direct == 1 && direct != 2) || (temp_direct == 2 && direct != 1) || (temp_direct == 3 && direct != 0))
+        if (direct != 3 - temp_direct)
           break;
       }
       buff_direct = direct;
@@ -167,7 +133,7 @@ namespace CTRPluginFramework
     }
   }
 
-  void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input)
+  void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input, std::vector<MenuFolder *> ancestorFolders)
   {
     if (folder->Name() == "Search")
       return;
@@ -175,7 +141,18 @@ namespace CTRPluginFramework
     std::vector<MenuFolder *> folders = folder->GetFolderList();
     for (auto folder1 : folders)
     {
-      addSearch(folder1, SearchFolder, input);
+      bool flag = true;
+      for (auto ancestorFolder : ancestorFolders)
+        if (folder1 == ancestorFolder)
+        {
+          flag = false;
+          break;
+        }
+      if (flag)
+      {
+        ancestorFolders.push_back(folder1);
+        addSearch(folder1, SearchFolder, input, ancestorFolders);
+      }
     }
     for (auto entry : entries)
     {
@@ -212,8 +189,9 @@ namespace CTRPluginFramework
         *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
     }
 
+    std::vector<MenuFolder *> ancestorFolders;
     for (auto folder : folders)
-      addSearch(folder, SearchFolder, input);
+      addSearch(folder, SearchFolder, input, ancestorFolders);
   }
 
   float AA, BB, CC;
@@ -356,9 +334,9 @@ namespace CTRPluginFramework
     }
   }
 
-  int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
+    static int frame_num = 0;
     if (!entry->IsActivated())
     {
       Process::Play();
@@ -904,6 +882,8 @@ namespace CTRPluginFramework
       }
       if ((int)(block.y) + pos.y < 0)
         pos.y += abs((int)(block.y) + pos.y);
+      if (_field[0].size() - 1 < block.y + pos.y)
+        goto RESET_TURN;
       if (_field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
     }
@@ -1163,12 +1143,10 @@ namespace CTRPluginFramework
   {
     if (entry->WasJustActivated())
     {
-      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
   }
@@ -1342,7 +1320,8 @@ namespace CTRPluginFramework
         {
           if (dropperClock.HasTimePassed(Seconds(1)))
           {
-            paintColor = paintPallet[dropperPos.x][dropperPos.y];
+            if (paintPallet[dropperPos.x][dropperPos.y].a)
+              paintColor = paintPallet[dropperPos.x][dropperPos.y];
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
             OSD::SwapBuffers();
             btmScr.DrawRect(231, 51, 10, 10, paintColor);
@@ -1350,7 +1329,7 @@ namespace CTRPluginFramework
           }
           Controller::Update();
         }
-        if (paintMode == PEN || paintMode == ERASER)
+        if ((paintMode == PEN || paintMode == ERASER) && TouchRect(20, 10, 200, 200))
         {
           UIntVector pos = Touch::GetPosition();
           PaintDrawLine(paintPallet, btmScr, pos.x - 20, pos.y - 10, lastPos.x - 20, lastPos.y - 10, penSize, paintMode ? Color(0, 0, 0, 0) : paintColor);
@@ -1427,8 +1406,9 @@ namespace CTRPluginFramework
   void LifeGame_Class::LifeGame_Loop(void)
   {
     Clock genClock;
-    Clock btmClock;
-    while (!Controller::IsKeyPressed(Key::B))
+    Clock keyClock;
+    bool isOpened = true;
+    while (!Controller::IsKeyPressed(Key::B) && isOpened)
     {
       if (Controller::IsKeyPressed(Key::A))
       {
@@ -1444,9 +1424,9 @@ namespace CTRPluginFramework
           _selector.y--;
           if (_selector.y == _btmPos.y && _btmPos.y != 0)
             _btmPos.y--;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y--;
           if (_selector.y == _btmPos.y && _btmPos.y != 0)
@@ -1460,9 +1440,9 @@ namespace CTRPluginFramework
           _selector.x--;
           if (_selector.x == _btmPos.x && _btmPos.x != 0)
             _btmPos.x--;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x--;
           if (_selector.x == _btmPos.x && _btmPos.x != 0)
@@ -1476,9 +1456,9 @@ namespace CTRPluginFramework
           _selector.x++;
           if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
             _btmPos.x++;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.x++;
           if (_selector.x == _btmPos.x + 320 / BLOCK_WIDTH - 1 && _btmPos.x != FIELD_WIDTH - 320 / BLOCK_WIDTH)
@@ -1492,9 +1472,9 @@ namespace CTRPluginFramework
           _selector.y++;
           if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
             _btmPos.y++;
-          btmClock.Restart();
+          keyClock.Restart();
         }
-        else if (btmClock.HasTimePassed(Seconds(0.2)))
+        else if (keyClock.HasTimePassed(Seconds(0.2)))
         {
           _selector.y++;
           if (_selector.y == _btmPos.y + 240 / BLOCK_WIDTH - 1 && _btmPos.y != FIELD_HEIGHT - 240 / BLOCK_WIDTH)
@@ -1529,11 +1509,53 @@ namespace CTRPluginFramework
         Controller::Update();
       }
       if (Controller::IsKeyPressed(Key::X))
-        loopingGen = !loopingGen;
+        _isLoopingGen = !_isLoopingGen;
       if (Controller::IsKeyPressed(Key::Y))
-        _field.reset();
+      {
+        switch (Keyboard("Paused", {"continue", "clear", "random", "settings", "quit"}).Open())
+        {
+        case 1:
+          _field.reset();
+          break;
+        case 2:
+        {
+          Keyboard key("how many?");
+          key.IsHexadecimal(false);
+          u16 ans;
+          if (0 <= key.Open(ans))
+            for (u16 i = 0; i < ans; i++)
+              _field.set(Utils::Random(0, FIELD_WIDTH * FIELD_HEIGHT - 1));
+          break;
+        }
+        case 3:
+        {
+          u16 ans;
+          Keyboard key("speed\ndefault is 200");
+          key.IsHexadecimal(false);
+          if (0 <= key.Open(ans))
+            _speed = ans;
+          switch (Keyboard("torus?\nUp, down, left, and right will connect.", {"true", "false"}).Open())
+          {
+          case 0:
+            _isTorus = true;
+            break;
+          case 1:
+            _isTorus = false;
+            break;
+          default:
+            break;
+          }
+          break;
+        }
+        case 4:
+          isOpened = false;
+          break;
+        default:
+          break;
+        }
+      }
 
-      if (loopingGen && genClock.HasTimePassed(Milliseconds(200)))
+      if (_isLoopingGen && genClock.HasTimePassed(Milliseconds(_speed)))
       {
         NextGen();
         DrawField();
@@ -1553,14 +1575,14 @@ namespace CTRPluginFramework
       btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       for (size_t i = 0; i < FIELD_WIDTH * FIELD_HEIGHT; i++)
       {
-        topScr.DrawRect((i % FIELD_WIDTH) * (400 / FIELD_WIDTH), (i / FIELD_WIDTH) * (240 / FIELD_HEIGHT), (400 / FIELD_WIDTH), (240 / FIELD_HEIGHT), _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH && !loopingGen ? Color::DimGrey : (_field[i] ? Color::SkyBlue : Color::Gray));
+        topScr.DrawRect((i % FIELD_WIDTH) * (400 / FIELD_WIDTH), (i / FIELD_WIDTH) * (240 / FIELD_HEIGHT), (400 / FIELD_WIDTH), (240 / FIELD_HEIGHT), _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH && !_isLoopingGen ? Color::DimGrey : (_field[i] ? Color::SkyBlue : Color::Gray));
         if (_btmPos.x < i % FIELD_WIDTH + 1 && _btmPos.y < i / FIELD_WIDTH + 1 && i % FIELD_WIDTH < _btmPos.x + 320 / BLOCK_WIDTH && i / FIELD_WIDTH < _btmPos.y + 240 / BLOCK_WIDTH)
         {
           btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH, _selector.x == i % FIELD_WIDTH && _selector.y == i / FIELD_WIDTH ? Color::DimGrey : Color::White, false);
           btmScr.DrawRect((i % FIELD_WIDTH - _btmPos.x) * BLOCK_WIDTH + 1, (i / FIELD_WIDTH - _btmPos.y) * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _field[i] ? Color::SkyBlue : Color::Gray);
         }
       }
-      if (!loopingGen)
+      if (!_isLoopingGen)
         topScr.DrawRect(_btmPos.x * (400 / FIELD_WIDTH), _btmPos.y * (240 / FIELD_HEIGHT), 320 / BLOCK_WIDTH * (400 / FIELD_WIDTH), 240 / BLOCK_WIDTH * (240 / FIELD_HEIGHT), Color::White, false);
       OSD::SwapBuffers();
     }
@@ -1588,10 +1610,19 @@ namespace CTRPluginFramework
     s8 count = 0;
     for (s16 a = x - 1; a < x + 2; a++)
       for (s16 b = y - 1; b < y + 2; b++)
-        if (-1 < a && a < FIELD_WIDTH && -1 < b && b < FIELD_HEIGHT && _field[a + b * FIELD_WIDTH])
+      {
+        if (a == x && b == y)
+          continue;
+        s16 xx = a;
+        s16 yy = b;
+        if (_isTorus)
+        {
+          xx = (xx + FIELD_WIDTH) % FIELD_WIDTH;
+          yy = (yy + FIELD_HEIGHT) % FIELD_HEIGHT;
+        }
+        if (-1 < xx && xx < FIELD_WIDTH && -1 < yy && yy < FIELD_HEIGHT && _field[xx + yy * FIELD_WIDTH])
           count++;
-    if (_field[x + y * FIELD_WIDTH])
-      count--;
+      }
     return count;
   }
 

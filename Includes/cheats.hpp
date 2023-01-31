@@ -160,13 +160,15 @@ namespace CTRPluginFramework
     }
 
   private:
-    static constexpr u8 FIELD_WIDTH = 50;
-    static constexpr u8 FIELD_HEIGHT = 30;
+    static constexpr u8 FIELD_WIDTH = 100;
+    static constexpr u8 FIELD_HEIGHT = 60;
     static constexpr u8 BLOCK_WIDTH = 16;
 
     UIntVector _selector = {4, 6};
     UIntVector _btmPos = {3, 5};
-    bool loopingGen = false;
+    bool _isLoopingGen = false;
+    int _speed = 200;
+    bool _isTorus = true;
 
     std::bitset<FIELD_HEIGHT * FIELD_WIDTH> _field;
 

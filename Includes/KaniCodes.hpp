@@ -24,7 +24,6 @@ namespace CTRPluginFramework
   bool TouchCircle(u32 x, u32 y, u8 size);
   bool TouchRect(u32 x, u32 y, u32 w, u32 h);
 
-  void setFlagShowScreenBuffer(bool flag);
   void setScreenBuffer(u16 x, u16 y, Color color);
   void fillScreenBuffer(Color color);
   bool ShowScreenBuffer(const Screen &screen);
