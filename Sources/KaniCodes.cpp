@@ -507,7 +507,7 @@ namespace CTRPluginFramework
       u16 hue;
       if (0 <= key.Open(hue))
       {
-        if (0 <= hue <= 360)
+        if (hue <= 360)
           barLength = (int)((double)(hue) / 360.0 * 192.0 + 24);
       }
     }
