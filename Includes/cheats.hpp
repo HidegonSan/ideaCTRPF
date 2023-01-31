@@ -2,7 +2,6 @@
 #define CHEATS_H
 
 #include <CTRPluginFramework.hpp>
-#include <bitset>
 #include "Helpers.hpp"
 #include "Unicode.h"
 
@@ -10,10 +9,17 @@ namespace CTRPluginFramework
 {
   using StringVector = std::vector<std::string>;
 
-  enum
+  enum BMP_SCREEN
   {
     BMP_TOP,
     BMP_BOTTOM
+  };
+
+  enum PaintMode
+  {
+    PEN,
+    ERASER,
+    BUCKET
   };
 
   void Test1(MenuEntry *entry);

@@ -780,7 +780,7 @@ namespace CTRPluginFramework
   {
     if (!Process::IsPaused())
       return;
-    Tetris_Class::GetInstance()->Tetris_Loop(entry->Hotkeys);
+    Tetris::GetInstance()->Tetris_Loop(entry->Hotkeys);
   }
 
   void ShowPallet(MenuEntry *entry)
@@ -909,12 +909,6 @@ namespace CTRPluginFramework
     u32 penSize = 1;
     UIntVector lastPos;
     std::vector<std::vector<Color>> paintPallet = std::vector<std::vector<Color>>(200, std::vector<Color>(200, Color(0, 0, 0, 0)));
-    enum
-    {
-      PEN,
-      ERASER,
-      BUCKET
-    };
     std::string paintModeName[] = {"PEN", "ERASER", "BUCKET"};
     u8 paintMode = PEN;
     Clock dropperClock;
@@ -1039,6 +1033,6 @@ namespace CTRPluginFramework
 
   void LifeGame(MenuEntry *entry)
   {
-    LifeGame_Class::GetInstance()->LifeGame_Loop();
+    LifeGame::GetInstance()->LifeGame_Loop();
   }
 }
