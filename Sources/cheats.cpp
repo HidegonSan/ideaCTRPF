@@ -9,8 +9,6 @@
 
 #include <sstream>
 
-#include <sstream>
-
 namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry) {
