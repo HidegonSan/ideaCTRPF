@@ -37,18 +37,8 @@ namespace CTRPluginFramework
     }
   }
 
-  void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign)
+  UIntVector GetStrPos(u32 posX, u32 posY, u32 borderWidth, u32 padding, int fontAlign)
   {
-    int bgWidth = OSD::GetTextWidth(false, str);
-    int height = 10 + padding * 2;
-
-    scr.DrawRect(posX, posY, bgWidth + (borderWidth * 2) + (padding * 2), borderWidth, border);
-    scr.DrawRect(posX + borderWidth + padding + bgWidth + padding, posY + borderWidth, borderWidth, height, border);
-    scr.DrawRect(posX, posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
-    scr.DrawRect(posX, posY + borderWidth, borderWidth, height, border);
-
-    scr.DrawRect(posX + borderWidth, posY + borderWidth, bgWidth + padding * 2, 10 + padding * 2, background);
-
     u32 strX = 0;
     u32 strY = 0;
 
@@ -93,7 +83,22 @@ namespace CTRPluginFramework
       break;
     }
 
-    scr.Draw(str, strX, strY, foreground, background);
+    return {strX, strY};
+  }
+
+  void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign)
+  {
+    int bgWidth = OSD::GetTextWidth(false, str);
+    int height = 10 + padding * 2;
+
+    scr.DrawRect(posX, posY, bgWidth + (borderWidth * 2) + (padding * 2), borderWidth, border);
+    scr.DrawRect(posX + borderWidth + padding + bgWidth + padding, posY + borderWidth, borderWidth, height, border);
+    scr.DrawRect(posX, posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
+    scr.DrawRect(posX, posY + borderWidth, borderWidth, height, border);
+    scr.DrawRect(posX + borderWidth, posY + borderWidth, bgWidth + padding * 2, 10 + padding * 2, background);
+
+    UIntVector strPos = GetStrPos(posX, posY, borderWidth, padding, fontAlign);
+    scr.Draw(str, strPos.x, strPos.y, foreground, background);
   }
 
   void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, bool fillBackground, bool rightAligned, int fontAlign)
@@ -124,51 +129,8 @@ namespace CTRPluginFramework
         scr.DrawRect(posX + borderWidth, posY + borderWidth, bgWidth + padding * 2, 16 + padding * 2, background);
       }
 
-      u32 strX = 0;
-      u32 strY = 0;
-
-      // TODO : enumに置き換える
-      switch (fontAlign)
-      {
-      case 0:
-        strX = posX + borderWidth;
-        strY = posY + borderWidth;
-        break;
-      case 1:
-        strX = posX + borderWidth + padding;
-        strY = posY + borderWidth;
-        break;
-      case 2:
-        strX = posX + borderWidth + padding * 2;
-        strY = posY + borderWidth;
-        break;
-      case 3:
-        strX = posX + borderWidth + padding * 2;
-        strY = posY + borderWidth + padding;
-        break;
-      case 4:
-        strX = posX + borderWidth + padding * 2;
-        strY = posY + borderWidth + padding * 2;
-        break;
-      case 5:
-        strX = posX + borderWidth + padding;
-        strY = posY + borderWidth + padding * 2;
-        break;
-      case 6:
-        strX = posX + borderWidth;
-        strY = posY + borderWidth + padding * 2;
-        break;
-      case 7:
-        strX = posX + borderWidth;
-        strY = posY + borderWidth + padding;
-        break;
-      case 8:
-        strX = posX + borderWidth + padding;
-        strY = posY + borderWidth + padding;
-        break;
-      }
-
-      scr.DrawSysfont(str, strX, strY, foreground);
+      UIntVector strPos = GetStrPos(posX, posY, borderWidth, padding, fontAlign);
+      scr.DrawSysfont(str, strPos.x, strPos.y, foreground);
     }
   }
 
@@ -595,27 +557,27 @@ namespace CTRPluginFramework
     if (TouchRect(130, 191, 50, 22))
     {
       colorPickerOpened = false;
-      return 0;
+      return false;
     }
     if (TouchRect(190, 191, 50, 22))
     {
       out = selectedColor;
       colorPickerOpened = false;
-      return 1;
+      return true;
     }
 
     if (Controller::IsKeyPressed(Key::B))
     {
       colorPickerOpened = false;
-      return 0;
+      return false;
     }
-    return 1;
+    return true;
   }
 
   bool colorPicker(Color &out)
   {
     if (!Process::IsPaused())
-      return 0;
+      return false;
 
     const Screen &scr = OSD::GetBottomScreen();
     colorPickerOpened = true;
@@ -623,9 +585,9 @@ namespace CTRPluginFramework
     {
       Controller::Update();
       if (!DrawColorPicker(scr, out))
-        return 0;
+        return false;
       OSD::SwapBuffers();
     }
-    return 1;
+    return true;
   }
 } // namespace CTRPluginFramework
