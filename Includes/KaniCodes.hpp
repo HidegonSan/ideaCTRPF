@@ -15,6 +15,7 @@ namespace CTRPluginFramework
   /*                                                   */
   /*****************************************************/
   void DrawLine(const Screen &scr, int srcX, int srcY, int dstX, int dstY, const Color &color);
+  UIntVector GetStrPos(u32 posX, u32 posY, u32 borderWidth, u32 padding, int fontAlign);
   void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign);
   void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, bool fillBackground, bool rightAligned = false, int fontAlign = 0);
   float DegreeToRadian(float degree);
