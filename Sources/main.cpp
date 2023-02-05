@@ -21,16 +21,28 @@ namespace CTRPluginFramework
   }
 
   // HotKeyの部分
-  static MenuEntry *EntryWithHotkeys(MenuEntry *entry, const std::vector<Hotkey> &hotkeys)
+  MenuEntry *EntryWithHotkeys(MenuEntry *entry, const std::vector<Hotkey> &hotkeys, bool addName = false)
   {
     if (entry != nullptr)
     {
+      entry->SetArg(new std::string(entry->Name()));
       for (const Hotkey &hotkey : hotkeys)
+      {
         entry->Hotkeys += hotkey;
+        if (addName)
+          entry->Name() += " " + hotkey.ToString(true);
+      }
+      if (addName)
+        entry->Hotkeys.OnHotkeyChangeCallback([](MenuEntry *entry, int index)
+                                              {
+                                              std::string *name = reinterpret_cast<std::string *>(entry->GetArg()); 
+                                              entry->Name() = *name;                                            for (size_t i = 0; i < entry->Hotkeys.Count(); i++)
+                                                entry->Name() += " " + entry->Hotkeys[i].ToString(true); });
     }
     return (entry);
   }
-  static MenuEntry *EnableEntry(MenuEntry *entry)
+
+  MenuEntry *EnableEntry(MenuEntry *entry)
   {
     if (entry != nullptr)
     {
@@ -247,7 +259,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("JPNotify", JPNotify, "ジェーピーノティファイ\nstartで表示\n(Y押しながら押すんじゃないぞ！)");
     menu += new MenuEntry("PlayMusic", nullptr, PlayMusic, "プレイミュージック\nMUSICフォルダにbcwavを入れてください");
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
-    menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")});
+    menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")}, true);
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
     menu += new MenuEntry("LifeGame", nullptr, LifeGame, "ライフゲーム\nA:put life\nB:exit\nX:start/stop\nY:menu");
   }
