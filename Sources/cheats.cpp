@@ -11,7 +11,10 @@
 
 namespace CTRPluginFramework
 {
-  void Test1(MenuEntry *entry) {}
+  void Test1(MenuEntry *entry) {
+    std::string out;
+    JPKeyboard("aa").Open(out, "default");
+  }
 
   void JPNotify(MenuEntry *entry)
   {

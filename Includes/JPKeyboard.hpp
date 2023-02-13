@@ -17,7 +17,9 @@ namespace CTRPluginFramework
     void CanAbort(bool canAbort);
     void CanConvert(bool canConvert);
     bool Open(std::string &out);
-    bool Open(std::string &out,std::string defaultText);
+    bool Open(std::string &out, std::string defaultText);
+
+    static void Komoji(u16 &moji);
 
   private:
     enum StringOp
@@ -65,7 +67,6 @@ namespace CTRPluginFramework
         "゛゛小゜大ワヲンー〜、。？！…";
 
     void MakeU16Array(void);
-    void Komoji(u16 &moji);
     void Dakuten(bool handakuten, u16 &moji);
     bool DrawKeyboard(const Screen &scr, std::string &out);
   };
