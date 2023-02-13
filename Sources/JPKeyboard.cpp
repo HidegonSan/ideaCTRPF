@@ -14,6 +14,337 @@ namespace CTRPluginFramework
     _flick = true;
   }
 
+  // https://gist.github.com/HidegonSan/e04334ed8d22691a9ac394a74ca1877f
+  char *_u8slice(char *buf, const char *str, u32 begin, u32 end)
+  {
+    u32 count = 0;
+    char *p = buf; // returnするポインタを格納
+    while (*str != '\0')
+    {
+      if ((*str & 0xC0) != 0x80)
+      {
+        count++;
+      }
+      if (count > begin && count <= end)
+      {
+        *buf = *str;
+        buf++;
+      } // 指定範囲の文字を格納
+      str++;
+    }
+    *buf = '\0'; // 末尾にNULL文字を格納
+    return p;
+  }
+
+  // 正しく文字を切り出す
+  std::string _string_subtract(const std::string &str, u32 start, u32 length)
+  {
+    char buf[128];
+    char *sliced = _u8slice(buf, str.c_str(), start, start + length);
+    std::string ret = sliced;
+    return ret;
+  }
+
+  std::string _alphabet_to_hiragana(std::string input)
+  {
+    if (input.empty() || 5 < input.size())
+      return "";
+
+    transform(input.begin(), input.end(), input.begin(), tolower);
+    std::string ret = "";
+
+    // Thanks: https://support.microsoft.com/ja-jp/topic/%E3%83%AD%E3%83%BC%E3%83%9E%E5%AD%97%E5%85%A5%E5%8A%9B%E3%81%AE%E3%81%A4%E3%81%A5%E3%82%8A%E4%B8%80%E8%A6%A7%E8%A1%A8%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86-bcc0ad7e-2781-cc9a-e524-7de506d8fdae
+
+    static const std::vector<std::vector<std::string>> convert_table = {
+        {"a", "あ"},
+        {"i", "yi", "い"},
+        {"u", "wu", "whu", "う"},
+        {"e", "え"},
+        {"o", "お"},
+        {"wha", "うぁ"},
+        {"whi", "wi", "うぃ"},
+        {"whe", "we", "うぇ"},
+        {"who", "うぉ"},
+        {"la", "xa", "ぁ"},
+        {"li", "xi", "lyi", "xyi", "ぃ"},
+        {"lu", "xu", "ぅ"},
+        {"le", "xe", "lye", "xye", "ぇ"},
+        {"lo", "xo", "ぉ"},
+        {"ye", "いぇ"},
+        {"ka", "ca", "か"},
+        {"ki", "き"},
+        {"ku", "cu", "qu", "く"},
+        {"ke", "け"},
+        {"ko", "co", "こ"},
+        {"kya", "きゃ"},
+        {"kyi", "きぃ"},
+        {"kyu", "きゅ"},
+        {"kye", "きぇ"},
+        {"kyo", "きょ"},
+        {"qya", "くゃ"},
+        {"qyu", "くゅ"},
+        {"qyo", "くょ"},
+        {"qwa", "wa", "kwa", "くぁ"},
+        {"qui", "qi", "qyi", "くぃ"},
+        {"qwu", "くぅ"},
+        {"qwe", "qe", "qye", "くぇ"},
+        {"qwo", "qo", "くぉ"},
+        {"ga", "が"},
+        {"gi", "ぎ"},
+        {"gu", "ぐ"},
+        {"ge", "げ"},
+        {"go", "ご"},
+        {"gya", "ぎゃ"},
+        {"gyi", "ぎぃ"},
+        {"gyu", "ぎゅ"},
+        {"gye", "ぎぇ"},
+        {"gyo", "ぎょ"},
+        {"gwa", "ぐぁ"},
+        {"gwi", "ぐぃ"},
+        {"gwu", "ぐぅ"},
+        {"gwe", "ぐぇ"},
+        {"gwo", "ぐぉ"},
+        {"lka", "xka", "ヵ"},
+        {"lke", "xke", "ヶ"},
+        {"sa", "さ"},
+        {"si", "ci", "shi", "し"},
+        {"su", "す"},
+        {"se", "ce", "せ"},
+        {"so", "そ"},
+        {"sya", "sha", "しゃ"},
+        {"syi", "しぃ"},
+        {"syu", "shu", "しゅ"},
+        {"sye", "she", "しぇ"},
+        {"syo", "sho", "しょ"},
+        {"swa", "すぁ"},
+        {"swi", "すぃ"},
+        {"swu", "すぅ"},
+        {"swe", "すぇ"},
+        {"swo", "すぉ"},
+        {"za", "ざ"},
+        {"zi", "ji", "じ"},
+        {"zu", "ず"},
+        {"ze", "ぜ"},
+        {"zo", "ぞ"},
+        {"zya", "ja", "jya", "じゃ"},
+        {"zyi", "jyi", "じぃ"},
+        {"zyu", "ju", "jyu", "じゅ"},
+        {"zye", "je", "jye", "じぇ"},
+        {"zyo", "jo", "jyo", "じょ"},
+        {"ta", "た"},
+        {"ti", "chi", "ち"},
+        {"tu", "tsu", "つ"},
+        {"te", "て"},
+        {"to", "と"},
+        {"tya", "cha", "cya", "ちゃ"},
+        {"tyi", "cyi", "ちぃ"},
+        {"tyu", "chu", "cyu", "ちゅ"},
+        {"tye", "che", "cye", "ちぇ"},
+        {"tyo", "cho", "cyo", "ちょ"},
+        {"tsa", "つぁ"},
+        {"tsi", "つぃ"},
+        {"tse", "つぇ"},
+        {"tso", "つぉ"},
+        {"tha", "てゃ"},
+        {"thi", "てぃ"},
+        {"thu", "てゅ"},
+        {"the", "てぇ"},
+        {"tho", "てょ"},
+        {"twa", "とぁ"},
+        {"twi", "とぃ"},
+        {"twu", "とぅ"},
+        {"twe", "とぇ"},
+        {"two", "とぉ"},
+        {"da", "だ"},
+        {"di", "ぢ"},
+        {"du", "づ"},
+        {"de", "で"},
+        {"do", "ど"},
+        {"dya", "ぢゃ"},
+        {"dyi", "ぢぃ"},
+        {"dyu", "ぢゅ"},
+        {"dye", "ぢぇ"},
+        {"dyo", "ぢょ"},
+        {"dha", "でゃ"},
+        {"dhi", "でぃ"},
+        {"dhu", "でゅ"},
+        {"dhe", "でぇ"},
+        {"dho", "でょ"},
+        {"dwa", "どぁ"},
+        {"dwi", "どぃ"},
+        {"dwu", "どぅ"},
+        {"dwe", "どぇ"},
+        {"dwo", "どぉ"},
+        {"ltu", "xtu", "ltsu", "っ"},
+        {"na", "な"},
+        {"ni", "に"},
+        {"nu", "ぬ"},
+        {"ne", "ね"},
+        {"no", "の"},
+        {"nya", "にゃ"},
+        {"nyi", "にぃ"},
+        {"nyu", "にゅ"},
+        {"nye", "にぇ"},
+        {"nyo", "にょ"},
+        {"ha", "は"},
+        {"hi", "ひ"},
+        {"hu", "fu", "ふ"},
+        {"he", "へ"},
+        {"ho", "ほ"},
+        {"hya", "ひゃ"},
+        {"hyi", "ひぃ"},
+        {"hyu", "ひゅ"},
+        {"hye", "ひぇ"},
+        {"hyo", "ひょ"},
+        {"fwa", "fa", "ふぁ"},
+        {"fwi", "fi", "fyi", "ふぃ"},
+        {"fwu", "ふぅ"},
+        {"fwe", "fe", "fye", "ふぇ"},
+        {"fwo", "fo", "ふぉ"},
+        {"fya", "ふゃ"},
+        {"fyu", "ふゅ"},
+        {"fyo", "ふょ"},
+        {"ba", "ば"},
+        {"bi", "び"},
+        {"bu", "ぶ"},
+        {"be", "べ"},
+        {"bo", "ぼ"},
+        {"bya", "びゃ"},
+        {"byi", "びぃ"},
+        {"byu", "びゅ"},
+        {"bye", "びぇ"},
+        {"byo", "びょ"},
+        {"va", "ゔぁ"},
+        {"vi", "vyi", "ゔぃ"},
+        {"vu", "ゔ"},
+        {"ve", "vye", "ゔぇ"},
+        {"vo", "ゔぉ"},
+        {"vya", "ゔゃ"},
+        {"vyu", "ゔゅ"},
+        {"vyo", "ゔょ"},
+        {"pa", "ぱ"},
+        {"pi", "ぴ"},
+        {"pu", "ぷ"},
+        {"pe", "ぺ"},
+        {"po", "ぽ"},
+        {"pya", "ぴゃ"},
+        {"pyi", "ぴぃ"},
+        {"pyu", "ぴゅ"},
+        {"pye", "ぴぇ"},
+        {"pyo", "ぴょ"},
+        {"ma", "ま"},
+        {"mi", "み"},
+        {"mu", "む"},
+        {"me", "め"},
+        {"mo", "も"},
+        {"mya", "みゃ"},
+        {"myi", "みぃ"},
+        {"myu", "みゅ"},
+        {"mye", "みぇ"},
+        {"myo", "みょ"},
+        {"ya", "や"},
+        {"yu", "ゆ"},
+        {"yo", "よ"},
+        {"lya", "xya", "ゃ"},
+        {"lyu", "xyu", "ゅ"},
+        {"lyo", "xyo", "ょ"},
+        {"ra", "ら"},
+        {"ri", "り"},
+        {"ru", "る"},
+        {"re", "れ"},
+        {"ro", "ろ"},
+        {"rya", "りゃ"},
+        {"ryi", "りぃ"},
+        {"ryu", "りゅ"},
+        {"rye", "りぇ"},
+        {"ryo", "りょ"},
+        {"wa", "わ"},
+        {"wo", "を"},
+        {"n", "nn", "xn", "ん"},
+        {"lwa", "xwa", "ゎ"},
+    };
+
+    if (2 <= input.size())
+    { // 同じ文字が続けられていたら "っ" を追加する
+      if (input[0] == input[1] && (input[0] != 'n'))
+      {
+        ret += "っ";
+        input = _string_subtract(input, 1, input.size() - 1);
+      }
+    }
+
+    for (auto &&item : convert_table)
+    { // ノーマル変換
+      if (std::find(item.begin(), item.end() - 1, input) != item.end() - 1)
+      {
+        return ret + item[item.size() - 1];
+      }
+    }
+
+    if (2 <= input.size() && input[0] == 'n')
+    { // N の後に文字が続いていてかつその後に続いている文字が次の結果に影響しない (nu, nyaなどはダメ) 場合、 "ん" に変換する
+      char ng_chars[] = {'a', 'i', 'u', 'e', 'o', 'y'};
+      for (auto &&ng_char : ng_chars)
+      {
+        if (input[1] != ng_char && ng_char == 'y')
+        {
+          return "ん" + _string_subtract(input, 1, input.size() - 1);
+        }
+      }
+    }
+
+    return ret + input;
+  }
+
+  std::string qwertyOutput = "";
+  void JPKeyboardEvent(Keyboard &keyboard, KeyboardEvent &event)
+  {
+    if (event.type == event.CharacterAdded || event.type == event.CharacterRemoved)
+    {
+      qwertyOutput = "";
+      std::string str = keyboard.GetInput();
+      while (1)
+      {
+        size_t len = 1;
+        while (1)
+        {
+          if (len <= str.length())
+          {
+            if (len == 1 && 2 <= str.length() && str[0] == 'n' && std::string("aiueoy").find(str[1] != std::string::npos))
+              len++;
+            if (_alphabet_to_hiragana(str.substr(0, len)) == str.substr(0, len) && len < str.length())
+            {
+              if (len < 3)
+                len++;
+              else
+              {
+                len = 1;
+                if (0 < str.length())
+                {
+                  qwertyOutput += str.substr(0, 1);
+                  str = str.substr(1);
+                }
+                else
+                  break;
+              }
+              continue;
+            }
+          }
+          break;
+        }
+        if (len <= str.length())
+        {
+          qwertyOutput += _alphabet_to_hiragana(str.substr(0, len));
+          str = str.substr(len);
+        }
+        else
+          break;
+      }
+    }
+    OSD::GetBottomScreen().DrawRect(20, 20, 280, 25, Color::Black);
+    OSD::GetBottomScreen().DrawSysfont(qwertyOutput, 23, 23);
+  }
+
   bool JPKeyboard::LoadKanjiList(void)
   {
     u32 count = 0;
@@ -107,9 +438,7 @@ namespace CTRPluginFramework
 
   void JPKeyboard::MakeU16Array()
   {
-    Process::WriteString((u32)U16_ChrArray, _flick ? KatakanaMode ? FlickKatakana : FlickHiragana : KatakanaMode ? Katakana
-                                                                                                                 : Hiragana,
-                         StringFormat::Utf16);
+    Process::WriteString((u32)U16_ChrArray, _flick ? KatakanaMode ? FlickKatakana : FlickHiragana : (KatakanaMode ? Katakana : Hiragana), StringFormat::Utf16);
   }
 
   void JPKeyboard::Komoji(u16 &moji)
@@ -220,7 +549,7 @@ namespace CTRPluginFramework
       {
         if (width <= 208)
           break;
-        
+
         InputChrs[j] < 0x1000 ? i++ : i += 3;
 
         j++;
@@ -340,7 +669,7 @@ namespace CTRPluginFramework
       if (KatakanaMode)
       {
         std::string input;
-        if (0 <= Keyboard("").Open(input))
+        if (0 <= Keyboard("ローマ字").Open(input))
           for (size_t i = 0; i < input.length(); i++)
           {
             if (InputChrs.size() > _maxLength)
@@ -350,6 +679,18 @@ namespace CTRPluginFramework
             InputChrs.push_back(buff);
             selectedIndex = 0;
           }
+        qwertyOutput = "";
+        Keyboard key("日本語");
+        key.OnKeyboardEvent(JPKeyboardEvent);
+        if (0 <= key.Open(input))
+        {
+          Process::WriteString((u32)U16_ChrArray, qwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
+          for (int i = 0; i < Convert::getMultiByte(qwertyOutput); i++)
+          {
+            InputChrs.push_back(U16_ChrArray[i]);
+          }
+          selectedIndex = 0;
+        }
         _flick = !_flick;
       }
       KatakanaMode = KatakanaMode ? false : true;
@@ -515,8 +856,8 @@ namespace CTRPluginFramework
     InputChrs.clear();
     InputStr.clear();
 
-    Process::WriteString((u32)U16_ChrArray, defaultText, StringFormat::Utf16);
-    for (int i = 0; i < Convert::getMultiByte(defaultText); i++)
+    Process::WriteString((u32)U16_ChrArray, defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
+    for (int i = 0; i < Convert::getMultiByte(defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
     {
       InputChrs.push_back(U16_ChrArray[i]);
     }

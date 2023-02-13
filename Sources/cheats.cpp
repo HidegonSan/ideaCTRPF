@@ -13,7 +13,9 @@
 
 namespace CTRPluginFramework
 {
-  void Test1(MenuEntry *entry) {}
+  void Test1(MenuEntry *entry) {
+    
+  }
 
   void JPNotify(MenuEntry *entry)
   {
