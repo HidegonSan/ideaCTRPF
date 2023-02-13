@@ -296,12 +296,12 @@ namespace CTRPluginFramework
     return ret + input;
   }
 
-  std::string qwertyOutput = "";
+  std::string jpQwertyOutput = "";
   void JPKeyboardEvent(Keyboard &keyboard, KeyboardEvent &event)
   {
     if (event.type == event.CharacterAdded || event.type == event.CharacterRemoved)
     {
-      qwertyOutput = "";
+      jpQwertyOutput = "";
       std::string str = keyboard.GetInput();
       while (1)
       {
@@ -312,7 +312,7 @@ namespace CTRPluginFramework
           {
             if (len == 1 && 2 <= str.length() && str[0] == 'n' && std::string("aiueoy").find(str[1] != std::string::npos))
               len++;
-            if (_alphabet_to_hiragana(str.substr(0, len)) == str.substr(0, len) && len < str.length())
+            if (_alphabet_to_hiragana(str.substr(0, len)).back() == str.substr(0, len).back() && len < str.length())
             {
               if (len < 3)
                 len++;
@@ -321,7 +321,7 @@ namespace CTRPluginFramework
                 len = 1;
                 if (0 < str.length())
                 {
-                  qwertyOutput += str.substr(0, 1);
+                  jpQwertyOutput += str.substr(0, 1);
                   str = str.substr(1);
                 }
                 else
@@ -334,7 +334,7 @@ namespace CTRPluginFramework
         }
         if (len <= str.length())
         {
-          qwertyOutput += _alphabet_to_hiragana(str.substr(0, len));
+          jpQwertyOutput += _alphabet_to_hiragana(str.substr(0, len));
           str = str.substr(len);
         }
         else
@@ -342,7 +342,7 @@ namespace CTRPluginFramework
       }
     }
     OSD::GetBottomScreen().DrawRect(20, 20, 280, 25, Color::Black);
-    OSD::GetBottomScreen().DrawSysfont(qwertyOutput, 23, 23);
+    OSD::GetBottomScreen().DrawSysfont(jpQwertyOutput, 23, 23);
   }
 
   bool JPKeyboard::LoadKanjiList(void)
@@ -578,7 +578,7 @@ namespace CTRPluginFramework
           break;
         case HYPHEN:
           if (InputChrs.size() < _maxLength)
-            InputChrs.push_back(0x30FC);
+            InputChrs.emplace_back(0x30FC);
           break;
         case DAKUTEN:
           if (!InputChrs.empty())
@@ -643,7 +643,7 @@ namespace CTRPluginFramework
             }
             for (int j = 0; j < i; j++)
             {
-              InputChrs.push_back(buff_utf16[j]);
+              InputChrs.emplace_back(buff_utf16[j]);
             }
           }
         }
@@ -676,18 +676,18 @@ namespace CTRPluginFramework
               break;
             u16 buff;
             Process::WriteString((u32)&buff, input.substr(i, 1), StringFormat::Utf16);
-            InputChrs.push_back(buff);
+            InputChrs.emplace_back(buff);
             selectedIndex = 0;
           }
-        qwertyOutput = "";
+        jpQwertyOutput = "";
         Keyboard key("日本語");
         key.OnKeyboardEvent(JPKeyboardEvent);
         if (0 <= key.Open(input))
         {
-          Process::WriteString((u32)U16_ChrArray, qwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
-          for (int i = 0; i < Convert::getMultiByte(qwertyOutput); i++)
+          Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
+          for (int i = 0; i < Convert::getMultiByte(jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
           {
-            InputChrs.push_back(U16_ChrArray[i]);
+            InputChrs.emplace_back(U16_ChrArray[i]);
           }
           selectedIndex = 0;
         }
@@ -803,7 +803,7 @@ namespace CTRPluginFramework
               Komoji(InputChrs[InputChrs.size() - 1]);
           }
           if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
-            InputChrs.push_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
+            InputChrs.emplace_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
         }
       }
       else if (pos.x >= 23 && pos.y >= 69 && pos.x <= 262 && pos.y <= 178)
@@ -815,7 +815,7 @@ namespace CTRPluginFramework
         scr.DrawRect(23 + wx * 24, 68 + wy * 22, 24, 22, Color::White);
 
         if (InputChrs.size() < _maxLength)
-          InputChrs.push_back(U16_ChrArray[wy * 10 + wx]);
+          InputChrs.emplace_back(U16_ChrArray[wy * 10 + wx]);
       }
     }
 
@@ -859,7 +859,7 @@ namespace CTRPluginFramework
     Process::WriteString((u32)U16_ChrArray, defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
     for (int i = 0; i < Convert::getMultiByte(defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
     {
-      InputChrs.push_back(U16_ChrArray[i]);
+      InputChrs.emplace_back(U16_ChrArray[i]);
     }
 
     const Screen &topScr = OSD::GetTopScreen();
