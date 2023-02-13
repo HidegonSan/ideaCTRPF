@@ -3,17 +3,6 @@
 
 namespace CTRPluginFramework
 {
-  LifeGame *LifeGame::_instance = nullptr;
-  LifeGame::LifeGame()
-  {
-    _instance = this;
-  }
-
-  LifeGame::~LifeGame()
-  {
-    _instance = nullptr;
-  }
-
   void LifeGame::LifeGame_Loop(void)
   {
     Clock genClock;

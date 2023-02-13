@@ -358,7 +358,7 @@ namespace CTRPluginFramework
         g = 255;
       if (b == 254)
         b = 255;
-      color_vector.push_back(Color(r, g, b));
+      color_vector.emplace_back(Color(r, g, b));
       scr.DrawRect(x, y, w, 1, Color(r, g, b));
     }
     return color_vector;
@@ -378,7 +378,7 @@ namespace CTRPluginFramework
       u8 g = (int)(color.g * d + 255.0 * dd);
       u8 b = (int)(color.b * d + 255.0 * dd);
 
-      color_vector.push_back(drawVerticalGradation(x, 1, 27, 100, Color(r, g, b), Color::Black, scr));
+      color_vector.emplace_back(drawVerticalGradation(x, 1, 27, 100, Color(r, g, b), Color::Black, scr));
     }
     return color_vector;
   }

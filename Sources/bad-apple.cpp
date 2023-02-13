@@ -4,7 +4,7 @@ namespace CTRPluginFramework
 {
   std::vector<u64> getFrame(int &frame)
   {
-    std::vector<std::vector<u64>> frames;
+    static std::vector<std::vector<u64>> frames;
     if (frame < 50)
     {
       frames = {
