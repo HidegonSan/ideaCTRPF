@@ -145,10 +145,10 @@ namespace CTRPluginFramework
       return;
     std::vector<CTRPluginFramework::MenuEntry *> entries = folder->GetEntryList();
     std::vector<MenuFolder *> folders = folder->GetFolderList();
-    for (auto folder1 : folders)
+    for (auto &&folder1 : folders)
     {
       bool flag = true;
-      for (auto ancestorFolder : ancestorFolders)
+      for (auto &&ancestorFolder : ancestorFolders)
         if (folder1 == ancestorFolder)
         {
           flag = false;
@@ -156,11 +156,11 @@ namespace CTRPluginFramework
         }
       if (flag)
       {
-        ancestorFolders.push_back(folder1);
+        ancestorFolders.emplace_back(folder1);
         addSearch(folder1, SearchFolder, input, ancestorFolders);
       }
     }
-    for (auto entry : entries)
+    for (auto &&entry : entries)
     {
       if ((Convert::toLower(entry->Name()).find(input) != std::string::npos) || (Convert::hiraganaToKatakana(entry->Note()).find(input) != std::string::npos) || (Convert::katakanaToHiragana(entry->Note()).find(input) != std::string::npos))
       {
@@ -179,7 +179,7 @@ namespace CTRPluginFramework
     input = Convert::hiraganaToKatakana(Convert::toLower(input));
     std::vector<MenuFolder *> folders = menu->GetFolderList();
     MenuFolder *SearchFolder;
-    for (auto folder : folders)
+    for (auto &&folder : folders)
     {
       if (folder->Name() == "Search")
       {
@@ -189,14 +189,14 @@ namespace CTRPluginFramework
       }
     }
     std::vector<CTRPluginFramework::MenuEntry *> entries = menu->GetEntryList();
-    for (auto menu_entry : entries)
+    for (auto &&menu_entry : entries)
     {
       if ((Convert::toLower(menu_entry->Name()).find(input) != std::string::npos) || (Convert::toLower(menu_entry->Note()).find(input) != std::string::npos))
         *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
     }
 
     std::vector<MenuFolder *> ancestorFolders;
-    for (auto folder : folders)
+    for (auto &&folder : folders)
       addSearch(folder, SearchFolder, input, ancestorFolders);
   }
 
@@ -401,7 +401,7 @@ namespace CTRPluginFramework
 
   void Command(MenuEntry *entry)
   {
-    Command::GetInstance()->Command_Loop();
+    Command::GetInstance().Command_Loop();
   }
 
   void ColorPicker(MenuEntry *entry)
@@ -414,7 +414,7 @@ namespace CTRPluginFramework
   {
     if (!Process::IsPaused())
       return;
-    Tetris::GetInstance()->Tetris_Loop(entry->Hotkeys);
+    Tetris::GetInstance().Tetris_Loop(entry->Hotkeys);
   }
 
   void ShowPallet(MenuEntry *entry)
@@ -491,7 +491,7 @@ namespace CTRPluginFramework
     std::vector<std::pair<int, int>> queue = {{x, y}};
 
     std::pair<int, int> p(x, y);
-    queue.push_back(p);
+    queue.emplace_back(p);
 
     paintPallet[x][y] = newC;
 
@@ -508,28 +508,28 @@ namespace CTRPluginFramework
         paintPallet[posX + 1][posY] = newC;
         p.first = posX + 1;
         p.second = posY;
-        queue.push_back(p);
+        queue.emplace_back(p);
       }
       if (isValid(paintPallet, posX - 1, posY, prevC, newC))
       {
         paintPallet[posX - 1][posY] = newC;
         p.first = posX - 1;
         p.second = posY;
-        queue.push_back(p);
+        queue.emplace_back(p);
       }
       if (isValid(paintPallet, posX, posY + 1, prevC, newC))
       {
         paintPallet[posX][posY + 1] = newC;
         p.first = posX;
         p.second = posY + 1;
-        queue.push_back(p);
+        queue.emplace_back(p);
       }
       if (isValid(paintPallet, posX, posY - 1, prevC, newC))
       {
         paintPallet[posX][posY - 1] = newC;
         p.first = posX;
         p.second = posY - 1;
-        queue.push_back(p);
+        queue.emplace_back(p);
       }
     }
   }
@@ -666,6 +666,6 @@ namespace CTRPluginFramework
 
   void LifeGame(MenuEntry *entry)
   {
-    LifeGame::GetInstance()->LifeGame_Loop();
+    LifeGame::GetInstance().LifeGame_Loop();
   }
 }

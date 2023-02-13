@@ -7361,7 +7361,7 @@ namespace CTRPluginFramework
     for (int i = 0; i < Convert::getMultiByte(str); i++)
     {
       if (utf16ToSjis(utf16[i]) != 0)
-        sjis.push_back(utf16ToSjis(utf16[i]));
+        sjis.emplace_back(utf16ToSjis(utf16[i]));
       else
         return sjis;
     }

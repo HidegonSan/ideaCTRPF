@@ -6,17 +6,6 @@
 
 namespace CTRPluginFramework
 {
-  Command *Command::_instance = nullptr;
-  Command::Command()
-  {
-    _instance = this;
-  }
-
-  Command::~Command()
-  {
-    _instance = nullptr;
-  }
-
   void Command::Command_Loop()
   {
     std::string commandLine_buffer = Color::Green << "command" << Color::White;
@@ -44,15 +33,15 @@ namespace CTRPluginFramework
       size_t pos = 0;
       while ((pos = input.find(space_delimiter)) != std::string::npos)
       {
-        args.push_back(input.substr(0, pos));
+        args.emplace_back(input.substr(0, pos));
         input.erase(0, pos + space_delimiter.length());
       }
       if (args[0] == "ls")
       {
         size_t buff_size = commandLine_buffer.size();
-        for (auto file : files)
+        for (auto &&file : files)
           commandLine_buffer += "\n" + file;
-        for (auto folder : folders)
+        for (auto &&folder : folders)
           commandLine_buffer += Color::Green << "\n" + folder;
         if (files.size() + folders.size() > 10)
           MessageBox(commandLine_buffer.substr(buff_size) + "")();
@@ -225,11 +214,11 @@ namespace CTRPluginFramework
           PluginMenu *menu = PluginMenu::GetRunningInstance();
           std::vector<CTRPluginFramework::MenuEntry *> entries;
           std::vector<CTRPluginFramework::MenuEntry *> menuEntries = menu->GetEntryList();
-          for (auto menuEntry : menuEntries)
+          for (auto &&menuEntry : menuEntries)
             if (menuEntry->GetMenuFunc() == nullptr)
-              entries.push_back(menuEntry);
+              entries.emplace_back(menuEntry);
           std::vector<CTRPluginFramework::MenuFolder *> menuFolders = menu->GetFolderList();
-          for (auto menuFolder : menuFolders)
+          for (auto &&menuFolder : menuFolders)
             GetEntries(menuFolder, entries);
           if (args[1] == "-l")
           {
@@ -280,7 +269,7 @@ namespace CTRPluginFramework
 
     while (pos != std::string::npos)
     {
-      result.push_back(pos);
+      result.emplace_back(pos);
       pos = str.find(subStr, pos + subStrSize);
     }
 
@@ -294,9 +283,9 @@ namespace CTRPluginFramework
     Directory dir(path);
     dir.ListFiles(files);
     dir.ListDirectories(folders);
-    for (auto file : files)
+    for (auto &&file : files)
       buff += std::string(space * 2, ' ') + "├" + file + "\n";
-    for (auto folder : folders)
+    for (auto &&folder : folders)
     {
       buff += std::string(space * 2, ' ') + "├" + (Color::Green << folder) + "\n"
               << Color::White;
@@ -309,7 +298,7 @@ namespace CTRPluginFramework
   {
     StringVector files;
     dir.ListFiles(files);
-    for (auto file : files)
+    for (auto &&file : files)
       if (file.find(word) != std::string::npos)
         return file;
     return "no file";
@@ -318,7 +307,7 @@ namespace CTRPluginFramework
   {
     StringVector folders;
     dir.ListDirectories(folders);
-    for (auto folder : folders)
+    for (auto &&folder : folders)
       if (folder.find(word) != std::string::npos)
         return folder;
     return "no folder";
@@ -383,11 +372,11 @@ namespace CTRPluginFramework
   void Command::GetEntries(MenuFolder *folder, std::vector<MenuEntry *> &entries)
   {
     std::vector<MenuEntry *> menuEntries = folder->GetEntryList();
-    for (auto menuEntry : menuEntries)
+    for (auto &&menuEntry : menuEntries)
       if (menuEntry->GetMenuFunc() == nullptr)
-        entries.push_back(menuEntry);
+        entries.emplace_back(menuEntry);
     std::vector<MenuFolder *> menuFolders = folder->GetFolderList();
-    for (auto menuFolder : menuFolders)
+    for (auto &&menuFolder : menuFolders)
       GetEntries(menuFolder, entries);
   }
 }

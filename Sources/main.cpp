@@ -285,12 +285,12 @@ namespace CTRPluginFramework
     InitMenu(*menu);
 
     // std::vector<MenuFolder *> folders = menu->GetFolderList();
-    // for (auto folder : folders)
+    // for (auto &&folder : folders)
     // {
     //   if (folder->Name() == "other")
     //   {
     //     std::vector<MenuEntry *> entries = folder->GetEntryList();
-    //     for (auto entry : entries)
+    //     for (auto &&entry : entries)
     //     {
     //       if (entry->Name() == "Cheat1")
     //         entry->Enable();
