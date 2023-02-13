@@ -717,9 +717,9 @@ namespace CTRPluginFramework
       selectedIndex = 0;
       if (_flick)
       {
-        if (pos.x >= 120 && pos.y >= 70 && pos.x <= 210 && pos.y <= 190)
+        if (pos.x >= 120 && pos.y >= 70 && pos.x <= 200 && pos.y <= 190)
         {
-          int wx = pos.x - 120;
+          int wx = pos.x - 121;
           int wy = pos.y - 71;
           wx /= 30;
           wy /= 30;
