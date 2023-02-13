@@ -10,12 +10,16 @@ namespace CTRPluginFramework
   {
   public:
     void LifeGame_Loop(void);
-    static LifeGame *GetInstance(void)
+    static LifeGame &GetInstance(void)
     {
-      if (!_instance)
-        _instance = new LifeGame();
-      return _instance;
+      static LifeGame instance;
+      return instance;
     }
+
+    LifeGame(LifeGame const &) = delete;
+    LifeGame &operator=(LifeGame const &) = delete;
+    LifeGame(LifeGame &&) = delete;
+    LifeGame &operator=(LifeGame &&) = delete;
 
   private:
     static constexpr u8 FIELD_WIDTH = 100;
@@ -30,8 +34,6 @@ namespace CTRPluginFramework
 
     std::bitset<FIELD_HEIGHT * FIELD_WIDTH> _field;
 
-    static LifeGame *_instance;
-
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
 
@@ -39,7 +41,7 @@ namespace CTRPluginFramework
     void NextGen(void);
     s8 LivesAround(s16 x, s16 y);
 
-    LifeGame();
-    ~LifeGame();
+    LifeGame() = default;
+    ~LifeGame() = default;
   };
 }

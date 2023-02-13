@@ -2,24 +2,6 @@
 
 namespace CTRPluginFramework
 {
-  Tetris::Tetris()
-  {
-    _instance = this;
-
-    _nexts.clear();
-    for (u8 i = 0; i < NEXT_COUNT; i++)
-    {
-      _nexts.push_back(GenerateNextMino());
-    }
-
-    NextMino();
-  }
-
-  Tetris::~Tetris()
-  {
-    _instance = nullptr;
-  }
-
   u8 Tetris::GenerateNextMino(void)
   {
     if (_srcNexts.empty())
@@ -43,7 +25,7 @@ namespace CTRPluginFramework
   {
     _mino.kind = _nexts[0];
     _nexts.erase(_nexts.begin());
-    _nexts.push_back(GenerateNextMino());
+    _nexts.emplace_back(GenerateNextMino());
     _mino.turn = 0;
     _mino.dropClock.Restart();
     _mino.blocks = _mino_templates[0][_mino.kind];
@@ -180,6 +162,15 @@ namespace CTRPluginFramework
     bool isOpened = true;
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
+
+    _nexts.clear();
+    for (u8 i = 0; i < NEXT_COUNT; i++)
+    {
+      _nexts.emplace_back(GenerateNextMino());
+    }
+
+    NextMino();
+
     topScr.DrawRect(0, 0, 400, 240, Color::Gray);
     btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
     OSD::SwapBuffers();
@@ -258,13 +249,13 @@ namespace CTRPluginFramework
             s8 answer;
             u8 out;
             if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
-              Tetris::GetInstance()->SetColorful(answer);
+              Tetris::GetInstance().SetColorful(answer);
             if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
-              Tetris::GetInstance()->SetLevel(answer * 5);
+              Tetris::GetInstance().SetLevel(answer * 5);
             Keyboard key("input field's width\ndefault is 10\n4以上23以下でよろ");
             key.IsHexadecimal(false);
             if (0 <= key.Open(out))
-              Tetris::GetInstance()->SetField_width(out);
+              Tetris::GetInstance().SetField_width(out);
           }
           else if (ans == 2)
             isOpened = false;
@@ -358,6 +349,4 @@ namespace CTRPluginFramework
       OSD::SwapBuffers();
     }
   }
-
-  Tetris *Tetris::_instance = nullptr;
 }

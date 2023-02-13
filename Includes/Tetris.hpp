@@ -29,18 +29,22 @@ namespace CTRPluginFramework
 
       if (FIELD_WIDTH < width)
         for (int i = 0; i < width - FIELD_WIDTH; i++)
-          _field.push_back(std::vector<u8>(FIELD_HEIGHT, 0));
+          _field.emplace_back(std::vector<u8>(FIELD_HEIGHT, 0));
 
       FIELD_WIDTH = width;
       NextMino();
     }
 
-    static Tetris *GetInstance()
+    static Tetris &GetInstance()
     {
-      if (!_instance)
-        _instance = new Tetris();
-      return _instance;
+      static Tetris instance;
+      return instance;
     }
+
+    Tetris(Tetris const &) = delete;
+    Tetris &operator=(Tetris const &) = delete;
+    Tetris(Tetris &&) = delete;
+    Tetris &operator=(Tetris &&) = delete;
 
   private:
     static constexpr u8 MINO_KINDS_COUNT = 7;
@@ -53,8 +57,6 @@ namespace CTRPluginFramework
     std::vector<std::vector<u8>> _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
     std::vector<u8> _nexts;
     std::vector<u8> _srcNexts;
-
-    static Tetris *_instance;
 
     // 落下中のミノ
     struct
@@ -81,8 +83,8 @@ namespace CTRPluginFramework
     void HoldMino(void);
     u8 GenerateNextMino(void);
 
-    Tetris(void);
-    ~Tetris(void);
+    Tetris() = default;
+    ~Tetris() = default;
 
     const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates =
         {

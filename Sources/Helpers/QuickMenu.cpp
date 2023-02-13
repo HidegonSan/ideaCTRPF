@@ -38,7 +38,7 @@ namespace CTRPluginFramework
         QuickMenuItem(name, ItemType::SubMenu)
     {
         for (QuickMenuItem *item : items_)
-            items.push_back(item);
+            items.emplace_back(item);
     }
 
     QuickMenuSubMenu::~QuickMenuSubMenu()
@@ -51,7 +51,7 @@ namespace CTRPluginFramework
 
     void    QuickMenuSubMenu::operator+=(QuickMenuItem* item)
     {
-        items.push_back(item);
+        items.emplace_back(item);
     }
 
     void    QuickMenuSubMenu::operator-=(QuickMenuItem* item)
@@ -80,7 +80,7 @@ namespace CTRPluginFramework
 
     void    QuickMenu::operator+=(QuickMenuItem* item)
     {
-        _root.push_back(item);
+        _root.emplace_back(item);
     }
 
     void    QuickMenu::operator-=(QuickMenuItem* item)
@@ -98,7 +98,7 @@ namespace CTRPluginFramework
 
         // Create our list of options
         for (auto *item : _root)
-            options.push_back(item->name);
+            options.emplace_back(item->name);
 
         // Pass it to our keyboard 
         keyboard.Populate(options);
@@ -133,7 +133,7 @@ namespace CTRPluginFramework
 
                     // Refresh our list of options
                     for (QuickMenuItem *item : _subMenuOpened->items)
-                        options.push_back(item->name);
+                        options.emplace_back(item->name);
                     keyboard.Populate(options);
                     options.clear();
                 }
@@ -156,7 +156,7 @@ namespace CTRPluginFramework
 
                     // Refresh out list of options
                     for (auto *item : (_subMenuOpened ? _subMenuOpened->items : _root))
-                        options.push_back(item->name);
+                        options.emplace_back(item->name);
                     keyboard.Populate(options);
                     options.clear();
                 }
