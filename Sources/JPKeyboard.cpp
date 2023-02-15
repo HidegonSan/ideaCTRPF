@@ -12,6 +12,7 @@ namespace CTRPluginFramework
     _canAbort = true;
     _canConvert = true;
     _flick = true;
+    selectedIndex = 0;
   }
 
   // https://gist.github.com/HidegonSan/e04334ed8d22691a9ac394a74ca1877f
@@ -539,20 +540,18 @@ namespace CTRPluginFramework
       u16 str[100] = {0};
       for (size_t i = 0; i < InputChrs.size(); i++)
       {
-        str[i] = InputChrs[i];
+        str[i] = InputChrs.at(i);
       }
       Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
       u8 i = 0;
-      u8 j = 0;
       u16 width = OSD::GetTextWidth(true, InputStr);
-      while (1)
+      for (auto &&InputChr : InputChrs)
       {
         if (width <= 208)
           break;
 
-        InputChrs[j] < 0x1000 ? i++ : i += 3;
+        InputChr < 0x1000 ? i++ : i += 3;
 
-        j++;
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
       scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
@@ -574,7 +573,7 @@ namespace CTRPluginFramework
           break;
         case KOMOJI:
           if (!InputChrs.empty())
-            Komoji(InputChrs[InputChrs.size() - 1]);
+            Komoji(InputChrs.at(InputChrs.size() - 1));
           break;
         case HYPHEN:
           if (InputChrs.size() < _maxLength)
@@ -582,11 +581,11 @@ namespace CTRPluginFramework
           break;
         case DAKUTEN:
           if (!InputChrs.empty())
-            Dakuten(false, InputChrs[InputChrs.size() - 1]);
+            Dakuten(false, InputChrs.at(InputChrs.size() - 1));
           break;
         case HANDAKUTEN:
           if (!InputChrs.empty())
-            Dakuten(true, InputChrs[InputChrs.size() - 1]);
+            Dakuten(true, InputChrs.at(InputChrs.size() - 1));
           break;
         }
         scr.DrawRect(263, 68 + i * 22, 34, 22, Color::White);
@@ -794,13 +793,13 @@ namespace CTRPluginFramework
           if (!InputChrs.empty())
           {
             if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309B)
-              Dakuten(false, InputChrs[InputChrs.size() - 1]);
+              Dakuten(false, InputChrs.at(InputChrs.size() - 1));
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5C0F)
-              Komoji(InputChrs[InputChrs.size() - 1]);
+              Komoji(InputChrs.at(InputChrs.size() - 1));
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309C)
-              Dakuten(true, InputChrs[InputChrs.size() - 1]);
+              Dakuten(true, InputChrs.at(InputChrs.size() - 1));
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5927)
-              Komoji(InputChrs[InputChrs.size() - 1]);
+              Komoji(InputChrs.at(InputChrs.size() - 1));
           }
           if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
             InputChrs.emplace_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
