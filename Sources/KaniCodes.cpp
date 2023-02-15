@@ -2,6 +2,7 @@
 #include "Convert.hpp"
 #include <locale.h>
 #include <stdlib.h>
+#include <cmath>
 
 namespace CTRPluginFramework
 {
@@ -20,7 +21,7 @@ namespace CTRPluginFramework
     dx = dstX - srcX;
     dy = dstY - srcY;
 
-    step = abs(dx) >= abs(dy) ? abs(dx) : abs(dy);
+    step = std::max(abs(dx), abs(dy));
 
     dx /= step;
     dy /= step;
@@ -238,6 +239,57 @@ namespace CTRPluginFramework
     }
 
     scr.DrawRect(posX, posY, width, height, color, filled);
+  }
+
+  void DrawDiamond(const Screen &scr, u16 leftX, u16 leftY, u16 rightX, u16 rightY, const Color &color, bool filled)
+  {
+    if (filled)
+    {
+      float x, y, dx, dy, step, xx, yy, dxx, dyy, step2;
+      int i, j;
+
+      dx = leftX - rightX;
+      dy = leftY - rightY;
+
+      step = abs(dx) + abs(dy);
+
+      dx /= step;
+      dy /= step;
+      x = rightX;
+      y = rightY;
+      i = 1;
+
+      dxx = rightX - leftX;
+      dyy = leftY - rightY;
+
+      step2 = abs(dxx) + abs(dyy);
+
+      dxx /= step2;
+      dyy /= step2;
+      while (i <= step)
+      {
+        xx = x;
+        yy = y;
+        j = 1;
+        while (j <= step2)
+        {
+          scr.DrawPixel(xx, yy, color);
+          xx += dxx;
+          yy += dyy;
+          j++;
+        }
+        x += dx;
+        y += dy;
+        i++;
+      }
+    }
+    else
+    {
+      DrawLine(scr, leftX, leftY, rightX, rightY, color);
+      DrawLine(scr, rightX, rightY, rightX * 2 - leftX, leftY, color);
+      DrawLine(scr, leftX, leftY, rightX, leftY * 2 - rightY, color);
+      DrawLine(scr, rightX, leftY * 2 - rightY, rightX * 2 - leftX, leftY, color);
+    }
   }
 
   bool TouchRect(u32 x, u32 y, u32 w, u32 h)

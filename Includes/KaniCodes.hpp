@@ -21,6 +21,7 @@ namespace CTRPluginFramework
   float DegreeToRadian(float degree);
   void DrawCircle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color, int origin);
   void DrawRectPlus(const Screen &scr, u32 posX, u32 posY, u32 width, u32 height, const Color &color, bool filled, int origin);
+  void DrawDiamond(const Screen &scr, u16 leftX, u16 leftY, u16 rightX, u16 rightY, const Color &color, bool filled);
 
   bool TouchCircle(u32 x, u32 y, u8 size);
   bool TouchRect(u32 x, u32 y, u32 w, u32 h);
