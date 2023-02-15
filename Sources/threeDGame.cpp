@@ -5,6 +5,16 @@
 
 namespace CTRPluginFramework
 {
+  threeDGame::threeDGame()
+  {
+    _field[0] = 6;
+    _field[1] = 5;
+    _field[2] = 4;
+    _field[3] = 3;
+    _field[4] = 2;
+    _field[5] = 1;
+  }
+
   void threeDGame::threeDGameLoop(void)
   {
     _isOpened = true;
@@ -13,6 +23,30 @@ namespace CTRPluginFramework
       Controller::Update();
       if (Controller::IsKeyPressed(Key::B))
         _isOpened = false;
+      if (Controller::IsKeyDown(Key::CPadLeft))
+      {
+        _pos.x -= 0.2;
+        if (_pos.x < 0)
+          _pos.x = 0;
+      }
+      if (Controller::IsKeyDown(Key::CPadRight))
+      {
+        _pos.x += 0.2;
+        if (_field_width < _pos.x)
+          _pos.x = _field_width - 0.1;
+      }
+      if (Controller::IsKeyDown(Key::CPadUp))
+      {
+        _pos.y -= 0.2;
+        if (_pos.y < 0)
+          _pos.y = 0;
+      }
+      if (Controller::IsKeyDown(Key::CPadDown))
+      {
+        _pos.y += 0.2;
+        if (_field_height < _pos.y)
+          _pos.y = _field_height - 0.1;
+      }
       if (Touch::IsDown())
       {
         u8 btmBlockWidth = std::min(320 / _field_width, 240 / _field_height);
@@ -52,9 +86,14 @@ namespace CTRPluginFramework
     {
       for (u8 j = 0; j < _field_height; j++)
       {
-        DrawDiamond(top, 200 - _block_width / 2 * 1.7 * (j + 1) + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * (i + 2) + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), 200 - _block_width / 2 * 1.7 * j + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * i + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]] - Color(20, 20, 20), true);
+        top.DrawRect(200 - _block_width / 2 * 1.7 * (j + 1) + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * (i + 1) + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), _block_width / 2 * 1.7, 240 - (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * (i + 1) + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]] + Color(20, 20, 20));
+        top.DrawRect(200 - _block_width / 2 * 1.7 * j + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * i + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]) + _block_width / 2, _block_width / 2 * 1.7, 240 - (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * i + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]) + _block_width / 2, _blockColors[_field[i + j * _field_width]] - Color(20, 20, 20));
         DrawDiamond(top, 200 - _block_width / 2 * 1.7 * (j + 1) + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * (i + 1) + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), 200 - _block_width / 2 * 1.7 * j + _block_width / 2 * 1.7 * i, (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * i + _block_width / 2 * j + _block_width / 2 * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]], true);
         btm.DrawRect((320 - _field_width * btmBlockWidth) / 2 + i * btmBlockWidth, (240 - _field_height * btmBlockWidth) + j * btmBlockWidth, btmBlockWidth, btmBlockWidth, _blockColors[_field[i + j * _field_width]]);
+        if ((u8)_pos.x == i && (u8)_pos.y == j){
+          top.DrawRect(200 - _block_width / 2 * 1.7 * (_pos.y + 1) + _block_width / 2 * 1.7 * (_pos.x + 1), (240 - _block_width * _field_height - _block_width / 2 * _block_height) / 2 + _block_width / 2 * (_pos.x + 1) + _block_width / 2 * _pos.y + _block_width / 2 * (_block_height - _field[i + j * _field_width]) - 6 - _block_width / 2, 4, 6, Color::White);
+          btm.DrawRect((320 - _field_width * btmBlockWidth) / 2 + _pos.x * btmBlockWidth, (240 - _field_height * btmBlockWidth) + _pos.y * btmBlockWidth,4,6,Color::White);
+        }
       }
     }
   }

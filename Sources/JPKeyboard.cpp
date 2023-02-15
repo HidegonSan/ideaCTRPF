@@ -693,7 +693,7 @@ namespace CTRPluginFramework
         }
         _flick = !_flick;
       }
-      KatakanaMode = KatakanaMode ? false : true;
+      KatakanaMode = !KatakanaMode;
     }
 
     // 決定
