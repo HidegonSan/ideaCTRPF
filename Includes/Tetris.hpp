@@ -85,7 +85,6 @@ namespace CTRPluginFramework
 
     Tetris() = default;
     ~Tetris() = default;
-
     const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates =
         {
             {

@@ -250,7 +250,6 @@ namespace CTRPluginFramework
     MenuFolder *searchFolder = new MenuFolder("Search");
     *searchFolder += new MenuEntry("Search", nullptr, Search);
     menu += searchFolder;
-
     menu += new MenuEntry("Test1", nullptr, Test1);
     menu += new MenuEntry("command", nullptr, Command, "コマンド");
     menu += new MenuEntry("pipes", Pipes, "パイプス\nstartで消せます");
@@ -262,6 +261,7 @@ namespace CTRPluginFramework
     menu += EntryWithHotkeys(new MenuEntry("Tetris", nullptr, Tetris, "テトリス\n一回Hotkeys Modifierを見に行ってください\n操作できません\nMenuFunc(キーボードのボタン)から設定を変えれます"), {Hotkey(Key::DPadLeft, "左"), Hotkey(Key::DPadRight, "右"), Hotkey(Key::DPadDown, "下"), Hotkey(Key::DPadUp, "ハードドロップ"), Hotkey(Key::A, "右回転"), Hotkey(Key::B, "左回転"), Hotkey(Key::R, "ホールド"), Hotkey(Key::Y, "Pause")}, true);
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
     menu += new MenuEntry("LifeGame", nullptr, LifeGame, "ライフゲーム\nA:put life\nB:exit\nX:start/stop\nY:menu");
+    menu += new MenuEntry("3D", nullptr, threeD, "threeD3\nB:exit");
   }
 
   int main(void)

@@ -34,6 +34,7 @@ namespace CTRPluginFramework
   void Tetris(MenuEntry *entry);
   void Paint(MenuEntry *entry);
   void LifeGame(MenuEntry *entry);
+  void threeD(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
 }

@@ -6,14 +6,14 @@
 #include "Tetris.hpp"
 #include "LifeGame.hpp"
 #include "Command.hpp"
+#include "threeDGame.hpp"
 
 #include <sstream>
 
 namespace CTRPluginFramework
 {
-  void Test1(MenuEntry *entry) {
-    std::string out;
-    JPKeyboard("aa").Open(out, "default");
+  void Test1(MenuEntry *entry)
+  {
   }
 
   void JPNotify(MenuEntry *entry)
@@ -382,19 +382,8 @@ namespace CTRPluginFramework
       return;
     }
     s8 i = Keyboard("select file:", files_name).Open();
-    if (i != -1)
+    if (0 <= i)
     {
-      // u32 temp;
-      // File fp("MUSIC/" + files_name[i]);
-      // Result res = svcControlMemoryEx(&temp, (u32)0x04000000, (u32)0x04000000, fp.GetSize(), MEMOP_MAP, (MemPerm)(MEMPERM_READ | MEMPERM_WRITE), true);
-      // if (R_SUCCEEDED(res))
-      // {
-      //   fp.Inject(temp, fp.GetSize());
-      //   Sound((u8 *)temp).Play();
-      // }
-      // else
-      //   MessageBox(Utils::Format("memory error%08X", (u32)temp))();
-      // fp.Close();
       Sound("MUSIC/" + files_name[i]).Play();
     }
   }
@@ -667,5 +656,10 @@ namespace CTRPluginFramework
   void LifeGame(MenuEntry *entry)
   {
     LifeGame::GetInstance().LifeGame_Loop();
+  }
+
+  void threeD(MenuEntry *entry)
+  {
+    threeDGame::GetInstance().threeDGameLoop();
   }
 }
