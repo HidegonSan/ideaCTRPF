@@ -1,8 +1,6 @@
 #pragma once
 
 #include <CTRPluginFramework.hpp>
-#include <numbers>
-#include <cmath>
 #include "types.h"
 
 namespace CTRPluginFramework
@@ -32,7 +30,6 @@ namespace CTRPluginFramework
     std::vector<u8> _field = std::vector<u8>(_field_width * _field_height, 0);
     FloatVector _pos = {0.9,0.9};
     bool _isOpened = false;
-    float theta = std::numbers::pi / 6;
 
     void DrawScreen(void);
 
