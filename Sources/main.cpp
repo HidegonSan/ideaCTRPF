@@ -262,6 +262,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
     menu += new MenuEntry("LifeGame", nullptr, LifeGame, "ライフゲーム\nA:put life\nB:exit\nX:start/stop\nY:menu");
     menu += new MenuEntry("3D", nullptr, threeD, "threeD3\nB:exit");
+    menu += new MenuEntry("LED", LedEffect, FONT_DL ":赤\n" FONT_DD ":緑\n" FONT_DR ":青\n" FONT_DU ":白\n" FONT_Y "を押しながら各種キー:滑らかに点灯");
   }
 
   int main(void)

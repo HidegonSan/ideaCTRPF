@@ -7,6 +7,7 @@
 #include "LifeGame.hpp"
 #include "Command.hpp"
 #include "threeDGame.hpp"
+#include "Led.hpp"
 
 #include <sstream>
 
@@ -661,5 +662,44 @@ namespace CTRPluginFramework
   void threeD(MenuEntry *entry)
   {
     threeDGame::GetInstance().threeDGameLoop();
+  }
+
+  // based on https://github.com/HaramakiPtr/CalcLED3gx/blob/master/Sources/LED.cpp#L76
+  void LedEffect(MenuEntry *entry)
+  {
+    Led led(entry);
+    
+    if (Controller::IsKeyDown(Key::Y))
+    {
+      led.setSmoothing(0x20);
+    }
+
+    if (Controller::IsKeyDown(Key::DPadLeft))
+    {
+      // red
+      led.setColor(0xFF, 0x00, 0x00);
+    }
+    else if (Controller::IsKeyDown(Key::DPadDown))
+    {
+      // green
+      led.setColor(0x00, 0xFF, 0x00);
+    }
+    else if (Controller::IsKeyDown(Key::DPadRight))
+    {
+      // blue
+      led.setColor(0x00, 0x00, 0xFF);
+    }
+    else if (Controller::IsKeyDown(Key::DPadUp))
+    {
+      // white
+      led.setColor(0xFF, 0xFF, 0xFF);
+    }
+    else
+    {
+      // off
+      led.setColor(0x00, 0x00, 0x00);
+    }
+
+    led.update();
   }
 }
