@@ -81,20 +81,20 @@ namespace CTRPluginFramework
     top.DrawRect(0, 0, 400, 240, Color::Gray);
     btm.DrawRect(0, 0, 320, 240, Color::Gray);
 
-    float _sin = std::sin(theta);
-    float _cos = std::cos(theta);
+    float _sin = std::sin(theta) * _block_width;
+    float _cos = std::cos(theta) + _block_width;
 
     u8 btmBlockWidth = std::min(320 / _field_width, 240 / _field_height);
     for (u8 i = 0; i < _field_width; i++)
     {
       for (u8 j = 0; j < _field_height; j++)
       {
-        top.DrawRect(200 - _block_width * _cos * (j + 1) + _block_width * _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _block_width * _cos, 240 - (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]] + Color(20, 20, 20));
-        top.DrawRect(200 - _block_width * _cos * j + _block_width * _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]) + _sin, _block_width * _cos, 240 - (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]) + _sin, _blockColors[_field[i + j * _field_width]] - Color(20, 20, 20));
-        DrawDiamond(top, 200 - _block_width * _cos * (j + 1) + _block_width * _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), 200 - _block_width * _cos * j + _block_width * _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]], true);
+        top.DrawRect(200 - _cos * (j + 1) + _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _cos, 240 - (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]] + Color(20, 20, 20));
+        top.DrawRect(200 - _cos * j + _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]) + _sin, _cos, 240 - (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]) + _sin, _blockColors[_field[i + j * _field_width]] - Color(20, 20, 20));
+        DrawDiamond(top, 200 - _cos * (j + 1) + _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (i + 1) + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), 200 - _cos * j + _cos * i, (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * i + _sin * j + _sin * (_block_height - _field[i + j * _field_width]), _blockColors[_field[i + j * _field_width]], true);
         btm.DrawRect((320 - _field_width * btmBlockWidth) / 2 + i * btmBlockWidth, (240 - _field_height * btmBlockWidth) + j * btmBlockWidth, btmBlockWidth, btmBlockWidth, _blockColors[_field[i + j * _field_width]]);
         if ((u8)_pos.x == i && (u8)_pos.y == j)
-          top.DrawRect(200 - _block_width * _cos * (_pos.y + 1) + _block_width * _cos * (_pos.x + 1), (240 - _block_width * _field_height - * _sin * _block_height) / 2 + * _sin * (_pos.x + 1) + * _sin * _pos.y + * _sin * (_block_height - _field[i + j * _field_width]) - 6 - * _sin, 6, 6, Color::White);
+          top.DrawRect(200 - _cos * (_pos.y + 1) + _cos * (_pos.x + 1), (240 - _block_width * _field_height - _sin * _block_height) / 2 + _sin * (_pos.x + 1) + _sin * _pos.y + _sin * (_block_height - _field[i + j * _field_width]) - 6 - _sin, 6, 6, Color::White);
       }
     }
     btm.DrawRect((320 - _field_width * btmBlockWidth) / 2 + _pos.x * btmBlockWidth, (240 - _field_height * btmBlockWidth) + _pos.y * btmBlockWidth, 6, 6, Color::White);
