@@ -35,6 +35,7 @@ namespace CTRPluginFramework
   void Paint(MenuEntry *entry);
   void LifeGame(MenuEntry *entry);
   void threeD(MenuEntry *entry);
+  void LedEffect(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
 }
