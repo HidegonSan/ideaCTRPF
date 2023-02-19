@@ -447,8 +447,14 @@ namespace CTRPluginFramework
       {
         for (u32 drawY = 0; drawY < size; drawY++)
         {
-          paintPallet[originX + drawX][originY + drawY] = color;
-          poses.push_back({static_cast<u32>(originX + drawX), static_cast<u32>(originY + drawY)});
+          u32 posX = originX + drawX;
+          u32 posY = originY + drawY;
+
+          if(posX <= 200 && posY <= 200)
+          {
+            paintPallet[posX][posY] = color;
+            poses.push_back({static_cast<u32>(posX), static_cast<u32>(posY)});
+          }
         }
       }
 
@@ -543,6 +549,7 @@ namespace CTRPluginFramework
       btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       btmScr.DrawRect(19, 9, 202, 202, Color::Black, false);
       for (size_t x = 0; x < 200; x++)
+      {
         for (size_t y = 0; y < 200; y++)
         {
           Color color = paintPallet[x][y];
@@ -551,6 +558,7 @@ namespace CTRPluginFramework
           else
             btmScr.DrawPixel(x + 20, y + 10, (x / 10 + y / 10) % 2 ? Color::White : Color::DarkGrey);
         }
+      }
       btmScr.DrawRect(200, 215, 50, 22, Color::Gray);
       btmScr.DrawRect(200, 215, 50, 22, Color::White, false);
       btmScr.DrawSysfont("cancel", 202, 218);
