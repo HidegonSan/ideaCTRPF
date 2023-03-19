@@ -8,6 +8,7 @@
 #include "Command.hpp"
 #include "threeDGame.hpp"
 #include "Led.hpp"
+#include "Game2048.hpp"
 
 #include <sstream>
 
@@ -709,5 +710,10 @@ namespace CTRPluginFramework
     }
 
     led.update();
+  }
+
+  void Game2048(MenuEntry *entry)
+  {
+    Game2048::GetInstance().Game2048_Loop();
   }
 }
