@@ -172,8 +172,7 @@ namespace CTRPluginFramework
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + GetFolderObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = GetReturnCount(commandLine_buffer);
               std::string output;
-              Keyboard(11 < count ? commandLine_buffer.substr(FindAll(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              if (key.Open(output) <= -1)
+              if (Keyboard(11 < count ? commandLine_buffer.substr(FindAll(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer).Open(output) <= -1)
                 break;
               if (output == "y")
                 Directory::Remove(dir.GetFullName() + "/" + GetFolderObscurely(dir, args[1]));
@@ -183,8 +182,7 @@ namespace CTRPluginFramework
               commandLine_buffer += "really delete " + dir.GetFullName() + "/" + GetFileObscurely(dir, args[1]) + "?[y/n]:\n";
               u8 count = GetReturnCount(commandLine_buffer);
               std::string output;
-              Keyboard(11 < count ? commandLine_buffer.substr(FindAll(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer);
-              if (key.Open(output) <= -1)
+              if (Keyboard(11 < count ? commandLine_buffer.substr(FindAll(commandLine_buffer, "\n")[count - 12] + 1) : commandLine_buffer).Open(output) <= -1)
                 break;
               if (output == "y")
                 File::Remove(dir.GetFullName() + "/" + GetFileObscurely(dir, args[1]));
