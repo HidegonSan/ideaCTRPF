@@ -10,7 +10,6 @@
 #include "Led.hpp"
 #include "Game2048.hpp"
 
-#include <sstream>
 
 namespace CTRPluginFramework
 {

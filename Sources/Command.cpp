@@ -2,8 +2,6 @@
 #include "Convert.hpp"
 #include "JPKeyboard.hpp"
 
-#include <sstream>
-
 namespace CTRPluginFramework
 {
   void Command::Command_Loop()
@@ -116,9 +114,7 @@ namespace CTRPluginFramework
       }
       else if (args[0] == "commit")
       {
-        std::stringstream ss;
-        ss << std::hex << COMMIT_HASH;
-        commandLine_buffer += ss.str();
+        commandLine_buffer += Utils::Format("%x", COMMIT_HASH);
       }
       else if (args[0] == "cat")
       {

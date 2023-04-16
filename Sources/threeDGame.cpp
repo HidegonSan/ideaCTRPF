@@ -1,7 +1,6 @@
 #include "threeDGame.hpp"
 #include "KaniCodes.hpp"
 
-#include <sstream>
 
 namespace CTRPluginFramework
 {
