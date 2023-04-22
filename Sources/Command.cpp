@@ -331,6 +331,10 @@ namespace CTRPluginFramework
   void Command::Cd(Directory &dir, std::string &path, std::string &str)
   {
     u64 pos = 18446744073709551615UL;
+
+    if (path.find("/") == 0)
+      path = path.substr(1);
+
     if (path.substr(0, 2) == "..")
     {
       Directory::Open(dir, dir.GetFullName().substr(0, FindAll(dir.GetFullName(), "/")[FindAll(dir.GetFullName(), "/").size() - 1]));
