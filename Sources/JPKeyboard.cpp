@@ -11,7 +11,7 @@ namespace CTRPluginFramework
     _canSwich = true;
     _canAbort = true;
     _canConvert = true;
-    _flick = true;
+    _flick = false;
     selectedIndex = 0;
   }
 
@@ -419,22 +419,31 @@ namespace CTRPluginFramework
     }
   }
 
-  void JPKeyboard::SetMaxLength(u32 max)
+  JPKeyboard JPKeyboard::SetMaxLength(u32 max)
   {
     _maxLength = max;
+    return *this;
   }
 
-  void JPKeyboard::CanSwich(bool canSwich)
+  JPKeyboard JPKeyboard::CanSwichLayout(bool canSwich)
   {
     _canSwich = canSwich;
+    return *this;
   }
-  void JPKeyboard::CanAbort(bool canAbort)
+  JPKeyboard JPKeyboard::CanAbort(bool canAbort)
   {
     _canAbort = canAbort;
+    return *this;
   }
-  void JPKeyboard::CanConvert(bool canConvert)
+  JPKeyboard JPKeyboard::CanConvert(bool canConvert)
   {
     _canConvert = canConvert;
+    return *this;
+  }
+  JPKeyboard JPKeyboard::SetDefaultLayout(bool isFlick)
+  {
+    _flick = isFlick;
+    return *this;
   }
 
   void JPKeyboard::MakeU16Array()
@@ -660,12 +669,12 @@ namespace CTRPluginFramework
     }
 
     // モード変換
-    scr.DrawRect(126, 191, 68, 22, _canSwich ? Color::Gray : Color::BlackGrey);
+    scr.DrawRect(126, 191, 68, 22, Color::Gray);
     scr.DrawRect(126, 191, 68, 22, Color::White, false);
     scr.DrawSysfont("レイアウト", 126, 194);
-    if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22) && _canSwich)
+    if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22))
     {
-      if (KatakanaMode)
+      if (KatakanaMode || !_canSwich)
       {
         std::string input;
         if (0 <= Keyboard("ローマ字").Open(input))
@@ -678,21 +687,26 @@ namespace CTRPluginFramework
             InputChrs.emplace_back(buff);
             selectedIndex = 0;
           }
-        jpQwertyOutput = "";
-        Keyboard key("日本語");
-        key.OnKeyboardEvent(JPKeyboardEvent);
-        if (0 <= key.Open(input))
+        if (_canSwich)
         {
-          Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
-          for (int i = 0; i < Convert::getMultiByte(jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
+          jpQwertyOutput = "";
+          Keyboard key("日本語");
+          key.OnKeyboardEvent(JPKeyboardEvent);
+          if (0 <= key.Open(input))
           {
-            InputChrs.emplace_back(U16_ChrArray[i]);
+            memset(U16_ChrArray, 0, sizeof(U16_ChrArray));
+            Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength), size_t(60))), StringFormat::Utf16);
+            size_t i = 0;
+            while (U16_ChrArray[i] != 0)
+              InputChrs.emplace_back(U16_ChrArray[i++]);
+            selectedIndex = 0;
           }
-          selectedIndex = 0;
         }
-        _flick = !_flick;
+        if (_canSwich)
+          _flick = !_flick;
       }
-      KatakanaMode = !KatakanaMode;
+      if (_canSwich)
+        KatakanaMode = !KatakanaMode;
     }
 
     // 決定
