@@ -332,6 +332,9 @@ namespace CTRPluginFramework
   {
     u64 pos = 18446744073709551615UL;
 
+    if (path.find(".") == 0)
+      path = path.substr(1);
+
     if (path.find("/") == 0)
       path = path.substr(1);
 

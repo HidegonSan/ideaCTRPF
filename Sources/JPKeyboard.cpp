@@ -687,21 +687,21 @@ namespace CTRPluginFramework
             InputChrs.emplace_back(buff);
             selectedIndex = 0;
           }
-        if (_canSwich)
-        {
-          jpQwertyOutput = "";
-          Keyboard key("日本語");
-          key.OnKeyboardEvent(JPKeyboardEvent);
-          if (0 <= key.Open(input))
-          {
-            memset(U16_ChrArray, 0, sizeof(U16_ChrArray));
-            Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength), size_t(60))), StringFormat::Utf16);
-            size_t i = 0;
-            while (U16_ChrArray[i] != 0)
-              InputChrs.emplace_back(U16_ChrArray[i++]);
-            selectedIndex = 0;
-          }
-        }
+        // if (_canSwich)
+        // {
+        //   jpQwertyOutput = "";
+        //   Keyboard key("日本語");
+        //   key.OnKeyboardEvent(JPKeyboardEvent);
+        //   if (0 <= key.Open(input))
+        //   {
+        //     memset(U16_ChrArray, 0, sizeof(U16_ChrArray));
+        //     Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength), size_t(60))), StringFormat::Utf16);
+        //     size_t i = 0;
+        //     while (U16_ChrArray[i] != 0)
+        //       InputChrs.emplace_back(U16_ChrArray[i++]);
+        //     selectedIndex = 0;
+        //   }
+        // }
         if (_canSwich)
           _flick = !_flick;
       }
