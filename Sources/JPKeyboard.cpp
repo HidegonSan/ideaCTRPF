@@ -295,10 +295,8 @@ namespace CTRPluginFramework
 
     for (auto &&item : conv_table_list)
     { // ノーマル変換
-      OSD::Notify(std::string{cstr});
       if (find_convert_table(item.cv_froms.begin(), item.cv_froms.end(), cstr))
       {
-        OSD::Notify("Found: " + std::string{item.cv_target});
         return ret + std::string{item.cv_target};
       }
     }
