@@ -11,7 +11,7 @@ namespace CTRPluginFramework
     std::string kanji;
   };
 
-  static std::vector<HIRAGANA_KANJI> hiragana_kanji;
+  static std::vector<HIRAGANA_KANJI> hiragana_kanji_list;
 
   class Convert
   {
@@ -24,5 +24,6 @@ namespace CTRPluginFramework
     static std::string hiraganaToKanji(std::string hiragana);
     static std::string hiraganaToKatakana(std::string hiragana);
     static std::string katakanaToHiragana(std::string katakana);
+    static void initHiraganaKanjiList(void);
   };
 }

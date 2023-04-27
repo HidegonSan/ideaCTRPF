@@ -579,7 +579,7 @@ namespace CTRPluginFramework
 
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
-      scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
+      scr.DrawRect(58 + width - selectedIndex * 12, 37, selectedIndex * 12, 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
     }
 
@@ -589,12 +589,12 @@ namespace CTRPluginFramework
     {
       if (Controller::IsKeyPressed(Touchpad) && TouchRect(268, 72 + i * 22, 24, 16))
       {
-        selectedIndex = 0;
         switch (i)
         {
         case DELETE:
           if (!InputChrs.empty())
-            InputChrs.pop_back();
+            for (size_t j = 0; j < std::max((u8)1, selectedIndex); j++)
+              InputChrs.pop_back();
           break;
         case KOMOJI:
           if (!InputChrs.empty())
@@ -613,6 +613,7 @@ namespace CTRPluginFramework
             Dakuten(true, InputChrs.at(InputChrs.size() - 1));
           break;
         }
+        selectedIndex = 0;
         scr.DrawRect(263, 68 + i * 22, 34, 22, Color::White);
       }
       scr.DrawSysfont(opt[i], 268, 72 + i * 22);
@@ -623,7 +624,7 @@ namespace CTRPluginFramework
     {
       scr.DrawSysfont("<", 35, 35);
       scr.DrawSysfont(">", 277, 35);
-      if (Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22))
+      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::Left))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
         std::vector<u16> lastN(InputChrs.end() - selectedIndex - 1, InputChrs.end());
@@ -632,7 +633,7 @@ namespace CTRPluginFramework
           selectedIndex++;
         }
       }
-      if (Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22))
+      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::Right))
       {
         scr.DrawRect(274, 35, 17, 17, Color::White);
         if (selectedIndex != 0)
@@ -650,7 +651,7 @@ namespace CTRPluginFramework
             InputChrs.pop_back();
           if (InputChrs.size() < _maxLength)
           {
-            u8 k = 0, i = 0;
+            u8 i = 0;
             u16 buff_utf16[100] = {0};
             Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
             i = 0;
@@ -687,7 +688,7 @@ namespace CTRPluginFramework
     // モード変換
     scr.DrawRect(126, 191, 68, 22, Color::Gray);
     scr.DrawRect(126, 191, 68, 22, Color::White, false);
-    scr.DrawSysfont("レイアウト", 126, 194);
+    scr.DrawSysfont(Utils::Format("%u", selectedIndex), 126, 194);
     if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22))
     {
       if (KatakanaMode || !_canSwich)
@@ -743,7 +744,6 @@ namespace CTRPluginFramework
     if (Controller::IsKeyPressed(Touchpad))
     {
       UIntVector pos = Touch::GetPosition();
-      selectedIndex = 0;
       if (_flick)
       {
         if (pos.x >= 120 && pos.y >= 70 && pos.x <= 200 && pos.y <= 190)
@@ -833,6 +833,8 @@ namespace CTRPluginFramework
           }
           if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
             InputChrs.emplace_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
+
+          selectedIndex = 0;
         }
       }
       else if (pos.x >= 23 && pos.y >= 69 && pos.x <= 262 && pos.y <= 178)
@@ -845,6 +847,8 @@ namespace CTRPluginFramework
 
         if (InputChrs.size() < _maxLength)
           InputChrs.emplace_back(U16_ChrArray[wy * 10 + wx]);
+
+        selectedIndex = 0;
       }
     }
 
