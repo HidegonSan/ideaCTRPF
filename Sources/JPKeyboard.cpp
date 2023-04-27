@@ -54,6 +54,7 @@ namespace CTRPluginFramework
 
   // Thanks: https://support.microsoft.com/ja-jp/topic/%E3%83%AD%E3%83%BC%E3%83%9E%E5%AD%97%E5%85%A5%E5%8A%9B%E3%81%AE%E3%81%A4%E3%81%A5%E3%82%8A%E4%B8%80%E8%A6%A7%E8%A1%A8%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86-bcc0ad7e-2781-cc9a-e524-7de506d8fdae
   static const ConvertTable conv_table_list[] = {
+      {{""}, ""},
       {{"a"}, "あ"},
       {{"i", "yi"}, "い"},
       {{"u", "wu", "whu"}, "う"},
@@ -262,17 +263,17 @@ namespace CTRPluginFramework
       {{"lwa", "xwa"}, "ゎ"},
   };
 
-  bool find_convert_table(std::initializer_list<char const *>::iterator _first, std::initializer_list<char const *>::iterator _last, char const *_val)
+  ConvertTable const &find_convert_table(std::string const &_val)
   {
-    for (; _first != _last; _first++)
-    {
-      if (!strcmp(*_first,_val))
+    for (auto &&item : conv_table_list)
+      for (auto &&s : item.cv_froms)
       {
-        return true;
+        if (strcmp(s, _val.c_str()) == 0)
+          return item;
       }
-    }
-    return false;
-  };
+
+    return conv_table_list[0];
+  }
 
   std::string _alphabet_to_hiragana(std::string input)
   {
@@ -291,14 +292,10 @@ namespace CTRPluginFramework
       }
     }
 
-    char const *cstr = input.c_str();
-
-    for (auto &&item : conv_table_list)
-    { // ノーマル変換
-      if (find_convert_table(item.cv_froms.begin(), item.cv_froms.end(), cstr))
-      {
-        return ret + std::string{item.cv_target};
-      }
+    auto &item = find_convert_table(input);
+    if (*item.cv_target != '\0' && item.cv_target != nullptr)
+    {
+      return ret + std::string{item.cv_target};
     }
 
     if (2 <= input.size() && input[0] == 'n')
