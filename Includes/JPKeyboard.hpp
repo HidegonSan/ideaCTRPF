@@ -12,10 +12,11 @@ namespace CTRPluginFramework
 
     static bool LoadKanjiList(void);
 
-    void SetMaxLength(u32 max);
-    void CanSwich(bool canSwich);
-    void CanAbort(bool canAbort);
-    void CanConvert(bool canConvert);
+    JPKeyboard SetMaxLength(u32 max);
+    JPKeyboard CanSwichLayout(bool canSwich);
+    JPKeyboard CanAbort(bool canAbort);
+    JPKeyboard CanConvert(bool canConvert);
+    JPKeyboard SetDefaultLayout(bool isFlick);
     bool Open(std::string &out);
     bool Open(std::string &out, std::string defaultText);
 

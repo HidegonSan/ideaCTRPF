@@ -354,8 +354,7 @@ namespace CTRPluginFramework
     return true;
   }
 
-  std::string
-  ReadSJIS(u32 Address)
+  std::string ReadSJIS(u32 Address)
   {
     std::string out = "";
     u8 num = 0;

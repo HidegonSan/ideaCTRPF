@@ -5,13 +5,6 @@
 
 namespace CTRPluginFramework
 {
-  struct HIRAGANA_KANJI
-  {
-    std::string hiragana;
-    std::string kanji;
-  };
-
-  static std::vector<HIRAGANA_KANJI> hiragana_kanji;
 
   class Convert
   {
@@ -24,5 +17,16 @@ namespace CTRPluginFramework
     static std::string hiraganaToKanji(std::string hiragana);
     static std::string hiraganaToKatakana(std::string hiragana);
     static std::string katakanaToHiragana(std::string katakana);
+    static void initHiraganaKanjiList(void);
+    static void addHiraganaKanjiList(std::string hiragana, std::string kanji);
+
+  private:
+    struct HIRAGANA_KANJI
+    {
+      std::string hiragana;
+      std::string kanji;
+    };
+
+    static std::vector<HIRAGANA_KANJI> hiragana_kanji_list;
   };
 }

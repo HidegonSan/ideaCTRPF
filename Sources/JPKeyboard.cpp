@@ -11,7 +11,7 @@ namespace CTRPluginFramework
     _canSwich = true;
     _canAbort = true;
     _canConvert = true;
-    _flick = true;
+    _flick = false;
     selectedIndex = 0;
   }
 
@@ -46,6 +46,235 @@ namespace CTRPluginFramework
     return ret;
   }
 
+  struct ConvertTable
+  {
+    std::initializer_list<char const *> cv_froms;
+    char const *cv_target;
+  };
+
+  // Thanks: https://support.microsoft.com/ja-jp/topic/%E3%83%AD%E3%83%BC%E3%83%9E%E5%AD%97%E5%85%A5%E5%8A%9B%E3%81%AE%E3%81%A4%E3%81%A5%E3%82%8A%E4%B8%80%E8%A6%A7%E8%A1%A8%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86-bcc0ad7e-2781-cc9a-e524-7de506d8fdae
+  static const ConvertTable conv_table_list[] = {
+      {{""}, ""},
+      {{"a"}, "あ"},
+      {{"i", "yi"}, "い"},
+      {{"u", "wu", "whu"}, "う"},
+      {{"e"}, "え"},
+      {{"o"}, "お"},
+      {{"wha"}, "うぁ"},
+      {{"whi", "wi"}, "うぃ"},
+      {{"whe", "we"}, "うぇ"},
+      {{"who"}, "うぉ"},
+      {{"la", "xa"}, "ぁ"},
+      {{"li", "xi", "lyi", "xyi"}, "ぃ"},
+      {{"lu", "xu"}, "ぅ"},
+      {{"le", "xe", "lye", "xye"}, "ぇ"},
+      {{"lo", "xo"}, "ぉ"},
+      {{"ye"}, "いぇ"},
+      {{"ka", "ca"}, "か"},
+      {{"ki"}, "き"},
+      {{"ku", "cu", "qu"}, "く"},
+      {{"ke"}, "け"},
+      {{"ko", "co"}, "こ"},
+      {{"kya"}, "きゃ"},
+      {{"kyi"}, "きぃ"},
+      {{"kyu"}, "きゅ"},
+      {{"kye"}, "きぇ"},
+      {{"kyo"}, "きょ"},
+      {{"qya"}, "くゃ"},
+      {{"qyu"}, "くゅ"},
+      {{"qyo"}, "くょ"},
+      {{"qwa", "wa", "kwa"}, "くぁ"},
+      {{"qui", "qi", "qyi"}, "くぃ"},
+      {{"qwu"}, "くぅ"},
+      {{"qwe", "qe", "qye"}, "くぇ"},
+      {{"qwo", "qo"}, "くぉ"},
+      {{"ga"}, "が"},
+      {{"gi"}, "ぎ"},
+      {{"gu"}, "ぐ"},
+      {{"ge"}, "げ"},
+      {{"go"}, "ご"},
+      {{"gya"}, "ぎゃ"},
+      {{"gyi"}, "ぎぃ"},
+      {{"gyu"}, "ぎゅ"},
+      {{"gye"}, "ぎぇ"},
+      {{"gyo"}, "ぎょ"},
+      {{"gwa"}, "ぐぁ"},
+      {{"gwi"}, "ぐぃ"},
+      {{"gwu"}, "ぐぅ"},
+      {{"gwe"}, "ぐぇ"},
+      {{"gwo"}, "ぐぉ"},
+      {{"lka", "xka"}, "ヵ"},
+      {{"lke", "xke"}, "ヶ"},
+      {{"sa"}, "さ"},
+      {{"si", "ci", "shi"}, "し"},
+      {{"su"}, "す"},
+      {{"se", "ce"}, "せ"},
+      {{"so"}, "そ"},
+      {{"sya", "sha"}, "しゃ"},
+      {{"syi"}, "しぃ"},
+      {{"syu", "shu"}, "しゅ"},
+      {{"sye", "she"}, "しぇ"},
+      {{"syo", "sho"}, "しょ"},
+      {{"swa"}, "すぁ"},
+      {{"swi"}, "すぃ"},
+      {{"swu"}, "すぅ"},
+      {{"swe"}, "すぇ"},
+      {{"swo"}, "すぉ"},
+      {{"za"}, "ざ"},
+      {{"zi", "ji"}, "じ"},
+      {{"zu"}, "ず"},
+      {{"ze"}, "ぜ"},
+      {{"zo"}, "ぞ"},
+      {{"zya", "ja", "jya"}, "じゃ"},
+      {{"zyi", "jyi"}, "じぃ"},
+      {{"zyu", "ju", "jyu"}, "じゅ"},
+      {{"zye", "je", "jye"}, "じぇ"},
+      {{"zyo", "jo", "jyo"}, "じょ"},
+      {{"ta"}, "た"},
+      {{"ti", "chi"}, "ち"},
+      {{"tu", "tsu"}, "つ"},
+      {{"te"}, "て"},
+      {{"to"}, "と"},
+      {{"tya", "cha", "cya"}, "ちゃ"},
+      {{"tyi", "cyi"}, "ちぃ"},
+      {{"tyu", "chu", "cyu"}, "ちゅ"},
+      {{"tye", "che", "cye"}, "ちぇ"},
+      {{"tyo", "cho", "cyo"}, "ちょ"},
+      {{"tsa"}, "つぁ"},
+      {{"tsi"}, "つぃ"},
+      {{"tse"}, "つぇ"},
+      {{"tso"}, "つぉ"},
+      {{"tha"}, "てゃ"},
+      {{"thi"}, "てぃ"},
+      {{"thu"}, "てゅ"},
+      {{"the"}, "てぇ"},
+      {{"tho"}, "てょ"},
+      {{"twa"}, "とぁ"},
+      {{"twi"}, "とぃ"},
+      {{"twu"}, "とぅ"},
+      {{"twe"}, "とぇ"},
+      {{"two"}, "とぉ"},
+      {{"da"}, "だ"},
+      {{"di"}, "ぢ"},
+      {{"du"}, "づ"},
+      {{"de"}, "で"},
+      {{"do"}, "ど"},
+      {{"dya"}, "ぢゃ"},
+      {{"dyi"}, "ぢぃ"},
+      {{"dyu"}, "ぢゅ"},
+      {{"dye"}, "ぢぇ"},
+      {{"dyo"}, "ぢょ"},
+      {{"dha"}, "でゃ"},
+      {{"dhi"}, "でぃ"},
+      {{"dhu"}, "でゅ"},
+      {{"dhe"}, "でぇ"},
+      {{"dho"}, "でょ"},
+      {{"dwa"}, "どぁ"},
+      {{"dwi"}, "どぃ"},
+      {{"dwu"}, "どぅ"},
+      {{"dwe"}, "どぇ"},
+      {{"dwo"}, "どぉ"},
+      {{"ltu", "xtu", "ltsu"}, "っ"},
+      {{"na"}, "な"},
+      {{"ni"}, "に"},
+      {{"nu"}, "ぬ"},
+      {{"ne"}, "ね"},
+      {{"no"}, "の"},
+      {{"nya"}, "にゃ"},
+      {{"nyi"}, "にぃ"},
+      {{"nyu"}, "にゅ"},
+      {{"nye"}, "にぇ"},
+      {{"nyo"}, "にょ"},
+      {{"ha"}, "は"},
+      {{"hi"}, "ひ"},
+      {{"hu", "fu"}, "ふ"},
+      {{"he"}, "へ"},
+      {{"ho"}, "ほ"},
+      {{"hya"}, "ひゃ"},
+      {{"hyi"}, "ひぃ"},
+      {{"hyu"}, "ひゅ"},
+      {{"hye"}, "ひぇ"},
+      {{"hyo"}, "ひょ"},
+      {{"fwa", "fa"}, "ふぁ"},
+      {{"fwi", "fi", "fyi"}, "ふぃ"},
+      {{"fwu"}, "ふぅ"},
+      {{"fwe", "fe", "fye"}, "ふぇ"},
+      {{"fwo", "fo"}, "ふぉ"},
+      {{"fya"}, "ふゃ"},
+      {{"fyu"}, "ふゅ"},
+      {{"fyo"}, "ふょ"},
+      {{"ba"}, "ば"},
+      {{"bi"}, "び"},
+      {{"bu"}, "ぶ"},
+      {{"be"}, "べ"},
+      {{"bo"}, "ぼ"},
+      {{"bya"}, "びゃ"},
+      {{"byi"}, "びぃ"},
+      {{"byu"}, "びゅ"},
+      {{"bye"}, "びぇ"},
+      {{"byo"}, "びょ"},
+      {{"va"}, "ゔぁ"},
+      {{"vi", "vyi"}, "ゔぃ"},
+      {{"vu"}, "ゔ"},
+      {{"ve", "vye"}, "ゔぇ"},
+      {{"vo"}, "ゔぉ"},
+      {{"vya"}, "ゔゃ"},
+      {{"vyu"}, "ゔゅ"},
+      {{"vyo"}, "ゔょ"},
+      {{"pa"}, "ぱ"},
+      {{"pi"}, "ぴ"},
+      {{"pu"}, "ぷ"},
+      {{"pe"}, "ぺ"},
+      {{"po"}, "ぽ"},
+      {{"pya"}, "ぴゃ"},
+      {{"pyi"}, "ぴぃ"},
+      {{"pyu"}, "ぴゅ"},
+      {{"pye"}, "ぴぇ"},
+      {{"pyo"}, "ぴょ"},
+      {{"ma"}, "ま"},
+      {{"mi"}, "み"},
+      {{"mu"}, "む"},
+      {{"me"}, "め"},
+      {{"mo"}, "も"},
+      {{"mya"}, "みゃ"},
+      {{"myi"}, "みぃ"},
+      {{"myu"}, "みゅ"},
+      {{"mye"}, "みぇ"},
+      {{"myo"}, "みょ"},
+      {{"ya"}, "や"},
+      {{"yu"}, "ゆ"},
+      {{"yo"}, "よ"},
+      {{"lya", "xya"}, "ゃ"},
+      {{"lyu", "xyu"}, "ゅ"},
+      {{"lyo", "xyo"}, "ょ"},
+      {{"ra"}, "ら"},
+      {{"ri"}, "り"},
+      {{"ru"}, "る"},
+      {{"re"}, "れ"},
+      {{"ro"}, "ろ"},
+      {{"rya"}, "りゃ"},
+      {{"ryi"}, "りぃ"},
+      {{"ryu"}, "りゅ"},
+      {{"rye"}, "りぇ"},
+      {{"ryo"}, "りょ"},
+      {{"wa"}, "わ"},
+      {{"wo"}, "を"},
+      {{"n", "nn", "xn"}, "ん"},
+      {{"lwa", "xwa"}, "ゎ"},
+  };
+
+  ConvertTable const &find_convert_table(std::string const &_val)
+  {
+    for (auto &&item : conv_table_list)
+      for (auto &&s : item.cv_froms)
+      {
+        if (strcmp(s, _val.c_str()) == 0)
+          return item;
+      }
+
+    return conv_table_list[0];
+  }
+
   std::string _alphabet_to_hiragana(std::string input)
   {
     if (input.empty() || 5 < input.size())
@@ -53,217 +282,6 @@ namespace CTRPluginFramework
 
     transform(input.begin(), input.end(), input.begin(), tolower);
     std::string ret = "";
-
-    // Thanks: https://support.microsoft.com/ja-jp/topic/%E3%83%AD%E3%83%BC%E3%83%9E%E5%AD%97%E5%85%A5%E5%8A%9B%E3%81%AE%E3%81%A4%E3%81%A5%E3%82%8A%E4%B8%80%E8%A6%A7%E8%A1%A8%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86-bcc0ad7e-2781-cc9a-e524-7de506d8fdae
-
-    static const std::vector<std::vector<std::string>> convert_table = {
-        {"a", "あ"},
-        {"i", "yi", "い"},
-        {"u", "wu", "whu", "う"},
-        {"e", "え"},
-        {"o", "お"},
-        {"wha", "うぁ"},
-        {"whi", "wi", "うぃ"},
-        {"whe", "we", "うぇ"},
-        {"who", "うぉ"},
-        {"la", "xa", "ぁ"},
-        {"li", "xi", "lyi", "xyi", "ぃ"},
-        {"lu", "xu", "ぅ"},
-        {"le", "xe", "lye", "xye", "ぇ"},
-        {"lo", "xo", "ぉ"},
-        {"ye", "いぇ"},
-        {"ka", "ca", "か"},
-        {"ki", "き"},
-        {"ku", "cu", "qu", "く"},
-        {"ke", "け"},
-        {"ko", "co", "こ"},
-        {"kya", "きゃ"},
-        {"kyi", "きぃ"},
-        {"kyu", "きゅ"},
-        {"kye", "きぇ"},
-        {"kyo", "きょ"},
-        {"qya", "くゃ"},
-        {"qyu", "くゅ"},
-        {"qyo", "くょ"},
-        {"qwa", "wa", "kwa", "くぁ"},
-        {"qui", "qi", "qyi", "くぃ"},
-        {"qwu", "くぅ"},
-        {"qwe", "qe", "qye", "くぇ"},
-        {"qwo", "qo", "くぉ"},
-        {"ga", "が"},
-        {"gi", "ぎ"},
-        {"gu", "ぐ"},
-        {"ge", "げ"},
-        {"go", "ご"},
-        {"gya", "ぎゃ"},
-        {"gyi", "ぎぃ"},
-        {"gyu", "ぎゅ"},
-        {"gye", "ぎぇ"},
-        {"gyo", "ぎょ"},
-        {"gwa", "ぐぁ"},
-        {"gwi", "ぐぃ"},
-        {"gwu", "ぐぅ"},
-        {"gwe", "ぐぇ"},
-        {"gwo", "ぐぉ"},
-        {"lka", "xka", "ヵ"},
-        {"lke", "xke", "ヶ"},
-        {"sa", "さ"},
-        {"si", "ci", "shi", "し"},
-        {"su", "す"},
-        {"se", "ce", "せ"},
-        {"so", "そ"},
-        {"sya", "sha", "しゃ"},
-        {"syi", "しぃ"},
-        {"syu", "shu", "しゅ"},
-        {"sye", "she", "しぇ"},
-        {"syo", "sho", "しょ"},
-        {"swa", "すぁ"},
-        {"swi", "すぃ"},
-        {"swu", "すぅ"},
-        {"swe", "すぇ"},
-        {"swo", "すぉ"},
-        {"za", "ざ"},
-        {"zi", "ji", "じ"},
-        {"zu", "ず"},
-        {"ze", "ぜ"},
-        {"zo", "ぞ"},
-        {"zya", "ja", "jya", "じゃ"},
-        {"zyi", "jyi", "じぃ"},
-        {"zyu", "ju", "jyu", "じゅ"},
-        {"zye", "je", "jye", "じぇ"},
-        {"zyo", "jo", "jyo", "じょ"},
-        {"ta", "た"},
-        {"ti", "chi", "ち"},
-        {"tu", "tsu", "つ"},
-        {"te", "て"},
-        {"to", "と"},
-        {"tya", "cha", "cya", "ちゃ"},
-        {"tyi", "cyi", "ちぃ"},
-        {"tyu", "chu", "cyu", "ちゅ"},
-        {"tye", "che", "cye", "ちぇ"},
-        {"tyo", "cho", "cyo", "ちょ"},
-        {"tsa", "つぁ"},
-        {"tsi", "つぃ"},
-        {"tse", "つぇ"},
-        {"tso", "つぉ"},
-        {"tha", "てゃ"},
-        {"thi", "てぃ"},
-        {"thu", "てゅ"},
-        {"the", "てぇ"},
-        {"tho", "てょ"},
-        {"twa", "とぁ"},
-        {"twi", "とぃ"},
-        {"twu", "とぅ"},
-        {"twe", "とぇ"},
-        {"two", "とぉ"},
-        {"da", "だ"},
-        {"di", "ぢ"},
-        {"du", "づ"},
-        {"de", "で"},
-        {"do", "ど"},
-        {"dya", "ぢゃ"},
-        {"dyi", "ぢぃ"},
-        {"dyu", "ぢゅ"},
-        {"dye", "ぢぇ"},
-        {"dyo", "ぢょ"},
-        {"dha", "でゃ"},
-        {"dhi", "でぃ"},
-        {"dhu", "でゅ"},
-        {"dhe", "でぇ"},
-        {"dho", "でょ"},
-        {"dwa", "どぁ"},
-        {"dwi", "どぃ"},
-        {"dwu", "どぅ"},
-        {"dwe", "どぇ"},
-        {"dwo", "どぉ"},
-        {"ltu", "xtu", "ltsu", "っ"},
-        {"na", "な"},
-        {"ni", "に"},
-        {"nu", "ぬ"},
-        {"ne", "ね"},
-        {"no", "の"},
-        {"nya", "にゃ"},
-        {"nyi", "にぃ"},
-        {"nyu", "にゅ"},
-        {"nye", "にぇ"},
-        {"nyo", "にょ"},
-        {"ha", "は"},
-        {"hi", "ひ"},
-        {"hu", "fu", "ふ"},
-        {"he", "へ"},
-        {"ho", "ほ"},
-        {"hya", "ひゃ"},
-        {"hyi", "ひぃ"},
-        {"hyu", "ひゅ"},
-        {"hye", "ひぇ"},
-        {"hyo", "ひょ"},
-        {"fwa", "fa", "ふぁ"},
-        {"fwi", "fi", "fyi", "ふぃ"},
-        {"fwu", "ふぅ"},
-        {"fwe", "fe", "fye", "ふぇ"},
-        {"fwo", "fo", "ふぉ"},
-        {"fya", "ふゃ"},
-        {"fyu", "ふゅ"},
-        {"fyo", "ふょ"},
-        {"ba", "ば"},
-        {"bi", "び"},
-        {"bu", "ぶ"},
-        {"be", "べ"},
-        {"bo", "ぼ"},
-        {"bya", "びゃ"},
-        {"byi", "びぃ"},
-        {"byu", "びゅ"},
-        {"bye", "びぇ"},
-        {"byo", "びょ"},
-        {"va", "ゔぁ"},
-        {"vi", "vyi", "ゔぃ"},
-        {"vu", "ゔ"},
-        {"ve", "vye", "ゔぇ"},
-        {"vo", "ゔぉ"},
-        {"vya", "ゔゃ"},
-        {"vyu", "ゔゅ"},
-        {"vyo", "ゔょ"},
-        {"pa", "ぱ"},
-        {"pi", "ぴ"},
-        {"pu", "ぷ"},
-        {"pe", "ぺ"},
-        {"po", "ぽ"},
-        {"pya", "ぴゃ"},
-        {"pyi", "ぴぃ"},
-        {"pyu", "ぴゅ"},
-        {"pye", "ぴぇ"},
-        {"pyo", "ぴょ"},
-        {"ma", "ま"},
-        {"mi", "み"},
-        {"mu", "む"},
-        {"me", "め"},
-        {"mo", "も"},
-        {"mya", "みゃ"},
-        {"myi", "みぃ"},
-        {"myu", "みゅ"},
-        {"mye", "みぇ"},
-        {"myo", "みょ"},
-        {"ya", "や"},
-        {"yu", "ゆ"},
-        {"yo", "よ"},
-        {"lya", "xya", "ゃ"},
-        {"lyu", "xyu", "ゅ"},
-        {"lyo", "xyo", "ょ"},
-        {"ra", "ら"},
-        {"ri", "り"},
-        {"ru", "る"},
-        {"re", "れ"},
-        {"ro", "ろ"},
-        {"rya", "りゃ"},
-        {"ryi", "りぃ"},
-        {"ryu", "りゅ"},
-        {"rye", "りぇ"},
-        {"ryo", "りょ"},
-        {"wa", "わ"},
-        {"wo", "を"},
-        {"n", "nn", "xn", "ん"},
-        {"lwa", "xwa", "ゎ"},
-    };
 
     if (2 <= input.size())
     { // 同じ文字が続けられていたら "っ" を追加する
@@ -274,12 +292,10 @@ namespace CTRPluginFramework
       }
     }
 
-    for (auto &&item : convert_table)
-    { // ノーマル変換
-      if (std::find(item.begin(), item.end() - 1, input) != item.end() - 1)
-      {
-        return ret + item[item.size() - 1];
-      }
+    auto &item = find_convert_table(input);
+    if (*item.cv_target != '\0' && item.cv_target != nullptr)
+    {
+      return ret + std::string{item.cv_target};
     }
 
     if (2 <= input.size() && input[0] == 'n')
@@ -352,64 +368,23 @@ namespace CTRPluginFramework
     if (File::Exists("kanji.txt"))
     {
       File file("kanji.txt");
-      file.Seek(2);
-      bool flag = true;
-      while (flag)
+      size_t size = file.GetSize();
+      char buf[size + 1] = {0};
+      // file.Seek(2);
+      file.Read(buf, size);
+      std::string str{buf, std::min(size, str.max_size())};
+      while (str.find(',') != std::string::npos)
       {
-        std::string hiragana, kanji;
-        while (1)
-        {
-          if (file.GetSize() < count++)
-          {
-            OSD::Notify("failed load kanji.txt");
-            return false;
-          }
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0x2C)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if ((buff > 0x80) || (buff < 0xA0))
-              hiragana += str_buff.substr(0, 3);
-          }
-          else
-            break;
-        }
-        while (1)
-        {
-          if (file.GetSize() < count++)
-          {
-            OSD::Notify("failed load kanji.txt");
-            return false;
-          }
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0xA)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if (0x1000 < buff)
-              kanji += str_buff.substr(0, 3);
-            else
-              kanji += str_buff.substr(0, 1);
-          }
-          else
-            break;
-        }
-        hiragana_kanji.push_back({hiragana, kanji});
+        while (str.find('\n') < str.find(','))
+          str = str.substr(str.find('\n') != std::string::npos ? str.find('\n') + 1 : str.length());
+        std::string hiragana = str.substr(0, str.find(',') != std::string::npos ? str.find(',') : str.length()), kanji;
+        str = str.substr(str.find(',') != std::string::npos ? str.find(',') + 1 : str.length());
+        kanji = str.substr(0, str.find('\n') != std::string::npos ? str.find('\n') : str.length());
+        str = str.substr(str.find('\n') != std::string::npos ? str.find('\n') + 1 : str.length());
+        Convert::addHiraganaKanjiList(hiragana, kanji);
       }
-      OSD::Notify("kanji.txt loaded");
+      file.Close();
+      OSD::Notify(Color::Green << "kanji.txt loaded" << Color::White);
       return true;
     }
     else
@@ -417,24 +392,34 @@ namespace CTRPluginFramework
       OSD::Notify("kanji.txt not found.");
       return false;
     }
+    return false;
   }
 
-  void JPKeyboard::SetMaxLength(u32 max)
+  JPKeyboard JPKeyboard::SetMaxLength(u32 max)
   {
     _maxLength = max;
+    return *this;
   }
 
-  void JPKeyboard::CanSwich(bool canSwich)
+  JPKeyboard JPKeyboard::CanSwichLayout(bool canSwich)
   {
     _canSwich = canSwich;
+    return *this;
   }
-  void JPKeyboard::CanAbort(bool canAbort)
+  JPKeyboard JPKeyboard::CanAbort(bool canAbort)
   {
     _canAbort = canAbort;
+    return *this;
   }
-  void JPKeyboard::CanConvert(bool canConvert)
+  JPKeyboard JPKeyboard::CanConvert(bool canConvert)
   {
     _canConvert = canConvert;
+    return *this;
+  }
+  JPKeyboard JPKeyboard::SetDefaultLayout(bool isFlick)
+  {
+    _flick = isFlick;
+    return *this;
   }
 
   void JPKeyboard::MakeU16Array()
@@ -554,7 +539,7 @@ namespace CTRPluginFramework
 
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
-      scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
+      scr.DrawRect(58 + width - selectedIndex * 12, 37, selectedIndex * 12, 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
     }
 
@@ -564,12 +549,12 @@ namespace CTRPluginFramework
     {
       if (Controller::IsKeyPressed(Touchpad) && TouchRect(268, 72 + i * 22, 24, 16))
       {
-        selectedIndex = 0;
         switch (i)
         {
         case DELETE:
           if (!InputChrs.empty())
-            InputChrs.pop_back();
+            for (size_t j = 0; j < std::max((u8)1, selectedIndex); j++)
+              InputChrs.pop_back();
           break;
         case KOMOJI:
           if (!InputChrs.empty())
@@ -588,6 +573,7 @@ namespace CTRPluginFramework
             Dakuten(true, InputChrs.at(InputChrs.size() - 1));
           break;
         }
+        selectedIndex = 0;
         scr.DrawRect(263, 68 + i * 22, 34, 22, Color::White);
       }
       scr.DrawSysfont(opt[i], 268, 72 + i * 22);
@@ -598,16 +584,12 @@ namespace CTRPluginFramework
     {
       scr.DrawSysfont("<", 35, 35);
       scr.DrawSysfont(">", 277, 35);
-      if (Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22))
+      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::Left))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
-        std::vector<u16> lastN(InputChrs.end() - selectedIndex - 1, InputChrs.end());
-        if (lastN[0] > 0x1000)
-        {
-          selectedIndex++;
-        }
+        selectedIndex++;
       }
-      if (Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22))
+      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::Right))
       {
         scr.DrawRect(274, 35, 17, 17, Color::White);
         if (selectedIndex != 0)
@@ -618,32 +600,25 @@ namespace CTRPluginFramework
 
       if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
       {
-        std::string kanji = Convert::hiraganaToKanji(InputStr.substr(InputStr.length() - selectedIndex * 3, selectedIndex * 3));
+        std::string hiragana;
+        u16 buff[sizeof(u16) * selectedIndex] = {0};
+        std::memcpy(buff, &InputChrs[InputChrs.size() - selectedIndex], sizeof(u16) * selectedIndex);
+        Utils::ConvertUTF16ToUTF8(hiragana, buff);
+
+        std::string kanji = Convert::hiraganaToKanji(hiragana);
+
         if (!kanji.empty())
         {
           for (int j = 0; j < selectedIndex; j++)
             InputChrs.pop_back();
           if (InputChrs.size() < _maxLength)
           {
-            u8 k = 0, i = 0;
-            u16 buff_utf16[100] = {0};
-            Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
-            i = 0;
             selectedIndex = 0;
-            while (1)
-            {
-              if (buff_utf16[i] == 0)
-                break;
-              if (buff_utf16[i] < 0x1000)
-                selectedIndex = 0;
-              else
-                selectedIndex++;
-              i++;
-            }
-            for (int j = 0; j < i; j++)
-            {
-              InputChrs.emplace_back(buff_utf16[j]);
-            }
+            u16 buff_utf16[11] = {0};
+            Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
+            s8 i = -1;
+            while (buff_utf16[++i] != 0 && buff_utf16[i] != 0xd)
+              InputChrs.emplace_back(buff_utf16[i]);
           }
         }
       }
@@ -660,12 +635,13 @@ namespace CTRPluginFramework
     }
 
     // モード変換
-    scr.DrawRect(126, 191, 68, 22, _canSwich ? Color::Gray : Color::BlackGrey);
+    scr.DrawRect(126, 191, 68, 22, Color::Gray);
     scr.DrawRect(126, 191, 68, 22, Color::White, false);
-    scr.DrawSysfont("レイアウト", 126, 194);
-    if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22) && _canSwich)
+
+    scr.DrawSysfont("レイアウト", 128, 194);
+    if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22))
     {
-      if (KatakanaMode)
+      if (KatakanaMode || !_canSwich)
       {
         std::string input;
         if (0 <= Keyboard("ローマ字").Open(input))
@@ -678,21 +654,26 @@ namespace CTRPluginFramework
             InputChrs.emplace_back(buff);
             selectedIndex = 0;
           }
-        jpQwertyOutput = "";
-        Keyboard key("日本語");
-        key.OnKeyboardEvent(JPKeyboardEvent);
-        if (0 <= key.Open(input))
+        if (_canSwich)
         {
-          Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
-          for (int i = 0; i < Convert::getMultiByte(jpQwertyOutput.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
+          jpQwertyOutput = "";
+          Keyboard key("日本語");
+          key.OnKeyboardEvent(JPKeyboardEvent);
+          if (0 <= key.Open(input))
           {
-            InputChrs.emplace_back(U16_ChrArray[i]);
+            memset(U16_ChrArray, 0, sizeof(U16_ChrArray));
+            Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength), size_t(60))), StringFormat::Utf16);
+            size_t i = 0;
+            while (U16_ChrArray[i] != 0)
+              InputChrs.emplace_back(U16_ChrArray[i++]);
+            selectedIndex = 0;
           }
-          selectedIndex = 0;
         }
-        _flick = !_flick;
+        if (_canSwich)
+          _flick = !_flick;
       }
-      KatakanaMode = !KatakanaMode;
+      if (_canSwich)
+        KatakanaMode = !KatakanaMode;
     }
 
     // 決定
@@ -713,7 +694,6 @@ namespace CTRPluginFramework
     if (Controller::IsKeyPressed(Touchpad))
     {
       UIntVector pos = Touch::GetPosition();
-      selectedIndex = 0;
       if (_flick)
       {
         if (pos.x >= 120 && pos.y >= 70 && pos.x <= 200 && pos.y <= 190)
@@ -803,6 +783,8 @@ namespace CTRPluginFramework
           }
           if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
             InputChrs.emplace_back(U16_ChrArray[(wy * 3 + wx) * 5 + i]);
+
+          selectedIndex = 0;
         }
       }
       else if (pos.x >= 23 && pos.y >= 69 && pos.x <= 262 && pos.y <= 178)
@@ -815,6 +797,8 @@ namespace CTRPluginFramework
 
         if (InputChrs.size() < _maxLength)
           InputChrs.emplace_back(U16_ChrArray[wy * 10 + wx]);
+
+        selectedIndex = 0;
       }
     }
 
