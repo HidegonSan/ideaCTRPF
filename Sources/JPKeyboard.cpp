@@ -368,64 +368,23 @@ namespace CTRPluginFramework
     if (File::Exists("kanji.txt"))
     {
       File file("kanji.txt");
-      file.Seek(2);
-      bool flag = true;
-      while (flag)
+      size_t size = file.GetSize();
+      char buf[size + 1] = {0};
+      // file.Seek(2);
+      file.Read(buf, size);
+      std::string str{buf, std::min(size, str.max_size())};
+      while (str.find(',') != std::string::npos)
       {
-        std::string hiragana, kanji;
-        while (1)
-        {
-          if (file.GetSize() < count++)
-          {
-            OSD::Notify("failed load kanji.txt");
-            return false;
-          }
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0x2C)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if ((buff > 0x80) || (buff < 0xA0))
-              hiragana += str_buff.substr(0, 3);
-          }
-          else
-            break;
-        }
-        while (1)
-        {
-          if (file.GetSize() < count++)
-          {
-            OSD::Notify("failed load kanji.txt");
-            return false;
-          }
-          u16 buff;
-          std::string str_buff;
-          file.Read((void *)&buff, sizeof(u16));
-          Utils::ConvertUTF16ToUTF8(str_buff, (u16 *)&buff);
-          if (buff != 0xA)
-          {
-            if (buff == 0x3B)
-            {
-              flag = false;
-              break;
-            }
-            else if (0x1000 < buff)
-              kanji += str_buff.substr(0, 3);
-            else
-              kanji += str_buff.substr(0, 1);
-          }
-          else
-            break;
-        }
-        hiragana_kanji.push_back({hiragana, kanji});
+        while (str.find('\n') < str.find(','))
+          str = str.substr(str.find('\n') != std::string::npos ? str.find('\n') + 1 : str.length());
+        std::string hiragana = str.substr(0, str.find(',') != std::string::npos ? str.find(',') : str.length()), kanji;
+        str = str.substr(str.find(',') != std::string::npos ? str.find(',') + 1 : str.length());
+        kanji = str.substr(0, str.find('\n') != std::string::npos ? str.find('\n') : str.length());
+        str = str.substr(str.find('\n') != std::string::npos ? str.find('\n') + 1 : str.length());
+        Convert::addHiraganaKanjiList(hiragana, kanji);
       }
-      OSD::Notify("kanji.txt loaded");
+      file.Close();
+      OSD::Notify(Color::Green << "kanji.txt loaded" << Color::White);
       return true;
     }
     else
@@ -433,6 +392,7 @@ namespace CTRPluginFramework
       OSD::Notify("kanji.txt not found.");
       return false;
     }
+    return false;
   }
 
   JPKeyboard JPKeyboard::SetMaxLength(u32 max)
@@ -627,11 +587,7 @@ namespace CTRPluginFramework
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::Left))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
-        std::vector<u16> lastN(InputChrs.end() - selectedIndex - 1, InputChrs.end());
-        if (lastN[0] > 0x1000)
-        {
-          selectedIndex++;
-        }
+        selectedIndex++;
       }
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::Right))
       {
@@ -644,32 +600,25 @@ namespace CTRPluginFramework
 
       if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
       {
-        std::string kanji = Convert::hiraganaToKanji(InputStr.substr(InputStr.length() - selectedIndex * 3, selectedIndex * 3));
+        std::string hiragana;
+        u16 buff[sizeof(u16) * selectedIndex] = {0};
+        std::memcpy(buff, &InputChrs[InputChrs.size() - selectedIndex], sizeof(u16) * selectedIndex);
+        Utils::ConvertUTF16ToUTF8(hiragana, buff);
+
+        std::string kanji = Convert::hiraganaToKanji(hiragana);
+
         if (!kanji.empty())
         {
           for (int j = 0; j < selectedIndex; j++)
             InputChrs.pop_back();
           if (InputChrs.size() < _maxLength)
           {
-            u8 i = 0;
-            u16 buff_utf16[100] = {0};
-            Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
-            i = 0;
             selectedIndex = 0;
-            while (1)
-            {
-              if (buff_utf16[i] == 0)
-                break;
-              if (buff_utf16[i] < 0x1000)
-                selectedIndex = 0;
-              else
-                selectedIndex++;
-              i++;
-            }
-            for (int j = 0; j < i; j++)
-            {
-              InputChrs.emplace_back(buff_utf16[j]);
-            }
+            u16 buff_utf16[11] = {0};
+            Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
+            s8 i = -1;
+            while (buff_utf16[++i] != 0 && buff_utf16[i] != 0xd)
+              InputChrs.emplace_back(buff_utf16[i]);
           }
         }
       }
@@ -688,7 +637,8 @@ namespace CTRPluginFramework
     // モード変換
     scr.DrawRect(126, 191, 68, 22, Color::Gray);
     scr.DrawRect(126, 191, 68, 22, Color::White, false);
-    scr.DrawSysfont(Utils::Format("%u", selectedIndex), 126, 194);
+
+    scr.DrawSysfont("レイアウト", 128, 194);
     if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22))
     {
       if (KatakanaMode || !_canSwich)

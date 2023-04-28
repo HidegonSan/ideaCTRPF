@@ -7461,4 +7461,11 @@ namespace CTRPluginFramework
   {
     hiragana_kanji_list = {{"あ", "亜"}};
   }
+
+  void Convert::addHiraganaKanjiList(std::string hiragana, std::string kanji)
+  {
+    hiragana_kanji_list.push_back({hiragana, kanji});
+  };
+
+  std::vector<Convert::HIRAGANA_KANJI> Convert::hiragana_kanji_list = {};
 }
