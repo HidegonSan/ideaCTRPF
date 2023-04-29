@@ -266,6 +266,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
     menu += new MenuEntry("LED", LedEffect, FONT_DL ":赤\n" FONT_DD ":緑\n" FONT_DR ":青\n" FONT_DU ":白\n" FONT_Y "を押しながら各種キー:滑らかに点灯");
+    menu += new MenuEntry("Projection", nullptr, Projection, "made by maru");
   }
 
   int main(void)
