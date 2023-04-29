@@ -37,6 +37,7 @@ namespace CTRPluginFramework
   void threeD(MenuEntry *entry);
   void LedEffect(MenuEntry *entry);
   void Game2048(MenuEntry *entry);
+  void Projection(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
 }
