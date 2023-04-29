@@ -254,7 +254,7 @@ namespace CTRPluginFramework
     }
   }
 
-  std::vector<int> Command::FindAll(const std::string str, const std::string subStr)
+  std::vector<int> Command::FindAll(const std::string &str, const std::string &subStr)
   {
     std::vector<int> result;
 
@@ -270,7 +270,7 @@ namespace CTRPluginFramework
     return result;
   }
 
-  std::string Command::TreeFolder(std::string path, u8 space)
+  std::string Command::TreeFolder(const std::string &path, const u8 &space)
   {
     std::string buff = "";
     StringVector files, folders;
@@ -288,7 +288,7 @@ namespace CTRPluginFramework
     return buff;
   }
 
-  std::string Command::GetFileObscurely(Directory dir, std::string word)
+  std::string Command::GetFileObscurely(const Directory &dir, const std::string &word)
   {
     StringVector files;
     dir.ListFiles(files);
@@ -297,7 +297,8 @@ namespace CTRPluginFramework
         return file;
     return "no file";
   }
-  std::string Command::GetFolderObscurely(Directory dir, std::string word)
+
+  std::string Command::GetFolderObscurely(const Directory &dir, const std::string &word)
   {
     StringVector folders;
     dir.ListDirectories(folders);
@@ -332,10 +333,10 @@ namespace CTRPluginFramework
   {
     u64 pos = 18446744073709551615UL;
 
-    if (path.find(".") == 0)
+    if (path[0] == '.' && path[1] == '/')
       path = path.substr(1);
 
-    if (path.find("/") == 0)
+    if (path[0]== '/')
       path = path.substr(1);
 
     if (path.substr(0, 2) == "..")
@@ -370,7 +371,7 @@ namespace CTRPluginFramework
       str += "invalid directory\n" + path;
   }
 
-  void Command::GetEntries(MenuFolder *folder, std::vector<MenuEntry *> &entries)
+  void Command::GetEntries(const MenuFolder *folder, std::vector<MenuEntry *> &entries)
   {
     std::vector<MenuEntry *> menuEntries = folder->GetEntryList();
     for (auto &&menuEntry : menuEntries)
