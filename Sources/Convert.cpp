@@ -8,7 +8,7 @@ namespace CTRPluginFramework
     u16 UTF16;
   };
 
-  u16 Convert::sjisToUtf16(u16 sjis)
+  u16 Convert::sjisToUtf16(const u16 &sjis)
   {
     SJIS_UTF16 sjis_utf16List[] = {
         {0x20, 0x0020},
@@ -3680,7 +3680,7 @@ namespace CTRPluginFramework
     return 0;
   }
 
-  u16 Convert::utf16ToSjis(u16 utf16)
+  u16 Convert::utf16ToSjis(const u16 &utf16)
   {
     SJIS_UTF16 utf16_sjisList[] = {
         {0x20, 0x20},
@@ -7352,7 +7352,7 @@ namespace CTRPluginFramework
     return 0;
   }
 
-  std::vector<u16> Convert::strToSjis(std::string str)
+  std::vector<u16> Convert::strToSjis(const std::string &str)
   {
     u16 utf16[Convert::getMultiByte(str)];
     std::vector<u16> sjis = {};
@@ -7367,7 +7367,7 @@ namespace CTRPluginFramework
     return sjis;
   }
 
-  int Convert::getMultiByte(std::string str)
+  int Convert::getMultiByte(const std::string &str)
   {
     const char *char_str = str.c_str();
 
@@ -7388,14 +7388,14 @@ namespace CTRPluginFramework
     return char_count;
   }
 
-  std::string Convert::toLower(std::string str)
+  std::string &Convert::toLower(std::string &str)
   {
     std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
                    { return std::tolower(c); });
     return str;
   }
 
-  std::string Convert::hiraganaToKanji(std::string hiragana)
+  std::string &Convert::hiraganaToKanji(std::string &hiragana)
   {
     for (auto &&hk : hiragana_kanji_list)
     {
@@ -7411,7 +7411,7 @@ namespace CTRPluginFramework
     return hiragana;
   }
 
-  std::string Convert::hiraganaToKatakana(std::string hiragana)
+  std::string Convert::hiraganaToKatakana(const std::string &hiragana)
   {
     int char_count = Convert::getMultiByte(hiragana);
     if (char_count < 0)
@@ -7434,7 +7434,7 @@ namespace CTRPluginFramework
     return buff;
   }
 
-  std::string Convert::katakanaToHiragana(std::string katakana)
+  std::string Convert::katakanaToHiragana(const std::string &katakana)
   {
     int char_count = Convert::getMultiByte(katakana);
     if (char_count < 0)
@@ -7462,7 +7462,7 @@ namespace CTRPluginFramework
     hiragana_kanji_list = {{"あ", "亜"}};
   }
 
-  void Convert::addHiraganaKanjiList(std::string hiragana, std::string kanji)
+  void Convert::addHiraganaKanjiList(const std::string &hiragana, const std::string &kanji)
   {
     hiragana_kanji_list.push_back({hiragana, kanji});
   };

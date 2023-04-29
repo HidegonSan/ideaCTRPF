@@ -21,15 +21,15 @@ namespace CTRPluginFramework
     Command &operator=(Command const &) = delete;
     Command(Command &&) = delete;
     Command &operator=(Command &&) = delete;
-  
+
   private:
-    std::vector<int> FindAll(const std::string str, const std::string subStr);
-    std::string TreeFolder(std::string path, u8 space);
-    std::string GetFileObscurely(Directory dir, std::string word);
-    std::string GetFolderObscurely(Directory dir, std::string word);
+    std::vector<int> FindAll(const std::string &str, const std::string &subStr);
+    std::string TreeFolder(const std::string &path, const u8 &space);
+    std::string GetFileObscurely(const Directory &dir, const std::string &word);
+    std::string GetFolderObscurely(const Directory &dir, const std::string &word);
     size_t GetReturnCount(std::string &str);
     void Cd(Directory &dir, std::string &path, std::string &str);
-    void GetEntries(MenuFolder *folder, std::vector<MenuEntry *> &entries);
+    void GetEntries(const MenuFolder *folder, std::vector<MenuEntry *> &entries);
 
     Command() = default;
     ~Command() = default;

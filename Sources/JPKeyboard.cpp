@@ -587,7 +587,8 @@ namespace CTRPluginFramework
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::Left))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
-        selectedIndex++;
+        if (selectedIndex < InputChrs.size())
+          selectedIndex++;
       }
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::Right))
       {
