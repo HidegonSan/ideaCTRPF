@@ -641,4 +641,12 @@ namespace CTRPluginFramework
     }
     return true;
   }
+  
+  void ForcePlay(void)
+  {
+    while (Process::IsPaused())
+    {
+      Process::Play();
+    }
+  }
 } // namespace CTRPluginFramework
