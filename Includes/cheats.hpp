@@ -39,6 +39,9 @@ namespace CTRPluginFramework
   void Game2048(MenuEntry *entry);
   void Projection(MenuEntry *entry);
 
+  std::string getFilePath();
+  void autoPatchCode(MenuEntry *entry);
+
   std::vector<u64> getFrame(int &frame);
 }
 #endif

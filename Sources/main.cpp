@@ -266,12 +266,13 @@ namespace CTRPluginFramework
     menu += new MenuEntry("ColorPicker", nullptr, ColorPicker, "カラーピッカー");
     menu += new MenuEntry("Paint", nullptr, Paint, "ペイント\nXで色変更,Yでモード変更");
     menu += new MenuEntry("LED", LedEffect, FONT_DL ":赤\n" FONT_DD ":緑\n" FONT_DR ":青\n" FONT_DU ":白\n" FONT_Y "を押しながら各種キー:滑らかに点灯");
-    menu += new MenuEntry("Projection", nullptr, Projection, "made by maru");
+    menu += new MenuEntry("Projection", nullptr, Projection, "プロジェクション\nmade by maru");
+    menu += new MenuEntry(Color::Yellow << "Patch Code Automation!", nullptr, autoPatchCode, "パッチコードオートメーション!\n開始アドレスと終了アドレスを設定してください。\n開始アドレスと終了アドレスが同じ場合は、アドレスの初期化をしてください。\n\n次に [ファイルに書き込み] を押下してください。\n\n/lumna/plugins/" + getFilePath() + " にコードが作成されます。\n\n" + (Color::Red << "※注意\n") + "CTRPF上でコードが作成されたファイルを開くと、\n新しくコードが作成できません。その場合はゲームを再起動してからコードを作成してください。\n\n" + (Color::White << "Enjoy coding!\nmade by xv"));
   }
 
   int main(void)
   {
-    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 1, 1, 2, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\nありがとうございます！！！\n変な機能ばっかりの自己満ロマンCTRPFです");
+    PluginMenu *menu = new PluginMenu("IDEA CTRPF", 1, 1, 2, "made by kani537\n協力者(敬称略)\n・Tekito_256\n・hide0123\n・HidegonSan\n・bomkei\n・maru(kwkts)\n・xv\nありがとうございます！！！\n変な機能ばっかりの自己満ロマンCTRPFです");
 
     // OSD::Run(LoadGameTitle);
     // Sleep(Seconds(1));

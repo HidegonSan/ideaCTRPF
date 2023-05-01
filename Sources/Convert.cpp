@@ -7388,14 +7388,14 @@ namespace CTRPluginFramework
     return char_count;
   }
 
-  std::string &Convert::toLower(std::string &str)
+  std::string Convert::toLower(std::string str)
   {
     std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
                    { return std::tolower(c); });
     return str;
   }
 
-  std::string &Convert::hiraganaToKanji(std::string &hiragana)
+  std::string Convert::hiraganaToKanji(std::string hiragana)
   {
     for (auto &&hk : hiragana_kanji_list)
     {
