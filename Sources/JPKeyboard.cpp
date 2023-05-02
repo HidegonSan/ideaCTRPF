@@ -359,8 +359,16 @@ namespace CTRPluginFramework
           break;
       }
     }
+    size_t i = 0;
+    while (true)
+    {
+      if (OSD::GetTextWidth(true, jpQwertyOutput.substr(i, jpQwertyOutput.length() - i)) <= 270)
+        break;
+      i += 3;
+    }
+
     OSD::GetBottomScreen().DrawRect(20, 20, 280, 25, Color::Black);
-    OSD::GetBottomScreen().DrawSysfont(jpQwertyOutput, 23, 23);
+    OSD::GetBottomScreen().DrawSysfont(jpQwertyOutput.substr(i, jpQwertyOutput.length() - i), 23, 23);
   }
 
   bool JPKeyboard::LoadKanjiList(void)
@@ -484,7 +492,7 @@ namespace CTRPluginFramework
     }
   }
 
-  bool JPKeyboard::DrawKeyboard(const Screen &scr, std::string &out)
+  bool JPKeyboard::DrawKeyboard(const Screen &scr)
   {
     MakeU16Array();
 
@@ -521,19 +529,19 @@ namespace CTRPluginFramework
     scr.DrawRect(55, 56, 212, 1, Color::White);
 
     u8 ii = 0;
-    u16 width = OSD::GetTextWidth(true, InputStr);
+    textWidth = OSD::GetTextWidth(true, InputStr);
     if (InputChrs.empty())
-      width = 0;
+      textWidth = 0;
     else
       for (auto &&InputChr : InputChrs)
       {
-        if (width <= 208)
+        if (textWidth <= 208)
           break;
         if (InputChr < 0x1000)
           ii++;
         else
           ii += 3;
-        width = OSD::GetTextWidth(true, InputStr.substr(ii, InputStr.length() - ii));
+        textWidth = OSD::GetTextWidth(true, InputStr.substr(ii, InputStr.length() - ii));
       }
 
     if (!InputChrs.empty())
@@ -559,15 +567,45 @@ namespace CTRPluginFramework
       }
       Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
       if (selectedIndex < 0)
-        scr.DrawRect(54 + width - OSD::GetTextWidth(true, cursorString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
+        scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
       else
-        scr.DrawRect(54 + width - OSD::GetTextWidth(true, cursorString) - OSD::GetTextWidth(true, selectedString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
+        scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString) - OSD::GetTextWidth(true, selectedString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(ii, InputStr.length() - ii), 54, 38);
-      scr.DrawRect(54 + width - OSD::GetTextWidth(true, cursorString), 37, 1, 17, Color::White);
+      scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString), 37, 1, 17, Color::White);
     }
     else
       scr.DrawRect(54, 37, 1, 17, Color::White);
 
+    // 右側のオプション
+    const std::string opt[5] = {"削除", "小字", "ー", "”", "゜"};
+    for (int i = 0; i < 5; i++)
+    {
+      scr.DrawSysfont(opt[i], 268, 72 + i * 22);
+    }
+
+    scr.DrawSysfont("<", 35, 35);
+    scr.DrawSysfont(">", 277, 35);
+
+    // とじる
+    scr.DrawRect(28, 191, 68, 22, _canAbort ? Color::Gray : Color::BlackGrey);
+    scr.DrawRect(28, 191, 68, 22, Color::White, false);
+    scr.DrawSysfont("とじる", 42, 194);
+
+    // モード変換
+    scr.DrawRect(126, 191, 68, 22, Color::Gray);
+    scr.DrawRect(126, 191, 68, 22, Color::White, false);
+    scr.DrawSysfont("レイアウト", 128, 194);
+
+    // 決定
+    scr.DrawRect(224, 191, 68, 22, Color::Gray);
+    scr.DrawRect(224, 191, 68, 22, Color::White, false);
+    scr.DrawSysfont("決定", 246, 194);
+
+    return true;
+  }
+
+  bool JPKeyboard::InputKeyboard(const Screen &scr, std::string &out)
+  {
     // 右側のオプション
     const std::string opt[5] = {"削除", "小字", "ー", "”", "゜"};
     for (int i = 0; i < 5; i++)
@@ -606,14 +644,11 @@ namespace CTRPluginFramework
         selectedIndex = 0;
         scr.DrawRect(263, 68 + i * 22, 34, 22, Color::White);
       }
-      scr.DrawSysfont(opt[i], 268, 72 + i * 22);
     }
 
     // 選択
     if (_canConvert)
     {
-      scr.DrawSysfont("<", 35, 35);
-      scr.DrawSysfont(">", 277, 35);
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::L))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
@@ -646,13 +681,13 @@ namespace CTRPluginFramework
               InputChrs.erase(InputChrs.end() - cursorPos - 1);
             else
               InputChrs.erase(InputChrs.end() - cursorPos--);
-          if (InputChrs.size() < _maxLength)
+          selectedIndex = 0;
+          if (Convert::getMultiByte(kanji) != -1)
           {
-            selectedIndex = 0;
-            u16 buff_utf16[11] = {0};
+            u16 buff_utf16[Convert::getMultiByte(kanji) + 1] = {0};
             Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
             s8 i = -1;
-            while (buff_utf16[++i] != 0 && buff_utf16[i] != 0xd)
+            while (buff_utf16[++i] != 0 && buff_utf16[i] != 0xd && InputChrs.size() < _maxLength)
               InputChrs.insert(InputChrs.end() - cursorPos, buff_utf16[i]);
           }
         }
@@ -670,14 +705,14 @@ namespace CTRPluginFramework
       cursorPos--;
       selectedIndex = 0;
     }
-    if (TouchRect(54, 32, width + 5, 27))
+    if (TouchRect(54, 32, textWidth + 5, 27))
     {
       UIntVector pos = Touch::GetPosition();
-      ii = 0;
+      u8 ii = 0;
       cursorPos = 0;
       for (auto &&InputChr : InputChrs)
       {
-        if (u16(48 + width) < pos.x)
+        if (u16(48 + textWidth) < pos.x)
           break;
 
         if (InputChr < 0x1000)
@@ -685,27 +720,20 @@ namespace CTRPluginFramework
         else
           ii += 3;
 
-        width = OSD::GetTextWidth(true, InputStr.substr(ii, InputStr.length() - ii));
+        textWidth = OSD::GetTextWidth(true, InputStr.substr(ii, InputStr.length() - ii));
         cursorPos++;
       }
       selectedIndex = 0;
     }
 
     // とじる
-    scr.DrawRect(28, 191, 68, 22, _canAbort ? Color::Gray : Color::BlackGrey);
-    scr.DrawRect(28, 191, 68, 22, Color::White, false);
-    scr.DrawSysfont("とじる", 42, 194);
     if ((Controller::IsKeyPressed(B) || TouchRect(28, 191, 68, 22)) && _canAbort)
     {
       KeyboardOpened = false;
-      return 0;
+      return false;
     }
 
     // モード変換
-    scr.DrawRect(126, 191, 68, 22, Color::Gray);
-    scr.DrawRect(126, 191, 68, 22, Color::White, false);
-
-    scr.DrawSysfont("レイアウト", 128, 194);
     if (Controller::IsKeyPressed(Touchpad) && TouchRect(126, 191, 68, 22))
     {
       if (KatakanaMode || !_canSwich)
@@ -714,7 +742,7 @@ namespace CTRPluginFramework
         if (0 <= Keyboard("ローマ字").Open(input))
           for (size_t i = 0; i < input.length(); i++)
           {
-            if (InputChrs.size() > _maxLength)
+            if (_maxLength <= InputChrs.size())
               break;
             u16 buff;
             Process::WriteString((u32)&buff, input.substr(i, 1), StringFormat::Utf16);
@@ -729,9 +757,9 @@ namespace CTRPluginFramework
           if (0 <= key.Open(input))
           {
             memset(U16_ChrArray, 0, sizeof(U16_ChrArray));
-            Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength), size_t(60))), StringFormat::Utf16);
+            Process::WriteString((u32)U16_ChrArray, jpQwertyOutput.substr(0, std::min(size_t(_maxLength) * 3, size_t(180))), StringFormat::Utf16);
             size_t i = 0;
-            while (U16_ChrArray[i] != 0)
+            while (U16_ChrArray[i] != 0 && InputChrs.size() < _maxLength)
               InputChrs.insert(InputChrs.end() - cursorPos, U16_ChrArray[i++]);
             selectedIndex = 0;
           }
@@ -744,16 +772,13 @@ namespace CTRPluginFramework
     }
 
     // 決定
-    scr.DrawRect(224, 191, 68, 22, Color::Gray);
-    scr.DrawRect(224, 191, 68, 22, Color::White, false);
-    scr.DrawSysfont("決定", 246, 194);
     if (TouchRect(224, 191, 68, 22))
     {
       if (!InputStr.empty())
       {
         out = InputStr;
         KeyboardOpened = false;
-        return 1;
+        return true;
       }
     }
 
@@ -773,6 +798,7 @@ namespace CTRPluginFramework
           u8 i = 0;
           while (Touch::IsDown())
           {
+            std::string key;
             pos2 = Touch::GetPosition();
             Controller::Update();
             u16 sx = 120 + wx * 30;
@@ -835,18 +861,18 @@ namespace CTRPluginFramework
               scr.DrawSysfont(key, sx + 5, sy + 23, Color::Black);
             }
             OSD::SwapBuffers();
-            DrawKeyboard(scr, out);
+            DrawKeyboard(scr);
           }
           if (!InputChrs.empty())
           {
             if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309B)
-              Dakuten(false, InputChrs.at(InputChrs.size() - 1));
+              Dakuten(false, InputChrs[InputChrs.size() - cursorPos - 1]);
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5C0F)
-              Komoji(InputChrs.at(InputChrs.size() - 1));
+              Komoji(InputChrs[InputChrs.size() - cursorPos - 1]);
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x309C)
-              Dakuten(true, InputChrs.at(InputChrs.size() - 1));
+              Dakuten(true, InputChrs[InputChrs.size() - cursorPos - 1]);
             else if (U16_ChrArray[(wy * 3 + wx) * 5 + i] == 0x5927)
-              Komoji(InputChrs.at(InputChrs.size() - 1));
+              Komoji(InputChrs[InputChrs.size() - cursorPos - 1]);
           }
           if (InputChrs.size() < _maxLength && (U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309B && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5C0F && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x309C && U16_ChrArray[(wy * 3 + wx) * 5 + i] != 0x5927))
             InputChrs.insert(InputChrs.end() - cursorPos, U16_ChrArray[(wy * 3 + wx) * 5 + i]);
@@ -869,13 +895,13 @@ namespace CTRPluginFramework
       }
     }
 
-    return 1;
+    return true;
   }
 
   bool JPKeyboard::Open(std::string &out)
   {
     if (!Process::IsPaused())
-      return 0;
+      return false;
 
     InputChrs.clear();
     InputStr.clear();
@@ -891,25 +917,25 @@ namespace CTRPluginFramework
       topScr.DrawRect(32, 22, 336, 196, Color::White, false);
       topScr.DrawSysfont(_text, 35, 25);
       Controller::Update();
-      if (!DrawKeyboard(scr, out))
-        return 0;
+      if (!DrawKeyboard(scr) || !InputKeyboard(scr, out))
+        return false;
       OSD::SwapBuffers();
     }
-    return 1;
+    return true;
   }
 
   bool JPKeyboard::Open(std::string &out, std::string defaultText)
   {
     if (!Process::IsPaused())
-      return 0;
+      return false;
 
     InputChrs.clear();
     InputStr.clear();
 
-    Process::WriteString((u32)U16_ChrArray, defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60)), StringFormat::Utf16);
-    for (int i = 0; i < Convert::getMultiByte(defaultText.substr(0, (_maxLength < 60 ? _maxLength : 60))); i++)
+    Process::WriteString((u32)U16_ChrArray, defaultText.substr(0, std::min(size_t(_maxLength) * 3, size_t(180))), StringFormat::Utf16);
+    for (int i = 0; i < Convert::getMultiByte(defaultText.substr(0, std::min(size_t(_maxLength) * 3, size_t(180)))); i++)
     {
-      InputChrs.insert(InputChrs.end() - cursorPos, U16_ChrArray[i]);
+      InputChrs.emplace_back(U16_ChrArray[i]);
     }
 
     const Screen &topScr = OSD::GetTopScreen();
@@ -923,10 +949,10 @@ namespace CTRPluginFramework
       topScr.DrawRect(32, 22, 336, 196, Color::White, false);
       topScr.DrawSysfont(_text, 35, 25);
       Controller::Update();
-      if (!DrawKeyboard(scr, out))
-        return 0;
+      if (!DrawKeyboard(scr) || !InputKeyboard(scr, out))
+        return false;
       OSD::SwapBuffers();
     }
-    return 1;
+    return true;
   }
 }
