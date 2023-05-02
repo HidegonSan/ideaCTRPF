@@ -371,7 +371,6 @@ namespace CTRPluginFramework
       File file("kanji.txt");
       size_t size = file.GetSize();
       char buf[size + 1] = {0};
-      // file.Seek(2);
       file.Read(buf, size);
       std::string str{buf, std::min(size, str.max_size())};
       while (str.find(',') != std::string::npos)
@@ -589,7 +588,7 @@ namespace CTRPluginFramework
           break;
         case KOMOJI:
           if (!InputChrs.empty())
-            Komoji(InputChrs.at(InputChrs.size() - 1));
+            Komoji(InputChrs[InputChrs.size() - cursorPos - 1]);
           break;
         case HYPHEN:
           if (InputChrs.size() < _maxLength)
@@ -597,11 +596,11 @@ namespace CTRPluginFramework
           break;
         case DAKUTEN:
           if (!InputChrs.empty())
-            Dakuten(false, InputChrs.at(InputChrs.size() - 1));
+            Dakuten(false, InputChrs[InputChrs.size() - cursorPos - 1]);
           break;
         case HANDAKUTEN:
           if (!InputChrs.empty())
-            Dakuten(true, InputChrs.at(InputChrs.size() - 1));
+            Dakuten(true, InputChrs[InputChrs.size() - cursorPos - 1]);
           break;
         }
         selectedIndex = 0;
@@ -618,7 +617,7 @@ namespace CTRPluginFramework
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::L))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
-        if (selectedIndex < InputChrs.size() - cursorPos || selectedIndex < 0)
+        if (selectedIndex < s8(InputChrs.size() - cursorPos) || selectedIndex < 0)
           selectedIndex++;
       }
       if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::R))
@@ -678,7 +677,7 @@ namespace CTRPluginFramework
       cursorPos = 0;
       for (auto &&InputChr : InputChrs)
       {
-        if (48 + width < pos.x)
+        if (u16(48 + width) < pos.x)
           break;
 
         if (InputChr < 0x1000)
