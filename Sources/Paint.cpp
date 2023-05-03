@@ -41,7 +41,7 @@ namespace CTRPluginFramework
           u32 posX = originX + drawX;
           u32 posY = originY + drawY;
 
-          if (posX <= 200 && posY <= 200)
+          if (posX < 200 && posY < 200)
           {
             _ctx[posX][posY] = _pen.color;
             poses.push_back({static_cast<u32>(posX), static_cast<u32>(posY)});
