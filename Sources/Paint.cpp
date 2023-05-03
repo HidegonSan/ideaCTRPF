@@ -164,20 +164,20 @@ namespace CTRPluginFramework
       lastPos = Touch::GetPosition();
       UIntVector dropperPos = lastPos;
       dropperClock.Restart();
-      while (TouchRect(20, 10, 200, 200))
+      while (TouchRect(20, 10, 199, 199))
       {
         if (paintMode == Mode::BUCKET)
         {
           UIntVector pos = Touch::GetPosition();
-          _floodFill(pos.x - 20, pos.y - 10, _ctx[pos.x][pos.y], paintColor);
+          _floodFill(pos.x - 20, pos.y - 10, _ctx[pos.x - 20][pos.y - 10], paintColor);
           goto START;
         }
         while (TouchRect(dropperPos.x - 2, dropperPos.y - 2, 5, 5))
         {
           if (dropperClock.HasTimePassed(Seconds(1)))
           {
-            if (_ctx[dropperPos.x][dropperPos.y].a)
-              paintColor = _ctx[dropperPos.x][dropperPos.y];
+            if (_ctx[dropperPos.x - 20][dropperPos.y - 10].a)
+              paintColor = _ctx[dropperPos.x - 20][dropperPos.y - 10];
             _screen->DrawRect(231, 51, 10, 10, paintColor);
             OSD::SwapBuffers();
             _screen->DrawRect(231, 51, 10, 10, paintColor);
@@ -185,7 +185,7 @@ namespace CTRPluginFramework
           }
           Controller::Update();
         }
-        if ((paintMode == PEN || paintMode == ERASER) && TouchRect(20, 10, 200, 200))
+        if ((paintMode == PEN || paintMode == ERASER) && TouchRect(20, 10, 199, 199))
         {
           UIntVector pos = Touch::GetPosition();
           _pen.color = (paintMode ? Color(0, 0, 0, 0) : paintColor);
