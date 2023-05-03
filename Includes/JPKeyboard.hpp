@@ -41,7 +41,10 @@ namespace CTRPluginFramework
     u16 U16_ChrArray[60 + 1];
     bool KatakanaMode;
     bool KeyboardOpened;
-    u8 selectedIndex;
+    s8 selectedIndex;
+    u8 cursorPos;
+    u16 textWidth;
+
     std::vector<u16> InputChrs;
     std::string InputStr;
     const std::string Hiragana =
@@ -69,6 +72,7 @@ namespace CTRPluginFramework
 
     void MakeU16Array(void);
     void Dakuten(bool handakuten, u16 &moji);
-    bool DrawKeyboard(const Screen &scr, std::string &out);
+    bool DrawKeyboard(const Screen &scr);
+    bool InputKeyboard(const Screen &scr, std::string &out);
   };
 }

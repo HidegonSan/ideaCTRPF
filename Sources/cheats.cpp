@@ -181,7 +181,7 @@ namespace CTRPluginFramework
 
     input = Convert::hiraganaToKatakana(Convert::toLower(input));
     std::vector<MenuFolder *> folders = menu->GetFolderList();
-    MenuFolder *SearchFolder;
+    MenuFolder *SearchFolder = nullptr;
     for (auto &&folder : folders)
     {
       if (folder->Name() == "Search")
