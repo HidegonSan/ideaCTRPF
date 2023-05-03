@@ -233,13 +233,13 @@ namespace CTRPluginFramework
               goto END;
             }
       }
-      else if (Hotkeys[4].IsPressed())
+      if (Hotkeys[4].IsPressed())
         TurnBlock(false);
-      else if (Hotkeys[5].IsPressed())
+      if (Hotkeys[5].IsPressed())
         TurnBlock(true);
-      else if (Hotkeys[6].IsPressed() && !_mino.IsHeld)
+      if (Hotkeys[6].IsPressed() && !_mino.IsHeld)
         HoldMino();
-      else if (Hotkeys[7].IsPressed())
+      if (Hotkeys[7].IsPressed())
       {
         s8 ans;
         if (0 <= (ans = Keyboard("Paused", {"continue", "settings", "quit"}).Open()))
