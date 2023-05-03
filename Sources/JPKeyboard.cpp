@@ -432,7 +432,7 @@ namespace CTRPluginFramework
 
   void JPKeyboard::MakeU16Array()
   {
-    Process::WriteString((u32)U16_ChrArray, _flick ? KatakanaMode ? FlickKatakana : FlickHiragana : (KatakanaMode ? Katakana : Hiragana), StringFormat::Utf16);
+    Process::WriteString((u32)U16_ChrArray, _flick ? (KatakanaMode ? FlickKatakana : FlickHiragana) : (KatakanaMode ? Katakana : Hiragana), StringFormat::Utf16);
   }
 
   void JPKeyboard::Komoji(u16 &moji)
@@ -528,49 +528,58 @@ namespace CTRPluginFramework
     // 入力中の文字列描画
     scr.DrawRect(55, 56, 212, 1, Color::White);
 
-    u8 ii = 0;
+    u16 str[100] = {0};
+
+    InputStr.clear();
+    std::memcpy(str, InputChrs.data(), sizeof(u16) * InputChrs.size());
+    Process::ReadString((u32)str, InputStr, sizeof(u16) * InputChrs.size(), StringFormat::Utf16);
+
+    u8 textBegin = 0, textLen = 1;
     textWidth = OSD::GetTextWidth(true, InputStr);
-    if (InputChrs.empty())
-      textWidth = 0;
-    else
-      for (auto &&InputChr : InputChrs)
+    if (208 < textWidth)
+    {
+      for (; textBegin < InputChrs.size(); textBegin++)
       {
+        InputStr.clear();
+        Process::ReadString((u32)&str[textBegin], InputStr, sizeof(u16) * (InputChrs.size() - textBegin), StringFormat::Utf16);
+        textWidth = OSD::GetTextWidth(true, InputStr);
         if (textWidth <= 208)
           break;
-        if (InputChr < 0x1000)
-          ii++;
-        else
-          ii += 3;
-        textWidth = OSD::GetTextWidth(true, InputStr.substr(ii, InputStr.length() - ii));
       }
+      textBegin = std::min(0 < InputChrs.size() - cursorPos - (0 < selectedIndex ? selectedIndex : 0) ? InputChrs.size() - cursorPos - (0 < selectedIndex ? selectedIndex : 0) - 1 : InputChrs.size() - cursorPos - (0 < selectedIndex ? selectedIndex : 0), size_t(textBegin));
+    }
+    for (; textLen <= InputChrs.size() - textBegin; textLen++)
+    {
+      InputStr.clear();
+      Process::ReadString((u32)&str[textBegin], InputStr, sizeof(u16) * textLen, StringFormat::Utf16);
+      textWidth = OSD::GetTextWidth(true, InputStr);
+      if (208 < textWidth)
+        break;
+    }
+    InputStr.clear();
+    Process::ReadString((u32)&str[textBegin], InputStr, sizeof(u16) * --textLen, StringFormat::Utf16);
+    textWidth = OSD::GetTextWidth(true, InputStr);
 
+      std::string selectedString;
     if (!InputChrs.empty())
     {
-      std::string selectedString;
-      u16 buffSelected[sizeof(u16) * abs(selectedIndex)] = {0};
+      std::memset(str, 0, sizeof(u16) * 100);
       if (selectedIndex < 0)
-        std::memcpy(buffSelected, &InputChrs[InputChrs.size() - cursorPos], sizeof(u16) * abs(selectedIndex));
+        std::memcpy(str, &InputChrs[InputChrs.size() - cursorPos], sizeof(u16) * abs(selectedIndex));
       else
-        std::memcpy(buffSelected, &InputChrs[InputChrs.size() - cursorPos - selectedIndex], sizeof(u16) * selectedIndex);
-      Utils::ConvertUTF16ToUTF8(selectedString, buffSelected);
+        std::memcpy(str, &InputChrs[InputChrs.size() - cursorPos - selectedIndex], sizeof(u16) * selectedIndex);
+      Utils::ConvertUTF16ToUTF8(selectedString, str);
 
       std::string cursorString;
-      u16 buffCursor[sizeof(u16) * cursorPos] = {0};
-      std::memcpy(buffCursor, &InputChrs[InputChrs.size() - cursorPos], sizeof(u16) * cursorPos);
-      Utils::ConvertUTF16ToUTF8(cursorString, buffCursor);
+      std::memset(str, 0, sizeof(u16) * 100);
+      std::memcpy(str, &InputChrs[InputChrs.size() - cursorPos], sizeof(u16) * (cursorPos + textBegin + textLen - InputChrs.size()));
+      Utils::ConvertUTF16ToUTF8(cursorString, str);
 
-      InputStr.clear();
-      u16 str[100] = {0};
-      for (size_t i = 0; i < InputChrs.size(); i++)
-      {
-        str[i] = InputChrs.at(i);
-      }
-      Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
       if (selectedIndex < 0)
         scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
       else
         scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString) - OSD::GetTextWidth(true, selectedString), 37, OSD::GetTextWidth(true, selectedString), 17, Color::Blue);
-      scr.DrawSysfont(InputStr.substr(ii, InputStr.length() - ii), 54, 38);
+      scr.DrawSysfont(InputStr, 54, 38);
       scr.DrawRect(54 + textWidth - OSD::GetTextWidth(true, cursorString), 37, 1, 17, Color::White);
     }
     else
@@ -774,8 +783,11 @@ namespace CTRPluginFramework
     // 決定
     if (TouchRect(224, 191, 68, 22))
     {
-      if (!InputStr.empty())
+      if (!InputChrs.empty())
       {
+        u16 str[InputChrs.size() + 1] = {0};
+        std::memcpy(str, InputChrs.data(), sizeof(u16) * InputChrs.size());
+        Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
         out = InputStr;
         KeyboardOpened = false;
         return true;
