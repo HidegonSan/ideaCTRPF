@@ -110,11 +110,12 @@ $(OUTPUT).3gx : $(OFILES)
 	@$(bin2o)
 
 #---------------------------------------------------------------------------------
-# .PRECIOUS: %.elf
+.PRECIOUS: %.elf
 %.3gx: %.elf
 #---------------------------------------------------------------------------------
 	@echo creating $(notdir $@)
 	@3gxtool -s -d $(word 1, $^) $(TOPDIR)/$(PLGINFO) $@
+	@mv $(TOPDIR)/ideaCTRPF.elf $(TOPDIR)/Build/ideaCTRPF.elf
 
 -include $(DEPENDS)
 

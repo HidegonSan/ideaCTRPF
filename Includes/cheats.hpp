@@ -15,13 +15,6 @@ namespace CTRPluginFramework
     BMP_BOTTOM
   };
 
-  enum PaintMode
-  {
-    PEN,
-    ERASER,
-    BUCKET
-  };
-
   void Test1(MenuEntry *entry);
   void Pipes(MenuEntry *entry);
   void Search(MenuEntry *entry);
@@ -32,7 +25,7 @@ namespace CTRPluginFramework
   void Command(MenuEntry *entry);
   void ColorPicker(MenuEntry *entry);
   void Tetris(MenuEntry *entry);
-  void Paint(MenuEntry *entry);
+  void MenuEntryPaint(MenuEntry *entry);
   void LifeGame(MenuEntry *entry);
   void threeD(MenuEntry *entry);
   void LedEffect(MenuEntry *entry);
