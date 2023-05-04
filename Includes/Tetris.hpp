@@ -10,15 +10,15 @@ namespace CTRPluginFramework
   public:
     enum class Direction
     {
-      Above,
       Under,
       Left,
       Right
     };
 
-    void Tetris_Loop(HotkeyManager Hotkeys);
+    void Update(HotkeyManager Hotkeys);
 
     bool CheckSpace(Direction dir);
+    void FillScreen(const Screen &scr, const Color &color);
 
     void SetLevel(u8 level)
     {
@@ -30,7 +30,7 @@ namespace CTRPluginFramework
       _colorfulMode = colorful;
     }
 
-    void SetField_width(u8 width)
+    void SetFieldWidth(u8 width)
     {
       width = width < 4 || 23 < width ? 10 : width;
       if (FIELD_WIDTH > width)

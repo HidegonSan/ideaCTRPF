@@ -161,9 +161,7 @@ namespace CTRPluginFramework
   {
     for (auto &&block : _mino.blocks)
     {
-      if (dir == Direction::Above && block.x + 1 == FIELD_WIDTH)
-        return false;
-      else if (dir == Direction::Under && block.x == 0)
+      if (dir == Direction::Under && block.x == 0)
         return false;
       else if (dir == Direction::Left && (block.x <= 0 || _field[block.x - 1][block.y]))
         return false;
@@ -173,7 +171,14 @@ namespace CTRPluginFramework
     return true;
   }
 
-  void Tetris::Tetris_Loop(HotkeyManager Hotkeys)
+  void Tetris::FillScreen(const Screen &scr, const Color &color)
+  {
+    scr.DrawRect(0, 0, scr.IsTop ? 400 : 320, 240, color);
+    OSD::SwapBuffers();
+    scr.DrawRect(0, 0, scr.IsTop ? 400 : 320, 240, color);
+  }
+
+  void Tetris::Update(HotkeyManager Hotkeys)
   {
     bool isOpened = true;
     const Screen &topScr = OSD::GetTopScreen();
@@ -187,11 +192,9 @@ namespace CTRPluginFramework
 
     NextMino();
 
-    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
-    OSD::SwapBuffers();
-    topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-    btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+    FillScreen(topScr, Color::Gray);
+    FillScreen(btmScr, Color::Gray);
+
     while (isOpened)
     {
       Controller::Update();
@@ -277,24 +280,21 @@ namespace CTRPluginFramework
           if (ans == 1)
           {
             s8 answer;
-            u8 out;
+            u8 width;
             if (0 <= (answer = Keyboard("tetris color", {"monochrome", "colorful"}).Open()))
-              Tetris::GetInstance().SetColorful(answer);
+              SetColorful(answer);
             if (0 <= (answer = Keyboard("level", {"easy", "normal", "difficult"}).Open()))
-              Tetris::GetInstance().SetLevel(answer * 5);
+              SetLevel(answer * 5);
             Keyboard key("input field's width\ndefault is 10\n4以上23以下でよろ");
             key.IsHexadecimal(false);
-            if (0 <= key.Open(out))
-              Tetris::GetInstance().SetField_width(out);
+            if (0 <= key.Open(width))
+              SetFieldWidth(width);
           }
           else if (ans == 2)
             isOpened = false;
         }
-        topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-        btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
-        OSD::SwapBuffers();
-        topScr.DrawRect(0, 0, 400, 240, Color::Gray);
-        btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
+        FillScreen(topScr, Color::Gray);
+        FillScreen(btmScr, Color::Gray);
       }
 
       // ミノ落下
