@@ -157,6 +157,22 @@ namespace CTRPluginFramework
     }
   }
 
+  bool Tetris::CheckSpace(Direction dir)
+  {
+    for (auto &&block : _mino.blocks)
+    {
+      if (dir == Direction::Above && block.x + 1 == FIELD_WIDTH)
+        return false;
+      else if (dir == Direction::Under && block.x == 0)
+        return false;
+      else if (dir == Direction::Left && (block.x <= 0 || _field[block.x - 1][block.y]))
+        return false;
+      else if (dir == Direction::Right && (_field.size() - 1 <= block.x || _field[block.x + 1][block.y]))
+        return false;
+    }
+    return true;
+  }
+
   void Tetris::Tetris_Loop(HotkeyManager Hotkeys)
   {
     bool isOpened = true;
@@ -183,11 +199,9 @@ namespace CTRPluginFramework
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2, 9, FIELD_WIDTH * BLOCK_WIDTH + 6, 222, Color::Black);
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 2, 11, FIELD_WIDTH * BLOCK_WIDTH + 6 - 4, 218, Color::White, false);
 
-      if (Hotkeys[0].IsDown())
+      // 左移動
+      if (Hotkeys[0].IsDown() && CheckSpace(Direction::Left))
       {
-        for (auto &&block : _mino.blocks)
-          if (block.x <= 0 || _field[block.x - 1][block.y])
-            goto END;
         if (Hotkeys[0].IsPressed())
         {
           MoveMino(-1, 0);
@@ -198,11 +212,10 @@ namespace CTRPluginFramework
           MoveMino(-1, 0);
         }
       }
-      else if (Hotkeys[1].IsDown())
+
+      // 右移動
+      else if (Hotkeys[1].IsDown() && CheckSpace(Direction::Right))
       {
-        for (auto &&block : _mino.blocks)
-          if (_field.size() - 1 <= block.x || _field[block.x + 1][block.y])
-            goto END;
         if (Hotkeys[1].IsPressed())
         {
           MoveMino(1, 0);
@@ -213,32 +226,49 @@ namespace CTRPluginFramework
           MoveMino(1, 0);
         }
       }
-      else if (Hotkeys[2].IsDown() && _mino.softdropClock.HasTimePassed(Seconds(0.08)))
+
+      // ソフトドロップ
+      else if (Hotkeys[2].IsDown() && CheckSpace(Direction::Under) && _mino.softdropClock.HasTimePassed(Seconds(0.08)))
       {
-        for (auto &&block : _mino.blocks)
-          if (_field[0].size() - 1 <= block.y || _field[block.x][block.y + 1])
-            goto END;
         MoveMino(0, 1);
         _mino.softdropClock.Restart();
       }
+
+      // ハードドロップ
       else if (Hotkeys[3].IsPressed())
       {
+        bool dropped = false;
+
         for (size_t i = 0; i < _field[0].size(); i++)
+        {
           for (auto &&block : _mino.blocks)
+          {
             if (block.y + i >= _field[0].size() - 1 || _field[block.x][block.y + 1 + i])
             {
               for (auto &&block : _mino.blocks)
                 block.y += i;
               isOpened = Restart();
-              goto END;
+              dropped = true;
+              break;
             }
+          }
+          if (dropped) break;
+        }
       }
+
+      // 右回転
       if (Hotkeys[4].IsPressed())
         TurnBlock(false);
+    
+      // 左回転
       if (Hotkeys[5].IsPressed())
         TurnBlock(true);
+
+      // ホールド
       if (Hotkeys[6].IsPressed() && !_mino.IsHeld)
         HoldMino();
+
+      // ポーズ
       if (Hotkeys[7].IsPressed())
       {
         s8 ans;
@@ -266,7 +296,6 @@ namespace CTRPluginFramework
         topScr.DrawRect(0, 0, 400, 240, Color::Gray);
         btmScr.DrawRect(0, 0, 320, 240, Color::Gray);
       }
-    END:
 
       // ミノ落下
       if (_mino.dropClock.HasTimePassed(Milliseconds(1000 - _level * 30)))
@@ -307,10 +336,15 @@ namespace CTRPluginFramework
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 58, 12, 55, 40, Color::White, false);
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 57, 12 + 1, 53, 38, Color::Black);
       if (_mino.heldKind != 9)
+      {
         for (auto &&block : _mino_templates[0][_mino.heldKind])
+        {
           topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 53 + block.x * BLOCK_WIDTH + 1, 12 + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.heldKind + 1] : _mino_colors[0]);
+        }
+      }
 
       // 落下位置描画
+      bool drawn = false;
       for (int i = 0; i < FIELD_HEIGHT; i++)
       {
         for (auto &&block : _mino.blocks)
@@ -322,12 +356,12 @@ namespace CTRPluginFramework
               u32 y = block.y + i;
               topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0], false);
             }
-            goto SUPER_BREAK;
+            drawn = true;
+            break;
           }
         }
+        if (drawn) break;
       }
-
-    SUPER_BREAK:
 
       for (int i = 0; i < FIELD_HEIGHT; i++)
       {

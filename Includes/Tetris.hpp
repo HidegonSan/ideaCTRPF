@@ -8,7 +8,17 @@ namespace CTRPluginFramework
   class Tetris
   {
   public:
+    enum class Direction
+    {
+      Above,
+      Under,
+      Left,
+      Right
+    };
+
     void Tetris_Loop(HotkeyManager Hotkeys);
+
+    bool CheckSpace(Direction dir);
 
     void SetLevel(u8 level)
     {
