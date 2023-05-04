@@ -7354,8 +7354,12 @@ namespace CTRPluginFramework
 
   std::vector<u16> Convert::strToSjis(const std::string &str)
   {
-    u16 utf16[Convert::getMultiByte(str)];
     std::vector<u16> sjis = {};
+
+    if (Convert::getMultiByte(str) == -1)
+      return sjis;
+
+    u16 utf16[Convert::getMultiByte(str)];
     Process::WriteString((u32)&utf16, str, StringFormat::Utf16);
     for (int i = 0; i < Convert::getMultiByte(str); i++)
     {
