@@ -2,11 +2,115 @@
 
 namespace CTRPluginFramework
 {
-  u8 Tetris::GenerateNextMino(void)
+  const std::vector<Color> Mino::Colors = {Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
+  const std::vector<std::vector<std::vector<UIntVector>>> Mino::Templates =
+  {
+    {
+      {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+      {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
+      {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
+      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+      {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+      {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
+      {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
+    },
+    {
+      {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
+      {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
+      {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
+      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+      {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
+      {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
+      {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
+    },
+    {
+     {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+      {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
+      {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
+      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+      {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+      {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
+      {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
+    },
+    {
+      {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
+      {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
+      {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
+      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+      {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
+      {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
+      {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
+    },
+  };
+
+  Mino::Mino(void)
+  {
+    _kind = Kind::None;
+    _turn = 0;
+  }
+
+  Mino::Mino(Kind kind)
+  {
+    _kind = kind;
+    _turn = 0;
+    _blocks = GetBlockTemplate();
+  }
+
+  Mino::Kind Mino::GetKind() const
+  {
+    return _kind;
+  }
+
+  const std::vector<UIntVector> &Mino::GetBlockTemplate() const
+  {
+    return Templates[_turn][(u8)_kind];
+  }
+
+  const std::vector<UIntVector> &Mino::GetBlocks() const
+  {
+    return _blocks;
+  }
+
+  const Color &Mino::GetColor() const
+  {
+    return Colors[(u8)_kind];
+  }
+
+  const Color &Mino::GetColor(Kind kind)
+  {
+    return Colors[(u8)kind];
+  }
+
+  const Color &Mino::GetMonoChromeColor(void)
+  {
+    return Color::White;
+  }
+
+  const std::vector<UIntVector> &Mino::GetBlockTemplate(Kind kind)
+  {
+    return Templates[0][(u8)kind];
+  }
+
+  void Mino::Set(u32 fieldWidth)
+  {
+    for (auto &&block : _blocks)
+      block.x += fieldWidth / 2 - 2;
+  }
+
+  void Mino::Move(int moveX, int moveY)
+  {
+    for (auto &&block : _blocks)
+    {
+      block.x += moveX;
+      block.y += moveY;
+    }
+  }
+
+  Mino::Kind Tetris::GenerateNextMino(void)
   {
     if (_srcNexts.empty())
     {
-      _srcNexts = {0, 1, 2, 3, 4, 5, 6};
+      _srcNexts = {Mino::Kind::I, Mino::Kind::J, Mino::Kind::L, Mino::Kind::O, Mino::Kind::S, Mino::Kind::T, Mino::Kind::Z};
 
       for (u8 i = 0; i < MINO_KINDS_COUNT; i++)
       {
@@ -15,7 +119,7 @@ namespace CTRPluginFramework
       }
     }
 
-    u8 next = _srcNexts[0];
+    Mino::Kind next = _srcNexts[0];
     _srcNexts.erase(_srcNexts.begin());
 
     return next;
@@ -23,15 +127,17 @@ namespace CTRPluginFramework
 
   void Tetris::NextMino(void)
   {
-    _mino.kind = _nexts[0];
+    // 新しいミノを設置
+    _mino = Mino(_nexts[0]);
+    _mino.Set(FIELD_WIDTH);
+    dropClock.Restart();
+
+    // ネクストミノの削除&再生成
     _nexts.erase(_nexts.begin());
     _nexts.emplace_back(GenerateNextMino());
-    _mino.turn = 0;
-    _mino.dropClock.Restart();
-    _mino.blocks = _mino_templates[0][_mino.kind];
-    _mino.IsHeld = false;
-    for (auto &&block : _mino.blocks)
-      block.x += FIELD_WIDTH / 2 - 2;
+
+    // ホールドフラグをクリア
+    _isHeld = false;
   }
 
   void Tetris::GameOver(void)
@@ -39,13 +145,52 @@ namespace CTRPluginFramework
     MessageBox(Utils::Format("Game Over\nyour score is %d", _score))();
     _score = 0;
     _level = 0;
-    _mino.heldKind = 9;
+    _hold = Mino::Kind::None;
     _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+  }
+
+  Tetris &Tetris::GetInstance(void)
+  {
+    static Tetris instance;
+    return instance;
+  }
+
+  void Tetris::SetFieldWidth(u8 width)
+  {
+    width = width < 4 || 23 < width ? 10 : width;
+    if (FIELD_WIDTH > width)
+    {
+      for (int i = 0; i < FIELD_WIDTH - width; i++)
+      {
+        _field.erase(_field.end());
+      }
+    }
+
+    if (FIELD_WIDTH < width)
+    {
+      for (int i = 0; i < width - FIELD_WIDTH; i++)
+      {
+        _field.emplace_back(std::vector<u8>(FIELD_HEIGHT, 0));
+      }
+    }
+
+    FIELD_WIDTH = width;
+    NextMino();
+  }
+
+  void Tetris::SetLevel(u8 level)
+  {
+    _level = level;
+  }
+
+  void Tetris::SetColorful(bool colorful)
+  {
+    _colorfulMode = colorful;
   }
 
   bool Tetris::Restart(void)
   {
-    for (auto &&block : _mino.blocks)
+    for (auto &&block : _mino.GetBlocks())
     {
       if (block.y == 1 || _field[block.x][block.y])
       {
@@ -53,115 +198,108 @@ namespace CTRPluginFramework
         return false;
       }
 
-      _field[block.x][block.y] = _mino.kind + 1;
+      _field[block.x][block.y] = (u8)_mino.GetKind();
     }
 
     NextMino();
     return true;
   }
 
-  void Tetris::TurnBlock(bool turn_right)
+  void Mino::Turn(const TetrisField &field, bool right)
   {
-    IntVector pos = {(int)((int)_mino.blocks[0].x - (int)_mino_templates[_mino.turn][_mino.kind][0].x), (int)((int)_mino.blocks[0].y - (int)_mino_templates[_mino.turn][_mino.kind][0].y)};
-    if (turn_right)
+    IntVector pos = {(int)((int)_blocks[0].x - (int)GetBlockTemplate()[0].x), (int)((int)_blocks[0].y - (int)GetBlockTemplate()[0].y)};
+    if (right)
     {
-      if (_mino.turn == 3)
-        _mino.turn = 0;
+      if (_turn == 3)
+        _turn = 0;
       else
-        _mino.turn++;
+        _turn++;
     }
     else
     {
-      if (_mino.turn == 0)
-        _mino.turn = 3;
+      if (_turn == 0)
+        _turn = 3;
       else
-        _mino.turn--;
+        _turn--;
     }
-    for (auto &&block : _mino_templates[_mino.turn][_mino.kind])
+    for (auto &&block : GetBlockTemplate())
     {
       if ((int)(block.x) + pos.x < 0)
       {
         pos.x += abs((int)(block.x) + pos.x);
-        if (_field[block.x + pos.x][block.y + pos.y])
+        if (field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
-      if (_field.size() - 1 < block.x + pos.x)
+      if (field.size() - 1 < block.x + pos.x)
       {
-        pos.x -= block.x + pos.x - _field.size() + 1;
-        if (_field[block.x + pos.x][block.y + pos.y])
+        pos.x -= block.x + pos.x - field.size() + 1;
+        if (field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
       if ((int)(block.y) + pos.y < 0)
         pos.y += abs((int)(block.y) + pos.y);
-      if (_field[0].size() - 1 < block.y + pos.y)
+      if (field[0].size() - 1 < block.y + pos.y)
         goto RESET_TURN;
-      if (_field[block.x + pos.x][block.y + pos.y])
+      if (field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
     }
-    _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
-    for (auto &&block : _mino.blocks)
+    _blocks = GetBlockTemplate();
+    for (auto &&block : _blocks)
     {
       block.x += pos.x;
       block.y += pos.y;
     }
     return;
   RESET_TURN:
-    if (turn_right)
+    if (right)
     {
-      if (_mino.turn == 0)
-        _mino.turn = 3;
+      if (_turn == 0)
+        _turn = 3;
       else
-        _mino.turn--;
+        _turn--;
     }
     else
     {
-      if (_mino.turn == 3)
-        _mino.turn = 0;
+      if (_turn == 3)
+        _turn = 0;
       else
-        _mino.turn++;
+        _turn++;
     }
-    pos = {(int)(_mino.blocks[0].x - _mino_templates[_mino.turn][_mino.kind][0].x), (int)(_mino.blocks[0].y - _mino_templates[_mino.turn][_mino.kind][0].y)};
-    _mino.blocks = _mino_templates[_mino.turn][_mino.kind];
-    for (auto &&block : _mino.blocks)
+    pos = {(int)(_blocks[0].x - GetBlockTemplate()[0].x), (int)(_blocks[0].y - GetBlockTemplate()[0].y)};
+    _blocks = GetBlockTemplate();
+    for (auto &&block : _blocks)
     {
       block.x += pos.x;
       block.y += pos.y;
     }
   }
 
-  void Tetris::MoveMino(int moveX, int moveY)
-  {
-    for (auto &&block : _mino.blocks)
-    {
-      block.x += moveX;
-      block.y += moveY;
-    }
-  }
-
   void Tetris::HoldMino(void)
   {
-    if (_mino.heldKind == 9)
+    if (_hold == Mino::Kind::None)
     {
-      _mino.heldKind = _mino.kind;
+      _hold = _mino.GetKind();
       NextMino();
     }
     else
     {
-      _mino.turn = 0;
-      _mino.dropClock.Restart();
-      _mino.blocks = _mino_templates[0][_mino.heldKind];
-      std::swap(_mino.heldKind, _mino.kind);
-      _mino.IsHeld = true;
-      for (auto &&block : _mino.blocks)
-        block.x += FIELD_WIDTH / 2 - 2;
+      Mino::Kind curKind = _mino.GetKind();
+
+      _mino = Mino(_hold);
+      _mino.Set(FIELD_WIDTH);
+      dropClock.Restart();
+
+      _hold = curKind;
+
+      _isHeld = true;
     }
   }
 
   bool Tetris::CheckSpace(Direction dir)
   {
-    for (auto &&block : _mino.blocks)
+    for (auto &&block : _mino.GetBlocks())
     {
-      if (dir == Direction::Under && block.x == 0)
+      if (dir == Direction::Under && (_field[0].size() - 1 <= block.y || _field[block.x][block.y + 1]))
         return false;
       else if (dir == Direction::Left && (block.x <= 0 || _field[block.x - 1][block.y]))
         return false;
@@ -207,12 +345,12 @@ namespace CTRPluginFramework
       {
         if (Hotkeys[0].IsPressed())
         {
-          MoveMino(-1, 0);
-          _mino.moveClock.Restart();
+          _mino.Move(-1, 0);
+          moveClock.Restart();
         }
-        else if (_mino.moveClock.HasTimePassed(Seconds(0.2)))
+        else if (moveClock.HasTimePassed(Seconds(0.2)))
         {
-          MoveMino(-1, 0);
+          _mino.Move(-1, 0);
         }
       }
 
@@ -221,20 +359,20 @@ namespace CTRPluginFramework
       {
         if (Hotkeys[1].IsPressed())
         {
-          MoveMino(1, 0);
-          _mino.moveClock.Restart();
+          _mino.Move(1, 0);
+          moveClock.Restart();
         }
-        else if (_mino.moveClock.HasTimePassed(Seconds(0.2)))
+        else if (moveClock.HasTimePassed(Seconds(0.2)))
         {
-          MoveMino(1, 0);
+          _mino.Move(1, 0);
         }
       }
 
       // ソフトドロップ
-      else if (Hotkeys[2].IsDown() && CheckSpace(Direction::Under) && _mino.softdropClock.HasTimePassed(Seconds(0.08)))
+      else if (Hotkeys[2].IsDown() && CheckSpace(Direction::Under) && softdropClock.HasTimePassed(Seconds(0.08)))
       {
-        MoveMino(0, 1);
-        _mino.softdropClock.Restart();
+        _mino.Move(0, 1);
+        softdropClock.Restart();
       }
 
       // ハードドロップ
@@ -244,12 +382,11 @@ namespace CTRPluginFramework
 
         for (size_t i = 0; i < _field[0].size(); i++)
         {
-          for (auto &&block : _mino.blocks)
+          for (auto &&block : _mino.GetBlocks())
           {
             if (block.y + i >= _field[0].size() - 1 || _field[block.x][block.y + 1 + i])
             {
-              for (auto &&block : _mino.blocks)
-                block.y += i;
+              _mino.Move(0, i);
               isOpened = Restart();
               dropped = true;
               break;
@@ -261,14 +398,14 @@ namespace CTRPluginFramework
 
       // 右回転
       if (Hotkeys[4].IsPressed())
-        TurnBlock(false);
+        _mino.Turn(_field, false);
     
       // 左回転
       if (Hotkeys[5].IsPressed())
-        TurnBlock(true);
+        _mino.Turn(_field, true);
 
       // ホールド
-      if (Hotkeys[6].IsPressed() && !_mino.IsHeld)
+      if (Hotkeys[6].IsPressed() && !_isHeld)
         HoldMino();
 
       // ポーズ
@@ -298,48 +435,49 @@ namespace CTRPluginFramework
       }
 
       // ミノ落下
-      if (_mino.dropClock.HasTimePassed(Milliseconds(1000 - _level * 30)))
+      if (dropClock.HasTimePassed(Milliseconds(1000 - _level * 30)))
       {
-        for (auto &&block : _mino.blocks)
+        for (auto &&block : _mino.GetBlocks())
+        {
           if (block.y >= _field[0].size() - 1 || _field[block.x][block.y + 1])
           {
             isOpened = Restart();
             break;
           }
-        for (auto &&block : _mino.blocks)
-          block.y++;
-        _mino.dropClock.Restart();
+        }
+        _mino.Move(0, 1);
+        dropClock.Restart();
       }
 
       // フィールド上のブロック描画
       for (size_t i = 0; i < _field.size(); i++)
         for (size_t j = 0; j < _field[i].size(); j++)
           if (_field[i][j])
-            topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_field[i][j]] : _mino_colors[0]);
+            topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? Mino::GetColor((Mino::Kind)_field[i][j]) : Mino::GetMonoChromeColor());
 
       // 落下中のミノ描画
-      for (auto &&block : _mino.blocks)
-        topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0]);
+      for (auto &&block : _mino.GetBlocks())
+        topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + block.y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino.GetColor() : Mino::GetMonoChromeColor());
 
       // Next
       for (u8 i = 0; i < NEXT_COUNT; i++)
       {
-        u8 next = _nexts[i];
+        Mino::Kind next = _nexts[i];
         u32 posY = 12 + 40 * i;
         topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 2, posY, 55, 40, Color::White, false);
         topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 3, posY + 1, 53, 38, Color::Black);
-        for (auto &&block : _mino_templates[0][next])
-          topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 7 + block.x * BLOCK_WIDTH + 1, posY + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[next + 1] : _mino_colors[0]);
+        for (auto &&block : Mino::GetBlockTemplate(next))
+          topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + FIELD_WIDTH * BLOCK_WIDTH + 6 + 7 + block.x * BLOCK_WIDTH + 1, posY + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? Mino::GetColor(next) : Mino::GetMonoChromeColor());
       }
 
       // Hold
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 58, 12, 55, 40, Color::White, false);
       topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 57, 12 + 1, 53, 38, Color::Black);
-      if (_mino.heldKind != 9)
+      if (_hold != Mino::Kind::None)
       {
-        for (auto &&block : _mino_templates[0][_mino.heldKind])
+        for (auto &&block : Mino::GetBlockTemplate(_hold))
         {
-          topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 53 + block.x * BLOCK_WIDTH + 1, 12 + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.heldKind + 1] : _mino_colors[0]);
+          topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 - 53 + block.x * BLOCK_WIDTH + 1, 12 + block.y * BLOCK_WIDTH + 3, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? Mino::GetColor(_hold) : Mino::GetMonoChromeColor());
         }
       }
 
@@ -347,14 +485,14 @@ namespace CTRPluginFramework
       bool drawn = false;
       for (int i = 0; i < FIELD_HEIGHT; i++)
       {
-        for (auto &&block : _mino.blocks)
+        for (auto &&block : _mino.GetBlocks())
         {
           if (block.y + i >= FIELD_HEIGHT - 1 || _field[block.x][block.y + 1 + i])
           {
-            for (auto &&block : _mino.blocks)
+            for (auto &&block : _mino.GetBlocks())
             {
               u32 y = block.y + i;
-              topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino_colors[_mino.kind + 1] : _mino_colors[0], false);
+              topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + block.x * BLOCK_WIDTH + 1, BLOCK_WIDTH + y * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? _mino.GetColor() : Mino::GetMonoChromeColor(), false);
             }
             drawn = true;
             break;

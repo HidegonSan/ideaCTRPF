@@ -5,6 +5,44 @@
 
 namespace CTRPluginFramework
 {
+  using TetrisField = std::vector<std::vector<u8>>;
+
+  class Mino {
+  public:
+    enum class Kind {
+      I,
+      J,
+      L,
+      O,
+      S,
+      T,
+      Z,
+      None
+    };
+
+    Mino(void);
+    Mino(Kind kind);
+
+    void Set(u32 fieldWidth);
+    void Turn(const TetrisField &field, bool right);
+    void Move(int moveX, int moveY);
+    const std::vector<UIntVector> &GetBlocks() const;
+
+    Kind GetKind() const;
+    const Color &GetColor() const;
+    static const Color &GetColor(Kind kind);
+    static const Color &GetMonoChromeColor(void);
+    const std::vector<UIntVector> &GetBlockTemplate() const;
+    static const std::vector<UIntVector> &GetBlockTemplate(Kind kind);
+  private:
+    Kind _kind;
+    u8 _turn;
+    std::vector<UIntVector> _blocks;
+
+    static const std::vector<std::vector<std::vector<UIntVector>>> Templates;
+    static const std::vector<Color> Colors;
+  };
+
   class Tetris
   {
   public:
@@ -17,39 +55,11 @@ namespace CTRPluginFramework
 
     void Update(HotkeyManager Hotkeys);
 
-    bool CheckSpace(Direction dir);
-    void FillScreen(const Screen &scr, const Color &color);
+    void SetLevel(u8 level);
+    void SetColorful(bool colorful);
+    void SetFieldWidth(u8 width);
 
-    void SetLevel(u8 level)
-    {
-      _level = level;
-    }
-
-    void SetColorful(bool colorful)
-    {
-      _colorfulMode = colorful;
-    }
-
-    void SetFieldWidth(u8 width)
-    {
-      width = width < 4 || 23 < width ? 10 : width;
-      if (FIELD_WIDTH > width)
-        for (int i = 0; i < FIELD_WIDTH - width; i++)
-          _field.erase(_field.end());
-
-      if (FIELD_WIDTH < width)
-        for (int i = 0; i < width - FIELD_WIDTH; i++)
-          _field.emplace_back(std::vector<u8>(FIELD_HEIGHT, 0));
-
-      FIELD_WIDTH = width;
-      NextMino();
-    }
-
-    static Tetris &GetInstance()
-    {
-      static Tetris instance;
-      return instance;
-    }
+    static Tetris &GetInstance();
 
     Tetris(Tetris const &) = delete;
     Tetris &operator=(Tetris const &) = delete;
@@ -63,23 +73,19 @@ namespace CTRPluginFramework
     static constexpr u8 BLOCK_WIDTH = 12;
     static constexpr u8 NEXT_COUNT = 5;
 
-    const std::vector<Color> _mino_colors = {Color::White, Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
-    std::vector<std::vector<u8>> _field = std::vector<std::vector<u8>>(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
-    std::vector<u8> _nexts;
-    std::vector<u8> _srcNexts;
+    TetrisField _field = TetrisField(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+    std::vector<Mino::Kind> _nexts;
+    std::vector<Mino::Kind> _srcNexts;
 
     // 落下中のミノ
-    struct
-    {
-      u8 kind = 0;
-      u8 turn = 0;
-      Clock dropClock;
-      Clock moveClock;
-      Clock softdropClock;
-      std::vector<UIntVector> blocks;
-      bool IsHeld = false;
-      u8 heldKind = 9;
-    } _mino;
+    Mino _mino;
+    Clock dropClock;
+    Clock moveClock;
+    Clock softdropClock;
+
+    // ホールド
+    Mino::Kind _hold;
+    bool _isHeld;
 
     u8 _score = 0;
     u8 _level = 0;
@@ -87,52 +93,13 @@ namespace CTRPluginFramework
 
     bool Restart(void);
     void GameOver(void);
-    void TurnBlock(bool turn_right);
-    void MoveMino(int moveX, int moveY);
     void NextMino(void);
     void HoldMino(void);
-    u8 GenerateNextMino(void);
+    Mino::Kind GenerateNextMino(void);
+    bool CheckSpace(Direction dir);
+    void FillScreen(const Screen &scr, const Color &color);
 
     Tetris() = default;
     ~Tetris() = default;
-    const std::vector<std::vector<std::vector<UIntVector>>> _mino_templates =
-        {
-            {
-                {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-                {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
-                {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
-                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-                {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-                {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
-                {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
-            },
-            {
-                {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
-                {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
-                {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
-                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-                {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
-                {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
-                {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
-            },
-            {
-                {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-                {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
-                {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
-                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-                {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-                {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
-                {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
-            },
-            {
-                {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
-                {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
-                {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
-                {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-                {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
-                {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
-                {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
-            },
-    };
   };
 }
