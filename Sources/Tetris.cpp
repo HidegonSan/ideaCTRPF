@@ -46,13 +46,13 @@ namespace CTRPluginFramework
   Mino::Mino(void)
   {
     _kind = Kind::None;
-    _turn = 0;
+    _rotate = 0;
   }
 
   Mino::Mino(Kind kind)
   {
     _kind = kind;
-    _turn = 0;
+    _rotate = 0;
     _blocks = GetBlockTemplate();
   }
 
@@ -63,7 +63,7 @@ namespace CTRPluginFramework
 
   const std::vector<UIntVector> &Mino::GetBlockTemplate() const
   {
-    return Templates[_turn][(u8)_kind];
+    return Templates[_rotate][(u8)_kind];
   }
 
   const std::vector<UIntVector> &Mino::GetBlocks() const
@@ -104,6 +104,11 @@ namespace CTRPluginFramework
       block.x += moveX;
       block.y += moveY;
     }
+  }
+
+  u32 Mino::GetRotate() const
+  {
+    return _rotate;
   }
 
   Mino::Kind Tetris::GenerateNextMino(void)
@@ -205,72 +210,53 @@ namespace CTRPluginFramework
     return true;
   }
 
-  void Mino::Turn(const TetrisField &field, bool right)
+  void Mino::SetRotate(const TetrisField &field, u32 rotate)
   {
-    IntVector pos = {(int)((int)_blocks[0].x - (int)GetBlockTemplate()[0].x), (int)((int)_blocks[0].y - (int)GetBlockTemplate()[0].y)};
-    if (right)
-    {
-      if (_turn == 3)
-        _turn = 0;
-      else
-        _turn++;
-    }
-    else
-    {
-      if (_turn == 0)
-        _turn = 3;
-      else
-        _turn--;
-    }
+    u32 before = _rotate;
+    IntVector diffPos = {((int)_blocks[0].x - (int)GetBlockTemplate()[0].x), ((int)_blocks[0].y - (int)GetBlockTemplate()[0].y)};
+    
+    _rotate = rotate;
+
     for (auto &&block : GetBlockTemplate())
     {
-      if ((int)(block.x) + pos.x < 0)
+      if ((int)(block.x) + diffPos.x < 0)
       {
-        pos.x += abs((int)(block.x) + pos.x);
-        if (field[block.x + pos.x][block.y + pos.y])
-          goto RESET_TURN;
+        diffPos.x = 0;
+
+        if (field[block.x][block.y + diffPos.y])
+        {
+          _rotate = before;
+          return;
+        }
       }
-      if (Tetris::GetInstance().FIELD_WIDTH - 1 < (int)block.x + pos.x)
+      if (Tetris::GetInstance().FIELD_WIDTH - 1 < (int)block.x + diffPos.x)
       {
-        pos.x -= block.x + pos.x - Tetris::GetInstance().FIELD_WIDTH + 1;
-        if (field[block.x + pos.x][block.y + pos.y])
-          goto RESET_TURN;
+        diffPos.x -= block.x + diffPos.x - Tetris::GetInstance().FIELD_WIDTH + 1;
+
+        if (field[block.x + diffPos.x][block.y + diffPos.y])
+        {
+          _rotate = before;
+          return;
+        }
       }
-      if ((int)(block.y) + pos.y < 0)
-        pos.y += abs((int)(block.y) + pos.y);
-      if (Tetris::FIELD_HEIGHT - 1 < block.y + pos.y)
-        goto RESET_TURN;
-      if (field[block.x + pos.x][block.y + pos.y])
-        goto RESET_TURN;
+      if ((int)(block.y) + diffPos.y < 0)
+      {
+        diffPos.y = 0;
+      }
+
+      if (Tetris::FIELD_HEIGHT - 1 < block.y + diffPos.y || field[block.x + diffPos.x][block.y + diffPos.y])
+      {
+        _rotate = before;
+        return;
+      }
     }
+
+    // 新しいブロックを適用
     _blocks = GetBlockTemplate();
     for (auto &&block : _blocks)
     {
-      block.x += pos.x;
-      block.y += pos.y;
-    }
-    return;
-  RESET_TURN:
-    if (right)
-    {
-      if (_turn == 0)
-        _turn = 3;
-      else
-        _turn--;
-    }
-    else
-    {
-      if (_turn == 3)
-        _turn = 0;
-      else
-        _turn++;
-    }
-    pos = {(int)(_blocks[0].x - GetBlockTemplate()[0].x), (int)(_blocks[0].y - GetBlockTemplate()[0].y)};
-    _blocks = GetBlockTemplate();
-    for (auto &&block : _blocks)
-    {
-      block.x += pos.x;
-      block.y += pos.y;
+      block.x += diffPos.x;
+      block.y += diffPos.y;
     }
   }
 
@@ -421,11 +407,21 @@ namespace CTRPluginFramework
 
       // 右回転
       if (Hotkeys[4].IsPressed())
-        _mino.Turn(_field, false);
+      {
+        u32 rotate = _mino.GetRotate();
+        if(rotate-- == 0)
+            rotate = 3;
+        _mino.SetRotate(_field, rotate);
+      }
     
       // 左回転
       if (Hotkeys[5].IsPressed())
-        _mino.Turn(_field, true);
+      {
+        u32 rotate = _mino.GetRotate();
+        if(rotate++ == 3)
+            rotate = 0;
+        _mino.SetRotate(_field, rotate);
+      }
 
       // ホールド
       if (Hotkeys[6].IsPressed() && !_isHeld)

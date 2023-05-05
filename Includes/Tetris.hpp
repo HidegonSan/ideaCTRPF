@@ -24,7 +24,8 @@ namespace CTRPluginFramework
     Mino(Kind kind);
 
     void Set(u32 fieldWidth);
-    void Turn(const TetrisField &field, bool right);
+    void SetRotate(const TetrisField &field, u32 rotate);
+    u32 GetRotate() const;
     void Move(int moveX, int moveY);
     const std::vector<UIntVector> &GetBlocks() const;
 
@@ -36,7 +37,7 @@ namespace CTRPluginFramework
     static const std::vector<UIntVector> &GetBlockTemplate(Kind kind);
   private:
     Kind _kind;
-    u8 _turn;
+    u8 _rotate;
     std::vector<UIntVector> _blocks;
 
     static const std::vector<std::vector<std::vector<UIntVector>>> Templates;
