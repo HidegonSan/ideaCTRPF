@@ -53,7 +53,7 @@ namespace CTRPluginFramework
       Right
     };
 
-    void Update(HotkeyManager Hotkeys);
+    void Start(HotkeyManager Hotkeys);
 
     void SetLevel(u8 level);
     void SetColorful(bool colorful);
@@ -67,13 +67,15 @@ namespace CTRPluginFramework
     Tetris &operator=(Tetris &&) = delete;
 
   private:
+    friend class Mino;
+
     static constexpr u8 MINO_KINDS_COUNT = 7;
     u8 FIELD_WIDTH = 10;
     static constexpr u8 FIELD_HEIGHT = 18;
     static constexpr u8 BLOCK_WIDTH = 12;
     static constexpr u8 NEXT_COUNT = 5;
 
-    TetrisField _field = TetrisField(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT, 0));
+    TetrisField _field = TetrisField(FIELD_WIDTH, std::vector<u8>(FIELD_HEIGHT + 1, 0));
     std::vector<Mino::Kind> _nexts;
     std::vector<Mino::Kind> _srcNexts;
 
@@ -91,13 +93,15 @@ namespace CTRPluginFramework
     u8 _level = 0;
     bool _colorfulMode = true;
 
-    bool Restart(void);
+    bool Put(void);
     void GameOver(void);
     void NextMino(void);
     void HoldMino(void);
     Mino::Kind GenerateNextMino(void);
     bool CheckSpace(Direction dir);
     void FillScreen(const Screen &scr, const Color &color);
+    bool CheckLine(u32 line);
+    void RemoveLine(u32 line);
 
     Tetris() = default;
     ~Tetris() = default;

@@ -406,7 +406,7 @@ namespace CTRPluginFramework
   {
     if (!Process::IsPaused())
       return;
-    Tetris::GetInstance().Update(entry->Hotkeys);
+    Tetris::GetInstance().Start(entry->Hotkeys);
   }
 
   void ShowPallet(MenuEntry *entry)

@@ -170,7 +170,7 @@ namespace CTRPluginFramework
     {
       for (int i = 0; i < width - FIELD_WIDTH; i++)
       {
-        _field.emplace_back(std::vector<u8>(FIELD_HEIGHT, 0));
+        _field.emplace_back(std::vector<u8>(FIELD_HEIGHT + 1, 0));
       }
     }
 
@@ -188,17 +188,17 @@ namespace CTRPluginFramework
     _colorfulMode = colorful;
   }
 
-  bool Tetris::Restart(void)
+  bool Tetris::Put(void)
   {
     for (auto &&block : _mino.GetBlocks())
     {
-      if (block.y == 1 || _field[block.x][block.y])
+      if (block.y == 0 || _field[block.x][block.y])
       {
         GameOver();
         return false;
       }
 
-      _field[block.x][block.y] = (u8)_mino.GetKind();
+      _field[block.x][block.y] = (u8)_mino.GetKind() + 1;
     }
 
     NextMino();
@@ -230,15 +230,15 @@ namespace CTRPluginFramework
         if (field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
-      if (field.size() - 1 < block.x + pos.x)
+      if (Tetris::GetInstance().FIELD_WIDTH - 1 < (int)block.x + pos.x)
       {
-        pos.x -= block.x + pos.x - field.size() + 1;
+        pos.x -= block.x + pos.x - Tetris::GetInstance().FIELD_WIDTH + 1;
         if (field[block.x + pos.x][block.y + pos.y])
           goto RESET_TURN;
       }
       if ((int)(block.y) + pos.y < 0)
         pos.y += abs((int)(block.y) + pos.y);
-      if (field[0].size() - 1 < block.y + pos.y)
+      if (Tetris::FIELD_HEIGHT - 1 < block.y + pos.y)
         goto RESET_TURN;
       if (field[block.x + pos.x][block.y + pos.y])
         goto RESET_TURN;
@@ -276,6 +276,8 @@ namespace CTRPluginFramework
 
   void Tetris::HoldMino(void)
   {
+    _isHeld = true;
+
     if (_hold == Mino::Kind::None)
     {
       _hold = _mino.GetKind();
@@ -290,8 +292,6 @@ namespace CTRPluginFramework
       dropClock.Restart();
 
       _hold = curKind;
-
-      _isHeld = true;
     }
   }
 
@@ -299,11 +299,11 @@ namespace CTRPluginFramework
   {
     for (auto &&block : _mino.GetBlocks())
     {
-      if (dir == Direction::Under && (_field[0].size() - 1 <= block.y || _field[block.x][block.y + 1]))
+      if (dir == Direction::Under && (FIELD_HEIGHT - 1 <= block.y || _field[block.x][block.y + 1]))
         return false;
       else if (dir == Direction::Left && (block.x <= 0 || _field[block.x - 1][block.y]))
         return false;
-      else if (dir == Direction::Right && (_field.size() - 1 <= block.x || _field[block.x + 1][block.y]))
+      else if (dir == Direction::Right && (FIELD_WIDTH - 1 <= (int)block.x || _field[block.x + 1][block.y]))
         return false;
     }
     return true;
@@ -316,7 +316,29 @@ namespace CTRPluginFramework
     scr.DrawRect(0, 0, scr.IsTop ? 400 : 320, 240, color);
   }
 
-  void Tetris::Update(HotkeyManager Hotkeys)
+  bool Tetris::CheckLine(u32 line)
+  {
+    u8 count = 0;
+    for (u8 i = 0; i < FIELD_WIDTH; i++)
+    {
+      if(_field[i][line])
+        count++;
+    }
+    return (count == FIELD_WIDTH);
+  }
+
+  void Tetris::RemoveLine(u32 line)
+  {
+    for (int i = line - 1; i >= 0; i--)
+    {
+      for (int j = 0; j < FIELD_WIDTH; j++)
+      {
+        _field[j][i + 1] = _field[j][i];
+      }
+    }
+  }
+
+  void Tetris::Start(HotkeyManager Hotkeys)
   {
     bool isOpened = true;
     const Screen &topScr = OSD::GetTopScreen();
@@ -327,6 +349,7 @@ namespace CTRPluginFramework
     {
       _nexts.emplace_back(GenerateNextMino());
     }
+    _hold = Mino::Kind::None;
 
     NextMino();
 
@@ -380,14 +403,14 @@ namespace CTRPluginFramework
       {
         bool dropped = false;
 
-        for (size_t i = 0; i < _field[0].size(); i++)
+        for (size_t i = 0; i < FIELD_HEIGHT; i++)
         {
           for (auto &&block : _mino.GetBlocks())
           {
-            if (block.y + i >= _field[0].size() - 1 || _field[block.x][block.y + 1 + i])
+            if (block.y + i >= FIELD_HEIGHT - 1 || _field[block.x][block.y + 1 + i])
             {
               _mino.Move(0, i);
-              isOpened = Restart();
+              isOpened = Put();
               dropped = true;
               break;
             }
@@ -439,9 +462,9 @@ namespace CTRPluginFramework
       {
         for (auto &&block : _mino.GetBlocks())
         {
-          if (block.y >= _field[0].size() - 1 || _field[block.x][block.y + 1])
+          if (block.y >= FIELD_HEIGHT - 1 || _field[block.x][block.y + 1])
           {
-            isOpened = Restart();
+            isOpened = Put();
             break;
           }
         }
@@ -450,10 +473,10 @@ namespace CTRPluginFramework
       }
 
       // フィールド上のブロック描画
-      for (size_t i = 0; i < _field.size(); i++)
-        for (size_t j = 0; j < _field[i].size(); j++)
+      for (size_t i = 0; i < FIELD_WIDTH; i++)
+        for (size_t j = 0; j < FIELD_HEIGHT; j++)
           if (_field[i][j])
-            topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? Mino::GetColor((Mino::Kind)_field[i][j]) : Mino::GetMonoChromeColor());
+            topScr.DrawRect(200 - (FIELD_WIDTH * BLOCK_WIDTH + 6) / 2 + 3 + i * BLOCK_WIDTH + 1, BLOCK_WIDTH + j * BLOCK_WIDTH + 1, BLOCK_WIDTH - 2, BLOCK_WIDTH - 2, _colorfulMode ? Mino::GetColor((Mino::Kind)(_field[i][j] - 1)) : Mino::GetMonoChromeColor());
 
       // 落下中のミノ描画
       for (auto &&block : _mino.GetBlocks())
@@ -501,21 +524,20 @@ namespace CTRPluginFramework
         if (drawn) break;
       }
 
+      // 1行ずつチェック
       for (int i = 0; i < FIELD_HEIGHT; i++)
       {
-        u8 count = 0;
-        for (int j = 0; j < FIELD_WIDTH; j++)
-          count += _field[j][i] ? 1 : 0;
-        if (count == FIELD_WIDTH)
+        if (CheckLine(i))
         {
-          _score++;
-          // 10ごとにレベルを上げる
-          if (!(_score % 10) && _level < 11)
-            _level++;
+          RemoveLine(i);
 
-          for (int k = i - 1; k >= 0; k--)
-            for (int j = 0; j < FIELD_WIDTH; j++)
-              _field[j][k + 1] = _field[j][k];
+          _score++;
+
+          // 10ごとにレベルを上げる
+          if (_level < 11 && _score % 10 == 0)
+          {
+            _level++;
+          }
         }
       }
       OSD::SwapBuffers();
