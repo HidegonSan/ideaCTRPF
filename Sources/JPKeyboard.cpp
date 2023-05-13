@@ -672,6 +672,7 @@ namespace CTRPluginFramework
           selectedIndex--;
       }
 
+      // 漢字変換
       if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
       {
         std::string hiragana;
@@ -686,14 +687,14 @@ namespace CTRPluginFramework
 
         if (!kanji.empty())
         {
-          for (int j = 0; j < abs(selectedIndex); j++)
-            if (0 <= selectedIndex)
-              InputChrs.erase(InputChrs.end() - cursorPos - 1);
-            else
-              InputChrs.erase(InputChrs.end() - cursorPos--);
-          selectedIndex = 0;
           if (Convert::getMultiByte(kanji) != -1)
           {
+            for (int j = 0; j < abs(selectedIndex); j++)
+              if (0 <= selectedIndex)
+                InputChrs.erase(InputChrs.end() - cursorPos - 1);
+              else
+                InputChrs.erase(InputChrs.end() - cursorPos--);
+            selectedIndex = 0;
             u16 buff_utf16[Convert::getMultiByte(kanji) + 1] = {0};
             Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
             s8 i = -1;
@@ -703,6 +704,7 @@ namespace CTRPluginFramework
         }
       }
     }
+
     // カーソル
     if (Controller::IsKeyPressed(Key::Left) && cursorPos < InputChrs.size())
     {
