@@ -11,12 +11,10 @@
 #include "Game2048.hpp"
 #include "Paint.hpp"
 
-
 namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
-    
   }
 
   void JPNotify(MenuEntry *entry)
@@ -176,7 +174,7 @@ namespace CTRPluginFramework
   {
     std::string input;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    if (!JPKeyboard("エントリー名を入力してください").Open(input))
+    if (!JPKeyboard("エントリー名を入力してください").SetMaxLength(30).Open(input))
       return;
 
     input = Convert::hiraganaToKatakana(Convert::toLower(input));
@@ -425,7 +423,7 @@ namespace CTRPluginFramework
   {
     Paint paint;
 
-    if(paint.Open() == 0)
+    if (paint.Open() == 0)
     {
       entry->SetGameFunc(ShowPallet);
     }
@@ -484,7 +482,6 @@ namespace CTRPluginFramework
   {
     Game2048::GetInstance().Game2048_Loop();
   }
-
 
   // made by maru
   struct vec3d
@@ -756,7 +753,7 @@ namespace CTRPluginFramework
       OSD::SwapBuffers();
 
       Controller::Update();
-      if(Controller::IsKeyPressed(Key::B))
+      if (Controller::IsKeyPressed(Key::B))
         break;
     }
     // Update

@@ -44,6 +44,8 @@ namespace CTRPluginFramework
     s8 selectedIndex;
     u8 cursorPos;
     u16 textWidth;
+    u8 textBegin;
+    u8 textLen;
 
     std::vector<u16> InputChrs;
     std::string InputStr;

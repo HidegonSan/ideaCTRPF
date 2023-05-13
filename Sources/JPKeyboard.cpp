@@ -534,7 +534,8 @@ namespace CTRPluginFramework
     std::memcpy(str, InputChrs.data(), sizeof(u16) * InputChrs.size());
     Process::ReadString((u32)str, InputStr, sizeof(u16) * InputChrs.size(), StringFormat::Utf16);
 
-    u8 textBegin = 0, textLen = 1;
+    textBegin = 0;
+    textLen = 1;
     textWidth = OSD::GetTextWidth(true, InputStr);
     if (208 < textWidth)
     {
@@ -560,7 +561,7 @@ namespace CTRPluginFramework
     Process::ReadString((u32)&str[textBegin], InputStr, sizeof(u16) * --textLen, StringFormat::Utf16);
     textWidth = OSD::GetTextWidth(true, InputStr);
 
-      std::string selectedString;
+    std::string selectedString;
     if (!InputChrs.empty())
     {
       std::memset(str, 0, sizeof(u16) * 100);
@@ -658,19 +659,20 @@ namespace CTRPluginFramework
     // 選択
     if (_canConvert)
     {
-      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::L))
+      if (((Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22)) || Controller::IsKeyPressed(Key::L)) && selectedIndex < textLen - (textBegin ? 1 : 0))
       {
         scr.DrawRect(32, 35, 17, 17, Color::White);
         if (selectedIndex < s8(InputChrs.size() - cursorPos) || selectedIndex < 0)
           selectedIndex++;
       }
-      if ((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::R))
+      if (((Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22)) || Controller::IsKeyPressed(Key::R)) && (abs(selectedIndex) < textLen - (textBegin ? 1 : 0) || 0 < selectedIndex))
       {
         scr.DrawRect(274, 35, 17, 17, Color::White);
         if (abs(selectedIndex) < cursorPos || 0 < selectedIndex)
           selectedIndex--;
       }
 
+      // 漢字変換
       if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
       {
         std::string hiragana;
@@ -685,14 +687,14 @@ namespace CTRPluginFramework
 
         if (!kanji.empty())
         {
-          for (int j = 0; j < abs(selectedIndex); j++)
-            if (0 <= selectedIndex)
-              InputChrs.erase(InputChrs.end() - cursorPos - 1);
-            else
-              InputChrs.erase(InputChrs.end() - cursorPos--);
-          selectedIndex = 0;
           if (Convert::getMultiByte(kanji) != -1)
           {
+            for (int j = 0; j < abs(selectedIndex); j++)
+              if (0 <= selectedIndex)
+                InputChrs.erase(InputChrs.end() - cursorPos - 1);
+              else
+                InputChrs.erase(InputChrs.end() - cursorPos--);
+            selectedIndex = 0;
             u16 buff_utf16[Convert::getMultiByte(kanji) + 1] = {0};
             Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
             s8 i = -1;
@@ -714,7 +716,7 @@ namespace CTRPluginFramework
       cursorPos--;
       selectedIndex = 0;
     }
-    if (TouchRect(54, 32, textWidth + 5, 27))
+    if (TouchRect(54, 32, textWidth + 5, 27) && textBegin == 0)
     {
       UIntVector pos = Touch::GetPosition();
       u8 ii = 0;
