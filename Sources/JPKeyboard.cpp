@@ -787,9 +787,6 @@ namespace CTRPluginFramework
     {
       if (!InputChrs.empty())
       {
-        u16 str[InputChrs.size() + 1] = {0};
-        std::memcpy(str, InputChrs.data(), sizeof(u16) * InputChrs.size());
-        Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
         out = InputStr;
         KeyboardOpened = false;
         return true;
