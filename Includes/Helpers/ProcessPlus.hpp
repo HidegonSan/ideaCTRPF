@@ -1,22 +1,47 @@
-#ifndef PROCESSPLUS_HPP
-#define PROCESSPLUS_HPP
+#ifndef MYFUNCTIONS_PROCESSPLUS_HPP
+#define MYFUNCTIONS_PROCESSPLUS_HPP
 
 #include "CTRPluginFramework.hpp"
+#include "Convert.hpp"
 
 namespace CTRPluginFramework
 {
+    template <typename T>
+    T ReadValue(u32 address)
+    {
+        if (!Process::CheckAddress(address, MEMPERM_READ))
+            return -1;
+        
+        return *reinterpret_cast<T *>(address);
+    }
+
+    template <typename T>
+    void WriteValue(u32 address, T value)
+    {
+        if (!Process::CheckAddress(address, MEMPERM_WRITE))
+            return;
+        
+        *reinterpret_cast<T *>(address) = value;
+    }
+
     class ProcessPlus
     {
     public:
-        static void PointerWrite8(u32 Pointer, u32 Offset, u8 Value);
-        static void PointerWrite16(u32 Pointer, u32 Offset, u16 Value);
-        static void PointerWrite32(u32 Pointer, u32 Offset, u32 Value);
-        static void MainWrite8(u32 Address, u8 Value, MenuEntry *entry);
-        static void MainWrite8(const std::vector<u32> &Addresses, const std::vector<u8> &Values, MenuEntry *entry);
-        static void MainWrite16(u32 Address, u16 Value, MenuEntry *entry);
-        static void MainWrite16(const std::vector<u32> &Addresses, const std::vector<u16> &Values, MenuEntry *entry);
-        static void MainWrite32(u32 Address, u32 Value, MenuEntry *entry);
-        static void MainWrite32(const std::vector<u32> &Addresses, const std::vector<u32> &Values, MenuEntry *entry);
+
+        static void Write32(const std::vector<u32> &addresses, const std::vector<u32> &values, MenuEntry *entry);
+        static void Write32(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u32> &values, MenuEntry *entry);
+
+        static void Write16(const std::vector<u32> &addresses, const std::vector<u16> &values, MenuEntry *entry);
+        static void Write16(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u16> &values, MenuEntry *entry);
+
+        static void Write8(const std::vector<u32> &addresses, const std::vector<u8> &values, MenuEntry *entry);
+        static void Write8(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u8> &values, MenuEntry *entry);
+        
+        static void WriteFloat(const std::vector<u32> &addresses, const std::vector<float> &values, MenuEntry *entry);
+        static void WriteFloat(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<float> &values, MenuEntry *entry);
+
+        static void WriteString(const u32 &address, const std::string &input);
+        static void WriteString(const u32 &address, const std::string &input, MenuEntry *entry);
     };
 }
 
