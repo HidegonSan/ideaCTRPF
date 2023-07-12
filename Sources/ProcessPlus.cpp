@@ -1,230 +1,120 @@
-#include "Helpers.hpp"
+#include "MyFunctions/ProcessPlus.hpp"
 
 namespace CTRPluginFramework
 {
-  void ProcessPlus::PointerWrite8(u32 Pointer, u32 Offset, u8 Value)
-  {
-    u32 Address;
-
-    if (Process::Read32(Pointer, Address))
+    template <typename T>
+    void ValueBase(const std::vector<u32> &addresses, const std::vector<T> &values, MenuEntry *entry)
     {
-      Process::Write8(Address + Offset, Value);
-    }
-  }
-
-  void ProcessPlus::PointerWrite16(u32 Pointer, u32 Offset, u16 Value)
-  {
-    u32 Address;
-
-    if (Process::Read32(Pointer, Address))
-    {
-      Process::Write16(Address + Offset, Value);
-    }
-  }
-
-  void ProcessPlus::PointerWrite32(u32 Pointer, u32 Offset, u32 Value)
-  {
-    u32 Address;
-
-    if (Process::Read32(Pointer, Address))
-    {
-      Process::Write32(Address + Offset, Value);
-    }
-  }
-
-  // Max: 100
-  u8 SaveValue_8[100];
-  u16 SaveValue_16[100];
-  u32 SaveValue_32[100];
-
-  void ProcessPlus::MainWrite8(u32 Address, u8 Value, MenuEntry *entry)
-  {
-    static u8 SaveValue;
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
-    {
-      if (!Check)
-      {
-        SaveValue = *(u8 *)(Address);
-        Check = true;
-      }
-
-      Process::Write8(Address, Value);
-    }
-    else if (!entry->IsActivated())
-    {
-      if (Check)
-      {
-        Process::Write8(Address, SaveValue);
-
-        SaveValue = 0;
-        Check = false;
-      }
-    }
-  }
-
-  void ProcessPlus::MainWrite8(const std::vector<u32> &Addresses, const std::vector<u8> &Values, MenuEntry *entry)
-  {
-    int size = Addresses.size();
-    u8 SaveValue_8[size];
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
-    {
-      if (!Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          SaveValue_8[i] = *(u8 *)(Addresses[i]);
+        static std::vector<T> saveValues;
+        if (entry->WasJustActivated()) {
+            saveValues.clear();
+            for (int i = 0; i < static_cast<int>(addresses.size()); i++) {
+                saveValues.emplace_back(ReadValue<T>(addresses.at(i)));
+                WriteValue<T>(addresses.at(i), values.at(i));
+            }
         }
-        Check = true;
-      }
-
-      for (int i = 0; i < size; i++)
-      {
-        Process::Write8(Addresses[i], Values[i]);
-      }
-    }
-    else if (!entry->IsActivated())
-    {
-      if (Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          Process::Write8(Addresses[i], SaveValue_8[i]);
-          SaveValue_8[i] = 0;
+        else if (!entry->IsActivated()) {
+            for (int i = 0; i < static_cast<int>(saveValues.size()); i++)
+                WriteValue<T>(addresses.at(i), saveValues.at(i));
         }
-
-        Check = false;
-      }
     }
-  }
 
-  void ProcessPlus::MainWrite16(u32 Address, u16 Value, MenuEntry *entry)
-  {
-    static u16 SaveValue;
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
+    template <typename T>
+    void PointerBase(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<T> &values, MenuEntry *entry)
     {
-      if (!Check)
-      {
-        SaveValue = *(u16 *)(Address);
-        Check = true;
-      }
-
-      Process::Write16(Address, Value);
-    }
-    else if (!entry->IsActivated())
-    {
-      if (Check)
-      {
-        Process::Write16(Address, SaveValue);
-
-        SaveValue = 0;
-        Check = false;
-      }
-    }
-  }
-
-  void ProcessPlus::MainWrite16(const std::vector<u32> &Addresses, const std::vector<u16> &Values, MenuEntry *entry)
-  {
-    int size = Addresses.size();
-    u16 SaveValue_16[size];
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
-    {
-      if (!Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          SaveValue_16[i] = *(u16 *)(Addresses[i]);
+        static std::vector<T> saveValues;
+        u32 address = ReadValue<u32>(baseAddress);
+        if (Process::CheckAddress(address, MEMPERM_WRITE) && address) {
+            if (entry->WasJustActivated()) {
+                saveValues.clear();
+                for (int i = 0; i < static_cast<int>(offsets.size()); i++) {
+                    saveValues.emplace_back(ReadValue<T>(address + offsets.at(i)));
+                    WriteValue<T>(address + offsets.at(i), values.at(i));
+                }
+            }
+            else if (!entry->IsActivated()) {
+                for (int i = 0; i < static_cast<int>(saveValues.size()); i++)
+                    WriteValue<T>(address + offsets.at(i), saveValues.at(i));
+            }
         }
-        Check = true;
-      }
-
-      for (int i = 0; i < size; i++)
-      {
-        Process::Write16(Addresses[i], Values[i]);
-      }
     }
-    else if (!entry->IsActivated())
+
+    void ProcessPlus::Write32(const std::vector<u32> &addresses, const std::vector<u32> &values, MenuEntry *entry)
     {
-      if (Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          Process::Write16(Addresses[i], SaveValue_16[i]);
-          SaveValue_16[i] = 0;
+        ValueBase<u32>(addresses, values, entry);
+    }
+
+    void ProcessPlus::Write32(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u32> &values, MenuEntry *entry)
+    {
+        PointerBase<u32>(baseAddress, offsets, values, entry);
+    }
+
+    void ProcessPlus::Write16(const std::vector<u32> &addresses, const std::vector<u16> &values, MenuEntry *entry)
+    {
+        ValueBase<u16>(addresses, values, entry);
+    }
+
+    void ProcessPlus::Write16(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u16> &values, MenuEntry *entry)
+    {
+        PointerBase<u16>(baseAddress, offsets, values, entry);
+    }
+
+    void ProcessPlus::Write8(const std::vector<u32> &addresses, const std::vector<u8> &values, MenuEntry *entry)
+    {
+        ValueBase<u8>(addresses, values, entry);
+    }
+
+    void ProcessPlus::Write8(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<u8> &values, MenuEntry *entry)
+    {
+        PointerBase<u8>(baseAddress, offsets, values, entry);
+    }
+
+    void ProcessPlus::WriteFloat(const std::vector<u32> &addresses, const std::vector<float> &values, MenuEntry *entry)
+    {
+        ValueBase<float>(addresses, values, entry);
+    }
+
+    void ProcessPlus::WriteFloat(const u32 &baseAddress, const std::vector<u32> &offsets, const std::vector<float> &values, MenuEntry *entry)
+    {
+        PointerBase<float>(baseAddress, offsets, values, entry);
+    }
+
+    void ProcessPlus::WriteString(const u32 &address, const std::string &input)
+    {
+        std::vector<u8> SJIS;
+        std::vector<u16> values = Convert::StrToSJIS(input);
+        for (int i = 0; i < static_cast<int>(values.size()); i++) {
+            u8 upBit = (values.at(i) >> 8) & 0xFF;
+            if (upBit)
+                SJIS.emplace_back(upBit);
+            
+            SJIS.emplace_back(values.at(i) & 0xFF);
         }
-
-        Check = false;
-      }
+        for (int i = 0; i < static_cast<int>(SJIS.size()); i++)
+            Process::Write8(address + i, SJIS.at(i));
     }
-  }
 
-  void ProcessPlus::MainWrite32(u32 Address, u32 Value, MenuEntry *entry)
-  {
-    static u32 SaveValue;
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
+    void ProcessPlus::WriteString(const u32 &address, const std::string &input, MenuEntry *entry)
     {
-      if (!Check)
-      {
-        SaveValue = *(u32 *)(Address);
-        Check = true;
-      }
-
-      Process::Write32(Address, Value);
-    }
-    else if (!entry->IsActivated())
-    {
-      if (Check)
-      {
-        Process::Write32(Address, SaveValue);
-
-        SaveValue = 0;
-        Check = false;
-      }
-    }
-  }
-
-  void ProcessPlus::MainWrite32(const std::vector<u32> &Addresses, const std::vector<u32> &Values, MenuEntry *entry)
-  {
-    int size = Addresses.size();
-    static bool Check = false;
-
-    if (entry->WasJustActivated())
-    {
-      if (!Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          SaveValue_32[i] = *(u32 *)(Addresses[i]);
+        static std::vector<u8> saveValues;
+        if (entry->WasJustActivated()) {
+            std::vector<u8> SJIS;
+            std::vector<u16> values = Convert::StrToSJIS(input);
+            for (int i = 0; i < static_cast<int>(values.size()); i++) {
+                u8 upBit = (values.at(i) >> 8) & 0xFF;
+                if (upBit)
+                    SJIS.emplace_back(upBit);
+                
+                SJIS.emplace_back(values.at(i) & 0xFF);
+            }
+            for (int i = 0; i < static_cast<int>(SJIS.size()); i++) {
+                saveValues.emplace_back(ReadValue<u8>(address + i));
+                Process::Write8(address + i, SJIS.at(i));
+            }
         }
-        Check = true;
-      }
-
-      for (int i = 0; i < size; i++)
-      {
-        Process::Write32(Addresses[i], Values[i]);
-      }
-    }
-    else if (!entry->IsActivated())
-    {
-      if (Check)
-      {
-        for (int i = 0; i < size; i++)
-        {
-          Process::Write32(Addresses[i], SaveValue_32[i]);
-          SaveValue_32[i] = 0;
+        else if (!entry->IsActivated()) {
+            for (int i = 0; i < static_cast<int>(saveValues.size()); i++)
+                Process::Write8(address + i, saveValues.at(i));
         }
-
-        Check = false;
-      }
     }
-  }
 }
