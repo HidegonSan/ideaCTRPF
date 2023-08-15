@@ -7424,7 +7424,10 @@ namespace CTRPluginFramework
     if (done.find(hiragana) == done.end())
       addHiraganaKanjiList(hiragana);
 
-    return hiraganaToKanji(hiragana);
+    if (hiragana_kanji_list[hiragana].size())
+      return hiraganaToKanji(hiragana);
+
+    return hiragana;
   }
 
   std::string Convert::hiraganaToKatakana(const std::string &hiragana)
