@@ -1,4 +1,5 @@
 #include "Convert.hpp"
+#include "cheats.hpp"
 
 namespace CTRPluginFramework
 {
@@ -7399,19 +7400,33 @@ namespace CTRPluginFramework
     return str;
   }
 
-  std::string Convert::hiraganaToKanji(std::string hiragana)
+  std::string Convert::hiraganaToKanji(const std::string &hiragana)
   {
-    for (auto &&hk : hiragana_kanji_list)
+    if (hiragana_kanji_list[hiragana].empty())
+      for (auto &&hk : hiragana_kanji_list)
+      {
+        auto it = hk.second.find(hiragana);
+        if (it != hk.second.end())
+        {
+          if (++it != hk.second.end())
+            return *it;
+          else
+            return hk.first;
+        }
+      }
+    else
     {
-      if (hk.hiragana == hiragana)
-      {
-        return hk.kanji;
-      }
-      else if (hk.kanji == hiragana)
-      {
-        hiragana = hk.hiragana;
-      }
+      if (done.find(hiragana) == done.end())
+        addHiraganaKanjiList(hiragana);
+      return *hiragana_kanji_list[hiragana].begin();
     }
+
+    if (done.find(hiragana) == done.end())
+      addHiraganaKanjiList(hiragana);
+
+    if (hiragana_kanji_list[hiragana].size())
+      return hiraganaToKanji(hiragana);
+
     return hiragana;
   }
 
@@ -7461,15 +7476,52 @@ namespace CTRPluginFramework
     return buff;
   }
 
-  void Convert::initHiraganaKanjiList(void)
+  std::vector<std::string> split(std::string str, char del)
   {
-    hiragana_kanji_list = {{"あ", "亜"}};
+    size_t first = 0, last = str.find_first_of(del);
+
+    std::vector<std::string> result;
+
+    while (first < str.size())
+    {
+      std::string subStr(str, first, last - first);
+
+      result.push_back(subStr);
+
+      first = last + 1;
+      last = str.find_first_of(del, first);
+
+      if (last == std::string::npos)
+        last = str.size();
+    }
+
+    return result;
   }
+
+  void Convert::addHiraganaKanjiList(const std::string &hiragana)
+  {
+    char *res = NULL;
+    u32 size = 0;
+    std::string url = "http://www.google.com/transliterate?langpair=ja-Hira|ja&text=" + hiragana + ',';
+    if (!http_download(url.c_str(), (u8 **)&res, &size))
+      return;
+    std::string out = "", buff(res);
+    for (auto &&_ : buff)
+      if (_ != '[' && _ != ']' && _ != '\"')
+        out += _;
+    for (auto &&kanji : split(out, ','))
+      if (hiragana != kanji)
+        hiragana_kanji_list[hiragana].insert(kanji);
+    done.insert(hiragana);
+    free(res);
+  };
 
   void Convert::addHiraganaKanjiList(const std::string &hiragana, const std::string &kanji)
   {
-    hiragana_kanji_list.push_back({hiragana, kanji});
+    if (hiragana != kanji)
+      hiragana_kanji_list[hiragana].insert(kanji);
   };
 
-  std::vector<Convert::HIRAGANA_KANJI> Convert::hiragana_kanji_list = {};
+  std::map<std::string, std::set<std::string>> Convert::hiragana_kanji_list;
+  std::set<std::string> Convert::done;
 }
