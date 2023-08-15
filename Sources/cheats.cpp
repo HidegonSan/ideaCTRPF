@@ -807,7 +807,7 @@ namespace CTRPluginFramework
       if ((statuscode >= 301 && statuscode <= 303) || (statuscode >= 307 && statuscode <= 308))
       {
         if (newurl == NULL)
-          newurl = (char *)malloc(0x1000); // One 4K page for new URL
+          newurl = (char *)calloc(1, 0x1000); // One 4K page for new URL
         if (newurl == NULL)
         {
           httpcCloseContext(&context);
@@ -838,7 +838,7 @@ namespace CTRPluginFramework
     }
 
     // Start with a single page buffer
-    buf = (u8 *)malloc(0x100);
+    buf = (u8 *)calloc(1, 0x100);
     if (buf == NULL)
     {
       httpcCloseContext(&context);
