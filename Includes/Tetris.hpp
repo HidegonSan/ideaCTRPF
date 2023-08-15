@@ -27,20 +27,20 @@ namespace CTRPluginFramework
     void SetRotate(const TetrisField &field, u32 rotate);
     u32 GetRotate() const;
     void Move(int moveX, int moveY);
-    const std::vector<UIntVector> &GetBlocks() const;
+    const std::vector<IntVector> &GetBlocks() const;
 
     Kind GetKind() const;
     const Color &GetColor() const;
     static const Color &GetColor(Kind kind);
     static const Color &GetMonoChromeColor(void);
-    const std::vector<UIntVector> &GetBlockTemplate() const;
-    static const std::vector<UIntVector> &GetBlockTemplate(Kind kind);
+    const std::vector<IntVector> &GetBlockTemplate() const;
+    static const std::vector<IntVector> &GetBlockTemplate(Kind kind);
   private:
     Kind _kind;
     u8 _rotate;
-    std::vector<UIntVector> _blocks;
+    std::vector<IntVector> _blocks;
 
-    static const std::vector<std::vector<std::vector<UIntVector>>> Templates;
+    static const std::vector<std::vector<std::vector<IntVector>>> Templates;
     static const std::vector<Color> Colors;
   };
 

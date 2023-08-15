@@ -3,44 +3,44 @@
 namespace CTRPluginFramework
 {
   const std::vector<Color> Mino::Colors = {Color::SkyBlue, Color::Blue, Color::Orange, Color::Yellow, Color::LimeGreen, Color::Purple, Color::Red};
-  const std::vector<std::vector<std::vector<UIntVector>>> Mino::Templates =
-  {
-    {
-      {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-      {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
-      {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
-      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-      {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-      {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
-      {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
-    },
-    {
-      {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
-      {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
-      {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
-      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-      {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
-      {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
-      {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
-    },
-    {
-     {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
-      {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
-      {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
-      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-      {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
-      {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
-      {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
-    },
-    {
-      {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
-      {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
-      {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
-      {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
-      {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
-      {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
-      {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
-    },
+  const std::vector<std::vector<std::vector<IntVector>>> Mino::Templates =
+      {
+          {
+              {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+              {{1, 1}, {1, 2}, {2, 2}, {3, 2}}, // J
+              {{2, 1}, {0, 2}, {1, 2}, {2, 2}}, // L
+              {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+              {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+              {{1, 0}, {0, 1}, {1, 1}, {2, 1}}, // T
+              {{0, 1}, {1, 1}, {1, 2}, {2, 2}}  // Z
+          },
+          {
+              {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, // I
+              {{2, 0}, {2, 1}, {1, 2}, {2, 2}}, // J
+              {{1, 1}, {2, 1}, {2, 2}, {2, 3}}, // L
+              {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+              {{1, 0}, {1, 1}, {2, 1}, {2, 2}}, // S
+              {{1, 0}, {0, 1}, {1, 1}, {1, 2}}, // T
+              {{2, 1}, {1, 2}, {2, 2}, {1, 3}}  // Z
+          },
+          {
+              {{0, 2}, {1, 2}, {2, 2}, {3, 2}}, // I
+              {{0, 1}, {1, 1}, {2, 1}, {2, 2}}, // J
+              {{1, 1}, {2, 1}, {3, 1}, {1, 2}}, // L
+              {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+              {{1, 1}, {2, 1}, {0, 2}, {1, 2}}, // S
+              {{0, 1}, {1, 1}, {2, 1}, {1, 2}}, // T
+              {{1, 1}, {2, 1}, {2, 2}, {3, 2}}  // Z
+          },
+          {
+              {{1, 0}, {1, 1}, {1, 2}, {1, 3}}, // I
+              {{1, 1}, {2, 1}, {1, 2}, {1, 3}}, // J
+              {{1, 0}, {1, 1}, {1, 2}, {2, 2}}, // L
+              {{1, 1}, {2, 1}, {1, 2}, {2, 2}}, // O
+              {{1, 1}, {1, 2}, {2, 2}, {2, 3}}, // S
+              {{1, 0}, {1, 1}, {2, 1}, {1, 2}}, // T
+              {{2, 0}, {1, 1}, {2, 1}, {1, 2}}  // Z
+          },
   };
 
   Mino::Mino(void)
@@ -61,12 +61,12 @@ namespace CTRPluginFramework
     return _kind;
   }
 
-  const std::vector<UIntVector> &Mino::GetBlockTemplate() const
+  const std::vector<IntVector> &Mino::GetBlockTemplate() const
   {
     return Templates[_rotate][(u8)_kind];
   }
 
-  const std::vector<UIntVector> &Mino::GetBlocks() const
+  const std::vector<IntVector> &Mino::GetBlocks() const
   {
     return _blocks;
   }
@@ -86,7 +86,7 @@ namespace CTRPluginFramework
     return Color::White;
   }
 
-  const std::vector<UIntVector> &Mino::GetBlockTemplate(Kind kind)
+  const std::vector<IntVector> &Mino::GetBlockTemplate(Kind kind)
   {
     return Templates[0][(u8)kind];
   }
@@ -213,38 +213,31 @@ namespace CTRPluginFramework
   void Mino::SetRotate(const TetrisField &field, u32 rotate)
   {
     u32 before = _rotate;
-    IntVector diffPos = {((int)_blocks[0].x - (int)GetBlockTemplate()[0].x), ((int)_blocks[0].y - (int)GetBlockTemplate()[0].y)};
-    
+    IntVector diffPos = {(_blocks[0].x - GetBlockTemplate()[0].x), (_blocks[0].y - GetBlockTemplate()[0].y)};
+
     _rotate = rotate;
 
-    for (auto &&block : GetBlockTemplate())
+    for (ssize_t i = 0; i < (ssize_t)GetBlockTemplate().size();i++)
     {
-      if ((int)(block.x) + diffPos.x < 0)
+      if (int(GetBlockTemplate()[i].x) + diffPos.x < 0)
       {
         diffPos.x = 0;
 
-        if (field[block.x][block.y + diffPos.y])
+        if (field[GetBlockTemplate()[i].x][GetBlockTemplate()[i].y + diffPos.y])
         {
           _rotate = before;
           return;
         }
       }
-      if (Tetris::GetInstance().FIELD_WIDTH - 1 < (int)block.x + diffPos.x)
+      if (Tetris::GetInstance().FIELD_WIDTH - 1 < GetBlockTemplate()[i].x + diffPos.x)
       {
-        diffPos.x -= block.x + diffPos.x - Tetris::GetInstance().FIELD_WIDTH + 1;
-
-        if (field[block.x + diffPos.x][block.y + diffPos.y])
-        {
-          _rotate = before;
-          return;
-        }
+        diffPos.x -= GetBlockTemplate()[i].x + diffPos.x - Tetris::GetInstance().FIELD_WIDTH + 1;
+        i = -1;
+        continue;
       }
-      if ((int)(block.y) + diffPos.y < 0)
-      {
+      if (GetBlockTemplate()[i].y + diffPos.y < 0)
         diffPos.y = 0;
-      }
-
-      if (Tetris::FIELD_HEIGHT - 1 < block.y + diffPos.y || field[block.x + diffPos.x][block.y + diffPos.y])
+      if (Tetris::FIELD_HEIGHT - 1 < GetBlockTemplate()[i].y + diffPos.y || field[GetBlockTemplate()[i].x + diffPos.x][GetBlockTemplate()[i].y + diffPos.y])
       {
         _rotate = before;
         return;
@@ -289,7 +282,7 @@ namespace CTRPluginFramework
         return false;
       else if (dir == Direction::Left && (block.x <= 0 || _field[block.x - 1][block.y]))
         return false;
-      else if (dir == Direction::Right && (FIELD_WIDTH - 1 <= (int)block.x || _field[block.x + 1][block.y]))
+      else if (dir == Direction::Right && (FIELD_WIDTH - 1 <= block.x || _field[block.x + 1][block.y]))
         return false;
     }
     return true;
@@ -307,7 +300,7 @@ namespace CTRPluginFramework
     u8 count = 0;
     for (u8 i = 0; i < FIELD_WIDTH; i++)
     {
-      if(_field[i][line])
+      if (_field[i][line])
         count++;
     }
     return (count == FIELD_WIDTH);
@@ -401,7 +394,8 @@ namespace CTRPluginFramework
               break;
             }
           }
-          if (dropped) break;
+          if (dropped)
+            break;
         }
       }
 
@@ -409,17 +403,17 @@ namespace CTRPluginFramework
       if (Hotkeys[4].IsPressed())
       {
         u32 rotate = _mino.GetRotate();
-        if(rotate-- == 0)
-            rotate = 3;
+        if (rotate-- == 0)
+          rotate = 3;
         _mino.SetRotate(_field, rotate);
       }
-    
+
       // 左回転
       if (Hotkeys[5].IsPressed())
       {
         u32 rotate = _mino.GetRotate();
-        if(rotate++ == 3)
-            rotate = 0;
+        if (rotate++ == 3)
+          rotate = 0;
         _mino.SetRotate(_field, rotate);
       }
 
@@ -517,7 +511,8 @@ namespace CTRPluginFramework
             break;
           }
         }
-        if (drawn) break;
+        if (drawn)
+          break;
       }
 
       // 1行ずつチェック
