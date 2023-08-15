@@ -222,12 +222,8 @@ namespace CTRPluginFramework
       if (int(GetBlockTemplate()[i].x) + diffPos.x < 0)
       {
         diffPos.x = 0;
-
-        if (field[GetBlockTemplate()[i].x][GetBlockTemplate()[i].y + diffPos.y])
-        {
-          _rotate = before;
-          return;
-        }
+        i = -1;
+        continue;
       }
       if (Tetris::GetInstance().FIELD_WIDTH - 1 < GetBlockTemplate()[i].x + diffPos.x)
       {
