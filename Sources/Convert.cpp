@@ -7506,9 +7506,16 @@ namespace CTRPluginFramework
     if (!http_download(url.c_str(), (u8 **)&res, &size))
       return;
     std::string out = "", buff(res);
+    int count = 0;
     for (auto &&_ : buff)
+    {
       if (_ != '[' && _ != ']' && _ != '\"')
         out += _;
+      if (_ == ']')
+        count++;
+      if (count == 3)
+        break;
+    }
     for (auto &&kanji : split(out, ','))
       if (hiragana != kanji)
         hiragana_kanji_list[hiragana].insert(kanji);
