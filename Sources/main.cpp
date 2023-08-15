@@ -290,6 +290,8 @@ namespace CTRPluginFramework
     // Init our menu entries & folders
     InitMenu(*menu);
 
+    httpcInit(0);
+
     // std::vector<MenuFolder *> folders = menu->GetFolderList();
     // for (auto &&folder : folders)
     // {

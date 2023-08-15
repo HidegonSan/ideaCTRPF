@@ -36,5 +36,7 @@ namespace CTRPluginFramework
   void autoPatchCode(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
+
+  bool http_download(const char *url, u8 **output, u32 *outSize);
 }
 #endif
