@@ -9,6 +9,9 @@ Git
 devkitARM
 libctrpf
 3gxtool
+3ds-curl
+3ds-mbedtls
+3ds-zlib
 Python (for sending)
 ```
 
@@ -24,7 +27,9 @@ git clone --recursive git@github.com:kani537/ideaCTRPF.git
 
 ### Build
 
+#### please use the latest libctrpf with pacman
 ```bash
+pacman -S libctrpf 3gxtool 3ds-curl 3ds-ebedtls 3ds-zlib
 cd ideaCTRPF
 make
 ```
