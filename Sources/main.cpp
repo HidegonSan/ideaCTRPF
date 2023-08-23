@@ -238,11 +238,20 @@ namespace CTRPluginFramework
     ToggleTouchscreenForceOn();
   }
 
+  static u32 *socBuffer;
+  static u32 SOC_BUFFER_ADDR = 0x7500000;
+  static u32 SOC_BUFFER_SIZE = 0x100000;
+
   // This function is called when the process exits
   // Useful to save settings, undo patchs or clean up things
-  void OnProcessExit(void)
+  void EventCallback(Process::Event event)
   {
-    ToggleTouchscreenForceOn();
+    if (event == Process::Event::EXIT)
+    {
+      ToggleTouchscreenForceOn();
+      socExit();
+      svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
+    }
   }
 
   void InitMenu(PluginMenu &menu)
@@ -268,6 +277,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("LED", LedEffect, FONT_DL ":赤\n" FONT_DD ":緑\n" FONT_DR ":青\n" FONT_DU ":白\n" FONT_Y "を押しながら各種キー:滑らかに点灯");
     menu += new MenuEntry("Projection", nullptr, Projection, "プロジェクション\nmade by maru");
     menu += new MenuEntry(Color::Yellow << "Patch Code Automation!", nullptr, autoPatchCode, "パッチコードオートメーション!\n開始アドレスと終了アドレスを設定してください。\n開始アドレスと終了アドレスが同じ場合は、アドレスの初期化をしてください。\n\n次に [ファイルに書き込み] を押下してください。\n\n/luma/plugins/" + getFilePath() + " にコードが作成されます。\n\n" + (Color::Red << "※注意\n") + "CTRPF上でコードが作成されたファイルを開くと、\n新しくコードが作成できません。その場合はゲームを再起動してからコードを作成してください。\n\n" + (Color::White << "Enjoy coding!\nmade by xv"));
+    menu += new MenuEntry("discord", nullptr, SendDiscord);
   }
 
   int main(void)
@@ -290,21 +300,21 @@ namespace CTRPluginFramework
     // Init our menu entries & folders
     InitMenu(*menu);
 
-    httpcInit(0);
+    Result ret = svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+    if (R_FAILED(ret))
+      OSD::Notify("failed alloc");
+    else
+    {
+      ret = socInit(socBuffer, SOC_BUFFER_SIZE);
+      if (R_FAILED(ret))
+      {
+        OSD::Notify(Utils::Format("socInit: 0x%lX", ret));
+        socExit();
+        svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
+      }
+    }
 
-    // std::vector<MenuFolder *> folders = menu->GetFolderList();
-    // for (auto &&folder : folders)
-    // {
-    //   if (folder->Name() == "other")
-    //   {
-    //     std::vector<MenuEntry *> entries = folder->GetEntryList();
-    //     for (auto &&entry : entries)
-    //     {
-    //       if (entry->Name() == "Cheat1")
-    //         entry->Enable();
-    //     }
-    //   }
-    // }
+    Process::SetProcessEventCallback(EventCallback);
 
     // Launch menu and mainloop
     menu->Run();

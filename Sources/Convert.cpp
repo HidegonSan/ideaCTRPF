@@ -1,5 +1,6 @@
 #include "Convert.hpp"
 #include "cheats.hpp"
+#include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
 {
@@ -7502,10 +7503,9 @@ namespace CTRPluginFramework
   {
     char *res = NULL;
     u32 size = 0;
-    std::string url = "http://www.google.com/transliterate?langpair=ja-Hira|ja&text=" + hiragana + ',';
-    if (!http_download(url.c_str(), (u8 **)&res, &size))
+    std::string out = "", buff, url = "http://www.google.com/transliterate?langpair=ja-Hira|ja&text=" + hiragana + ',';
+    if (curl_get(url.c_str(), buff) != CURLE_OK)
       return;
-    std::string out = "", buff(res);
     int count = 0;
     for (auto &&_ : buff)
     {
