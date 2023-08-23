@@ -251,6 +251,7 @@ namespace CTRPluginFramework
       ToggleTouchscreenForceOn();
       socExit();
       svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
+      svcControlMemoryUnsafe(nullptr, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_FREE), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
     }
   }
 
@@ -312,6 +313,8 @@ namespace CTRPluginFramework
         socExit();
         svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
       }
+      else
+        OSD::Notify("socInit success");
     }
 
     Process::SetProcessEventCallback(EventCallback);

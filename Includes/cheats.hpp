@@ -7,8 +7,6 @@
 
 namespace CTRPluginFramework
 {
-  using StringVector = std::vector<std::string>;
-
   enum BMP_SCREEN
   {
     BMP_TOP,

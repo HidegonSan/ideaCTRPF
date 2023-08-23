@@ -19,7 +19,7 @@ namespace CTRPluginFramework
 
   void JPNotify(MenuEntry *entry)
   {
-    StringVector words = {"コ", "ン", "ニ", "チ", "ワ"};
+    std::vector<std::string> words = {"コ", "ン", "ニ", "チ", "ワ"};
     if (Controller::IsKeyDown(Key::Start) && Controller::IsKeyDown(Key::Y))
       words = {"オ", "チ", "ン", "チ", "ン"};
     if (Controller::IsKeyPressed(Key::Start))
@@ -375,18 +375,16 @@ namespace CTRPluginFramework
 
   void PlayMusic(MenuEntry *entry)
   {
-    StringVector files_name;
+    std::vector<std::string> files_name;
     Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
     if (!files_name.size())
     {
       MessageBox("no files found")();
       return;
     }
-    s8 i = Keyboard("select file:", files_name).Open();
+    int i = Keyboard("select file:", files_name).Open();
     if (0 <= i)
-    {
-      Sound("MUSIC/" + files_name[i]).Play();
-    }
+      PlaySound("MUSIC/" + files_name[i]);
   }
 
   void Command(MenuEntry *entry)

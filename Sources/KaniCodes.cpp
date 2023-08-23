@@ -706,4 +706,39 @@ namespace CTRPluginFramework
 
     return res;
   }
+
+  bool PlaySound(const std::string &path)
+  {
+    static u8 *soundBuffer = nullptr;
+    File file(path, File::RWC);
+    if (!file.IsOpen())
+    {
+      file.Close();
+      OSD::Notify("file not found");
+      return false;
+    }
+    if (!soundBuffer)
+    {
+      Result ret = svcControlMemoryUnsafe((u32 *)&soundBuffer, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+      if (R_FAILED(ret))
+        OSD::Notify("failed to allocate memory for sound");
+      else
+        OSD::Notify("allocated memory for sound");
+      if (!soundBuffer)
+      {
+        OSD::Notify("failed");
+        return false;
+      }
+    }
+    if (0x1000000 < file.GetSize())
+    {
+      OSD::Notify("file too big");
+      return false;
+    }
+    file.Read(soundBuffer, file.GetSize());
+    static Sound sound(soundBuffer);
+    sound.Play();
+    file.Close();
+    return true;
+  }
 } // namespace CTRPluginFramework

@@ -4,6 +4,7 @@
 #include <math.h>
 #include "types.h"
 #include "Helpers.hpp"
+#include "csvc.h"
 #include <curl/curl.h>
 
 namespace CTRPluginFramework
@@ -38,4 +39,6 @@ namespace CTRPluginFramework
   void ForcePlay(void);
   CURLcode curl_get(const char *url, std::string &out);
   CURLcode curl_post(const char *url, const char *post_data, std::string &out);
+
+  bool PlaySound(const std::string &path);
 }
