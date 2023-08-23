@@ -4,6 +4,7 @@
 #include <math.h>
 #include "types.h"
 #include "Helpers.hpp"
+#include <curl/curl.h>
 
 namespace CTRPluginFramework
 {
@@ -33,6 +34,8 @@ namespace CTRPluginFramework
   std::string ReadSJIS(u32 Address);
 
   bool colorPicker(Color &out);
-  
+
   void ForcePlay(void);
+  CURLcode curl_get(const char *url, std::string &out);
+  CURLcode curl_post(const char *url, const char *post_data, std::string &out);
 }

@@ -31,12 +31,11 @@ namespace CTRPluginFramework
   void LedEffect(MenuEntry *entry);
   void Game2048(MenuEntry *entry);
   void Projection(MenuEntry *entry);
+  void SendDiscord(MenuEntry *entry);
 
   std::string getFilePath();
   void autoPatchCode(MenuEntry *entry);
 
   std::vector<u64> getFrame(int &frame);
-
-  bool http_download(const char *url, u8 **output, u32 *outSize);
 }
 #endif
