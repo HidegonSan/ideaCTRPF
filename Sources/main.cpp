@@ -250,8 +250,15 @@ namespace CTRPluginFramework
     {
       ToggleTouchscreenForceOn();
       socExit();
-      svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
-      svcControlMemoryUnsafe(nullptr, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_FREE), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+      if (System::IsCitra())
+      {
+        free(socBuffer);
+      }
+      else
+      {
+        svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
+        svcControlMemoryUnsafe(nullptr, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_FREE), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+      }
     }
   }
 
@@ -279,6 +286,7 @@ namespace CTRPluginFramework
     menu += new MenuEntry("Projection", nullptr, Projection, "プロジェクション\nmade by maru");
     menu += new MenuEntry(Color::Yellow << "Patch Code Automation!", nullptr, autoPatchCode, "パッチコードオートメーション!\n開始アドレスと終了アドレスを設定してください。\n開始アドレスと終了アドレスが同じ場合は、アドレスの初期化をしてください。\n\n次に [ファイルに書き込み] を押下してください。\n\n/luma/plugins/" + getFilePath() + " にコードが作成されます。\n\n" + (Color::Red << "※注意\n") + "CTRPF上でコードが作成されたファイルを開くと、\n新しくコードが作成できません。その場合はゲームを再起動してからコードを作成してください。\n\n" + (Color::White << "Enjoy coding!\nmade by xv"));
     menu += new MenuEntry("discord", nullptr, SendDiscord);
+    menu += new MenuEntry("update 3gx", nullptr, Update3gx);
   }
 
   int main(void)
@@ -300,8 +308,15 @@ namespace CTRPluginFramework
 
     // Init our menu entries & folders
     InitMenu(*menu);
-
-    Result ret = svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+    Result ret = 0;
+    if (System::IsCitra())
+    {
+      socBuffer = (u32 *)aligned_alloc(0x1000, SOC_BUFFER_SIZE);
+      if (socBuffer)
+        ret = 0;
+    }
+    else
+      ret = svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
     if (R_FAILED(ret))
       OSD::Notify("failed alloc");
     else

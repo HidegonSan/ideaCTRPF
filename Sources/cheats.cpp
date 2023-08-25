@@ -10,6 +10,7 @@
 #include "Led.hpp"
 #include "Game2048.hpp"
 #include "Paint.hpp"
+#include "Curl.hpp"
 
 namespace CTRPluginFramework
 {
@@ -759,16 +760,50 @@ namespace CTRPluginFramework
 
   void SendDiscord(MenuEntry *entry)
   {
-    std::string message, out;
+    std::string message;
+    std::vector<u8> out;
     CURLcode res;
     if (!JPKeyboard().Open(message))
       return;
     message = "{\"content\":\"" + message + "\"}";
-    OSD::Notify(message);
-    if ((res = curl_post("https://discord.com/api/webhooks/1143805416581648435/twidx7vuqngG9XFhxd8AkddpdMBb4k7CZp7UrIta-nKh2f3MAF_yKKLdycIW7vbK5Ftl", message.c_str(), out)) == CURLE_OK)
-      MessageBox("Sucess!")();
+    if ((res = Curl::Post("https://discord.com/api/webhooks/1143805416581648435/twidx7vuqngG9XFhxd8AkddpdMBb4k7CZp7UrIta-nKh2f3MAF_yKKLdycIW7vbK5Ftl", message.c_str(), out)) == CURLE_OK)
+      MessageBox("success!")();
     else
       OSD::Notify(Utils::Format("failed %d", res));
+    Sleep(Seconds(1));
+  }
+
+  void Update3gx(MenuEntry *entry)
+  {
+    auto ans = Keyboard("which do you want?", {"from latest release", "from latest commit"}).Open();
+    CURLcode res;
+    switch (ans)
+    {
+    case 0:
+      if ((res = Curl::Download("https://github.com/kani537/ideaCTRPF/releases/latest/download/ideaCTRPF.3gx", "buff.3gx")) != CURLE_OK)
+      {
+        MessageBox(Utils::Format("failed download %d", res))();
+        break;
+      }
+      if (File::Remove("ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+      {
+        MessageBox("failed delete file")();
+        break;
+      }
+      if (File::Rename("buff.3gx", "ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+      {
+        MessageBox("failed rename file")();
+        break;
+      }
+      if (MessageBox("success\ndo you want reload?", DialogType::DialogYesNo)())
+        Process::ReturnToHomeMenu();
+      break;
+    case 1:
+      MessageBox("not supported yet")();
+      break;
+    default:
+      break;
+    }
     Sleep(Seconds(1));
   }
 }

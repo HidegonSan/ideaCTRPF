@@ -37,8 +37,6 @@ namespace CTRPluginFramework
   bool colorPicker(Color &out);
 
   void ForcePlay(void);
-  CURLcode curl_get(const char *url, std::string &out);
-  CURLcode curl_post(const char *url, const char *post_data, std::string &out);
 
   bool PlaySound(const std::string &path);
 }

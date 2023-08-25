@@ -650,65 +650,11 @@ namespace CTRPluginFramework
     }
   }
 
-  size_t callBackFunk(char *ptr, size_t size, size_t nmemb, std::string *stream)
-  {
-    int realsize = size * nmemb;
-    stream->append(ptr, realsize);
-    return realsize;
-  }
-
-  CURLcode curl_get(const char *url, std::string &out)
-  {
-    CURL *curl;
-    CURLcode res;
-    curl = curl_easy_init();
-    std::string chunk;
-
-    if (!curl)
-      return CURL_LAST;
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callBackFunk);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (std::string *)&chunk);
-    curl_easy_setopt(curl, CURLOPT_PROXY, "");
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    if (res == CURLE_OK)
-      out = chunk;
-
-    return res;
-  }
-
-  CURLcode curl_post(const char *url, const char *post_data, std::string &out)
-  {
-    CURL *curl;
-    CURLcode res;
-    curl = curl_easy_init();
-    std::string chunk;
-    curl_slist *slist1 = nullptr;
-    slist1 = curl_slist_append(slist1, "Content-Type: application/json");
-
-    if (!curl)
-      return CURL_LAST;
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_POST, 1);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist1);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(post_data));
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callBackFunk);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (std::string *)&chunk);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    if (res == CURLE_OK)
-      out = chunk;
-
-    return res;
-  }
-
   bool PlaySound(const std::string &path)
   {
+    if (System::IsCitra())
+      return false;
+
     static u8 *soundBuffer = nullptr;
     File file(path, File::RWC);
     if (!file.IsOpen())
