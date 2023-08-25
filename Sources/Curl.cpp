@@ -22,8 +22,6 @@ namespace CTRPluginFramework
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
     curl_easy_setopt(curl, CURLOPT_PROXY, "");
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
     do
     {
       if ((res = curl_easy_perform(curl)) != CURLE_OK)
@@ -36,7 +34,10 @@ namespace CTRPluginFramework
         break;
       if (location)
         curl_easy_setopt(curl, CURLOPT_URL, location);
+      MessageBox(std::string(location))();
     } while (response / 100 == 3);
+
+    curl_easy_cleanup(curl);
 
     if (res == CURLE_OK)
       out = chunk;
