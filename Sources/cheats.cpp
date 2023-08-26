@@ -763,7 +763,7 @@ namespace CTRPluginFramework
     std::string message;
     std::vector<u8> out;
     CURLcode res;
-    if (!JPKeyboard().Open(message))
+    if (!JPKeyboard("send a message to my server, but you can't see it.").Open(message))
       return;
     message = "{\"content\":\"" + message + "\"}";
     if ((res = Curl::Post("https://discord.com/api/webhooks/1143805416581648435/twidx7vuqngG9XFhxd8AkddpdMBb4k7CZp7UrIta-nKh2f3MAF_yKKLdycIW7vbK5Ftl", message.c_str(), out)) == CURLE_OK)
@@ -773,30 +773,97 @@ namespace CTRPluginFramework
     Sleep(Seconds(1));
   }
 
+  struct DownloadScreenArg
+  {
+    bool finish;
+    Color foreground;
+    Color background;
+    const Screen &screen;
+  };
+
+  s32 DownloadScreen(void *arg)
+  {
+    int UI_Pos = 0;
+    DownloadScreenArg *_arg = (DownloadScreenArg *)arg;
+    if (!_arg->screen.IsTop)
+      return -1;
+    while (!_arg->finish)
+    {
+      std::string load = "Downloading now...";
+      switch (UI_Pos++ / 10 % 8)
+      {
+      case 0:
+        load += "\uE020";
+        break;
+      case 1:
+        load += "\uE021";
+        break;
+      case 2:
+        load += "\uE022";
+        break;
+      case 3:
+        load += "\uE023";
+        break;
+      case 4:
+        load += "\uE024";
+        break;
+      case 5:
+        load += "\uE025";
+        break;
+      case 6:
+        load += "\uE026";
+        break;
+      case 7:
+        load += "\uE027";
+        break;
+      }
+      DrawSysfontPlus(_arg->screen, load, 200 - OSD::GetTextWidth(true, load) / 2, 112, 0, 0, _arg->foreground, _arg->background, Color::White, true);
+      if (Process::IsPaused())
+        OSD::SwapBuffers();
+    }
+    return 0;
+  }
+
   void Update3gx(MenuEntry *entry)
   {
     auto ans = Keyboard("which do you want?", {"from latest release", "from latest commit"}).Open();
     CURLcode res;
+    DownloadScreenArg arg = {false, Color::SkyBlue, Color::Black, OSD::GetTopScreen()};
+    Task task(DownloadScreen);
+    task.Start((void *)&arg);
     switch (ans)
     {
     case 0:
       if ((res = Curl::Download("https://github.com/kani537/ideaCTRPF/releases/latest/download/ideaCTRPF.3gx", "buff.3gx")) != CURLE_OK)
       {
+        arg.finish = true;
         MessageBox(Utils::Format("failed download %d", res))();
         break;
       }
-      if (File::Remove("ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+      arg.finish = true;
+      if (MessageBox("download success\ndo you want update?", DialogType::DialogYesNo)())
       {
-        MessageBox("failed delete file")();
-        break;
+        if (File::Remove("ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+        {
+          MessageBox("failed delete file")();
+          break;
+        }
+        if (File::Rename("buff.3gx", "ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+        {
+          MessageBox("failed rename file")();
+          break;
+        }
+        if (MessageBox("success\ndo you want reload?", DialogType::DialogYesNo)())
+          Process::ReturnToHomeMenu();
       }
-      if (File::Rename("buff.3gx", "ideaCTRPF.3gx") != File::OPResult::SUCCESS)
+      else
       {
-        MessageBox("failed rename file")();
-        break;
+        if (File::Remove("buff.3gx") != File::OPResult::SUCCESS)
+        {
+          MessageBox("failed delete buffer")();
+          break;
+        }
       }
-      if (MessageBox("success\ndo you want reload?", DialogType::DialogYesNo)())
-        Process::ReturnToHomeMenu();
       break;
     case 1:
       MessageBox("not supported yet")();
@@ -804,6 +871,8 @@ namespace CTRPluginFramework
     default:
       break;
     }
+    arg.finish = true;
+    task.Wait();
     Sleep(Seconds(1));
   }
 }
