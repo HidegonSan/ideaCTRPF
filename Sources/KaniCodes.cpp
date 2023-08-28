@@ -665,7 +665,7 @@ namespace CTRPluginFramework
     }
     if (!soundBuffer)
     {
-      Result ret = svcControlMemoryUnsafe((u32 *)&soundBuffer, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+      Result ret = svcControlMemoryUnsafe((u32 *)&soundBuffer, SOUND_BUFFER_ADDR, SOUND_BUFFER_SIZE, MemOp(MEMOP_REGION_SYSTEM | MEMOP_ALLOC), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
       if (R_FAILED(ret))
         OSD::Notify("failed to allocate memory for sound");
       else

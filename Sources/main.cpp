@@ -239,8 +239,11 @@ namespace CTRPluginFramework
   }
 
   static u32 *socBuffer;
-  static u32 SOC_BUFFER_ADDR = 0x7500000;
-  static u32 SOC_BUFFER_SIZE = 0x100000;
+  constexpr u32 SOC_BUFFER_ADDR = 0x7500000;
+  constexpr u32 SOC_BUFFER_SIZE = 0x100000;
+
+  constexpr u32 SOUND_BUFFER_ADDR = 0x7600000;
+  constexpr u32 SOUND_BUFFER_SIZE = 0x1000000;
 
   // This function is called when the process exits
   // Useful to save settings, undo patchs or clean up things
@@ -256,8 +259,14 @@ namespace CTRPluginFramework
       }
       else
       {
-        svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
-        svcControlMemoryUnsafe(nullptr, 0x7600000, 0x1000000, MemOp(MEMOP_REGION_SYSTEM | MEMOP_FREE), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
+        MemInfo info;
+        PageInfo out;
+        svcQueryMemory(&info, &out, SOC_BUFFER_ADDR);
+        if (info.state != MemState::MEMSTATE_FREE)
+          svcControlMemoryUnsafe((u32 *)&socBuffer, SOC_BUFFER_ADDR, SOC_BUFFER_SIZE, MEMOP_FREE, MemPerm(0));
+        svcQueryMemory(&info, &out, SOUND_BUFFER_ADDR);
+        if (info.state != MemState::MEMSTATE_FREE)
+          svcControlMemoryUnsafe(nullptr, SOUND_BUFFER_ADDR, SOUND_BUFFER_SIZE, MemOp(MEMOP_REGION_SYSTEM | MEMOP_FREE), MemPerm(MEMPERM_READ | MEMPERM_WRITE));
       }
     }
   }
@@ -305,6 +314,8 @@ namespace CTRPluginFramework
     menu->OnNewFrame = DrawCallBack;
     menu->SynchronizeWithFrame(true);
     menu->ShowWelcomeMessage(false);
+
+    EventCallback(Process::Event::EXIT);
 
     // Init our menu entries & folders
     InitMenu(*menu);

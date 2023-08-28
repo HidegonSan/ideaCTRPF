@@ -38,5 +38,7 @@ namespace CTRPluginFramework
 
   void ForcePlay(void);
 
+  extern const u32 SOUND_BUFFER_ADDR;
+  extern const u32 SOUND_BUFFER_SIZE;
   bool PlaySound(const std::string &path);
 }
