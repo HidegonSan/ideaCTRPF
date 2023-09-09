@@ -13,7 +13,7 @@ namespace CTRPluginFramework
     {
       if (dir.GetFullName().substr(dir.GetFullName().length() - 1, 1) == "/")
         Directory::Open(dir, dir.GetFullName().substr(0, dir.GetFullName().length() - 1));
-      StringVector files, folders;
+      std::vector<std::string> files, folders;
       dir.ListFiles(files);
       dir.ListDirectories(folders);
       commandLine_buffer += "\n->";
@@ -273,7 +273,7 @@ namespace CTRPluginFramework
   std::string Command::TreeFolder(const std::string &path, const u8 &space)
   {
     std::string buff = "";
-    StringVector files, folders;
+    std::vector<std::string> files, folders;
     Directory dir(path);
     dir.ListFiles(files);
     dir.ListDirectories(folders);
@@ -290,7 +290,7 @@ namespace CTRPluginFramework
 
   std::string Command::GetFileObscurely(const Directory &dir, const std::string &word)
   {
-    StringVector files;
+    std::vector<std::string> files;
     dir.ListFiles(files);
     for (auto &&file : files)
       if (file.find(word) != std::string::npos)
@@ -300,7 +300,7 @@ namespace CTRPluginFramework
 
   std::string Command::GetFolderObscurely(const Directory &dir, const std::string &word)
   {
-    StringVector folders;
+    std::vector<std::string> folders;
     dir.ListDirectories(folders);
     for (auto &&folder : folders)
       if (folder.find(word) != std::string::npos)
@@ -347,7 +347,7 @@ namespace CTRPluginFramework
       else
       {
         path.erase(0, 3);
-        StringVector files, folders;
+        std::vector<std::string> files, folders;
         dir.ListFiles(files);
         dir.ListDirectories(folders);
         Cd(dir, path, str);
@@ -361,7 +361,7 @@ namespace CTRPluginFramework
       else
       {
         path.erase(0, pos + 1);
-        StringVector files, folders;
+        std::vector<std::string> files, folders;
         dir.ListFiles(files);
         dir.ListDirectories(folders);
         Cd(dir, path, str);

@@ -5,8 +5,6 @@
 
 namespace CTRPluginFramework
 {
-  using StringVector = std::vector<std::string>;
-
   class Command
   {
   public:

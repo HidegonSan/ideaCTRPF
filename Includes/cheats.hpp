@@ -7,8 +7,6 @@
 
 namespace CTRPluginFramework
 {
-  using StringVector = std::vector<std::string>;
-
   enum BMP_SCREEN
   {
     BMP_TOP,
@@ -32,6 +30,7 @@ namespace CTRPluginFramework
   void Game2048(MenuEntry *entry);
   void Projection(MenuEntry *entry);
   void SendDiscord(MenuEntry *entry);
+  void Update3gx(MenuEntry *entry);
 
   std::string getFilePath();
   void autoPatchCode(MenuEntry *entry);
