@@ -11,11 +11,28 @@
 #include "Game2048.hpp"
 #include "Paint.hpp"
 #include "Curl.hpp"
+#include "LuaCTRPF.hpp"
 
 namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
+    std::string str;
+    if (Keyboard("input lua code").Open(str) < 0)
+      return;
+    LuaCTRPF lua(str);
+    switch (Keyboard("which do you want?", {"Run", "Run while game", "Stop"}).Open())
+    {
+    case 0:
+      lua.Run(0, 0, 0);
+      break;
+    // case 1:
+    //   lua.Run(0, 0, 0, true);
+    //   break;
+    // case 2:
+    //   lua.Stop();
+    //   break;
+    }
   }
 
   void JPNotify(MenuEntry *entry)

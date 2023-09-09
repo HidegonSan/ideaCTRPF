@@ -12,6 +12,7 @@ libctrpf
 3ds-curl
 3ds-mbedtls
 3ds-zlib
+3ds-liblua5.1
 Python (for sending)
 ```
 
@@ -29,7 +30,7 @@ git clone --recursive git@github.com:kani537/ideaCTRPF.git
 
 #### please use the latest libctrpf with pacman
 ```bash
-pacman -S libctrpf 3gxtool 3ds-curl 3ds-ebedtls 3ds-zlib
+pacman -S libctrpf 3gxtool 3ds-curl 3ds-ebedtls 3ds-zlib 3ds-liblua5.1
 cd ideaCTRPF
 make
 ```
